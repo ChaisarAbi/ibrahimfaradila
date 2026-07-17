@@ -129,7 +129,6 @@ public/null/
 .env
 fix_db_cascade.sql
 fix_views.php
-cron-notifications.sh
 /public/uploads/photos/
 public/public/
 
