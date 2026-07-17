@@ -38,7 +38,11 @@ class Reports extends BaseController
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        $dompdf->stream("sertifikat_aqiqah_{$id_order}.pdf", array("Attachment" => false));
+        $pdfOutput = $dompdf->output();
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="sertifikat_aqiqah_' . $id_order . '.pdf"')
+            ->setBody($pdfOutput);
     }
     
     public function invitation($id_order = null)
@@ -68,7 +72,11 @@ class Reports extends BaseController
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        $dompdf->stream("undangan_aqiqah_{$id_order}.pdf", array("Attachment" => false));
+        $pdfOutput = $dompdf->output();
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="undangan_aqiqah_' . $id_order . '.pdf"')
+            ->setBody($pdfOutput);
     }
     
     public function orderReport($date = null)
@@ -108,7 +116,11 @@ class Reports extends BaseController
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
-        $dompdf->stream("laporan_order_{$date}.pdf", array("Attachment" => false));
+        $pdfOutput = $dompdf->output();
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="laporan_order_' . $date . '.pdf"')
+            ->setBody($pdfOutput);
     }
     
     public function kitchenSheet($date = null)
@@ -161,6 +173,10 @@ class Reports extends BaseController
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        $dompdf->stream("lembar_kerja_dapur_{$date}.pdf", array("Attachment" => false));
+        $pdfOutput = $dompdf->output();
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="lembar_kerja_dapur_' . $date . '.pdf"')
+            ->setBody($pdfOutput);
     }
 }
