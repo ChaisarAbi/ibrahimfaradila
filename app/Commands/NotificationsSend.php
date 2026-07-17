@@ -111,8 +111,12 @@ class NotificationsSend extends BaseCommand
     }
 
     /**
-     * Kirim reminder untuk order yang slaughter_date + slaughter_time
-     * masih dalam rentang <= 24 jam dari sekarang (real-time WIB).
+     * Kirim reminder pesanan dengan DUA mekanisme:
+     * 1. H-1 (backup): order dengan slaughter_date == tomorrow → selalu kirim
+     * 2. Real-time ≤24 jam: order yang slaughter_timestamp <= now+24h
+     * 
+     * Untuk menghindari duplikasi, satu order hanya kirim 1 pesan
+     * dengan label yang sesuai (prioritas real-time jika memenuhi keduanya).
      */
     private function sendReminders()
     {
@@ -126,6 +130,7 @@ class NotificationsSend extends BaseCommand
         $now = $this->now('Y-m-d H:i:s');
         $nowTimestamp = strtotime($now);
         $plus24hTimestamp = $nowTimestamp + 86400; // +24 jam
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
 
         // Ambil semua order non-completed, slaughter_date >= hari ini
         $orders = $orderModel
@@ -139,21 +144,34 @@ class NotificationsSend extends BaseCommand
             $slaughterDatetime = $order['slaughter_date'] . ' ' . ($order['slaughter_time'] ?? '00:00:00');
             $slaughterTimestamp = strtotime($slaughterDatetime);
 
-            // Lewati jika sudah lewat
-            if ($slaughterTimestamp <= $nowTimestamp) {
+            // Cek apakah H-1 (backup)
+            $isH1Backup = ($order['slaughter_date'] === $tomorrow);
+
+            // Cek apakah real-time ≤24 jam (dan belum lewat)
+            $isRealtime = ($slaughterTimestamp > $nowTimestamp && $slaughterTimestamp <= $plus24hTimestamp);
+
+            // Lewati jika tidak memenuhi salah satu kondisi
+            if (!$isH1Backup && !$isRealtime) {
                 continue;
             }
 
-            // Lewati jika masih > 24 jam lagi
-            if ($slaughterTimestamp > $plus24hTimestamp) {
-                continue;
+            // Tentukan label
+            $label = '';
+            if ($isH1Backup && $isRealtime) {
+                // Hitung sisa jam untuk real-time
+                $selisihJam = round(($slaughterTimestamp - $nowTimestamp) / 3600, 1);
+                $jamLabel = $selisihJam < 1 
+                    ? 'Kurang dari 1 jam lagi'
+                    : ($selisihJam == 1 ? '1 jam lagi' : "{$selisihJam} jam lagi");
+                $label = "H-1 · {$jamLabel}";
+            } elseif ($isH1Backup) {
+                $label = 'H-1: Besok';
+            } else {
+                $selisihJam = round(($slaughterTimestamp - $nowTimestamp) / 3600, 1);
+                $label = $selisihJam < 1 
+                    ? 'Kurang dari 1 jam lagi'
+                    : ($selisihJam == 1 ? '1 jam lagi' : "{$selisihJam} jam lagi");
             }
-
-            // Hitung sisa waktu
-            $selisihJam = round(($slaughterTimestamp - $nowTimestamp) / 3600, 1);
-            $selisihLabel = $selisihJam < 1 
-                ? 'Kurang dari 1 jam lagi'
-                : ($selisihJam == 1 ? '1 jam lagi' : "{$selisihJam} jam lagi");
 
             $customer = $customerModel->find($order['customer_id']);
             $package = $packageModel->find($order['package_id']);
@@ -188,7 +206,7 @@ class NotificationsSend extends BaseCommand
             $deliveryDateIndo = $this->formatTanggalIndo($order['delivery_date']);
             $slaughterTime = substr($order['slaughter_time'], 0, 5); // HH:mm tanpa detik
             
-            $msg = "🔔 <b>PENGINGAT PEMOTONGAN {$selisihLabel}</b>\n"
+            $msg = "🔔 <b>PENGINGAT PEMOTONGAN ({$label})</b>\n"
                  . "━━━━━━━━━━━━━━━━━━━━\n"
                  . "📌 <b>Order #{$order['id_order']}</b>\n"
                  . "👤 Pemesan: {$customer['name']}\n"
@@ -225,7 +243,7 @@ class NotificationsSend extends BaseCommand
             $sentCount++;
         }
         
-        CLI::write("  ✅ {$sentCount} pengingat 24 jam terkirim", 'green');
+        CLI::write("  ✅ {$sentCount} pengingat terkirim", 'green');
     }
     
     private function sendRecap()
