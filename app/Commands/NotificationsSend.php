@@ -16,8 +16,26 @@ class NotificationsSend extends BaseCommand
     protected $name        = 'notifications:send';
     protected $description = 'Send 24h reminders and daily recap via Telegram';
 
+    private $monthsIndo = [
+        'January'   => 'Januari',
+        'February'  => 'Februari',
+        'March'     => 'Maret',
+        'April'     => 'April',
+        'May'       => 'Mei',
+        'June'      => 'Juni',
+        'July'      => 'Juli',
+        'August'    => 'Agustus',
+        'September' => 'September',
+        'October'   => 'Oktober',
+        'November'  => 'November',
+        'December'  => 'Desember',
+    ];
+
     public function run(array $params)
     {
+        // Paksa timezone WIB
+        date_default_timezone_set('Asia/Jakarta');
+
         // Determine mode from first parameter
         $mode = $params[0] ?? 'all';
         
@@ -27,10 +45,9 @@ class NotificationsSend extends BaseCommand
         
         $telegram = new TelegramBot();
         
-        // Skip test connection if just testing token (runs inside each method anyway)
         if ($mode === 'all') {
             CLI::write('🔌 Menghubungkan ke Telegram...', 'cyan');
-            $testMsg = "🤖 <b>Sistem Aqiqah Online</b>\nBot Telegram berhasil terhubung!\nWaktu: " . date('d/m/Y H:i');
+            $testMsg = "🤖 <b>Sistem Aqiqah Online</b>\nBot Telegram berhasil terhubung!\nWaktu: " . $this->now('d/m/Y H:i');
             $testResult = $telegram->sendMessage($testMsg);
             
             if ($testResult === false) {
@@ -52,12 +69,12 @@ class NotificationsSend extends BaseCommand
         CLI::write('');
         
         if ($mode === 'all' || $mode === 'reminders') {
-            CLI::write('⏰ [' . date('H:i:s') . '] Mengirim pengingat 24 jam...', 'yellow');
+            CLI::write('⏰ [' . $this->now('H:i') . '] Mengirim pengingat 24 jam...', 'yellow');
             $this->sendReminders();
         }
         
         if ($mode === 'all' || $mode === 'recap') {
-            CLI::write('📊 [' . date('H:i:s') . '] Mengirim rekap harian...', 'yellow');
+            CLI::write('📊 [' . $this->now('H:i') . '] Mengirim rekap harian...', 'yellow');
             $this->sendRecap();
         }
         
@@ -66,7 +83,37 @@ class NotificationsSend extends BaseCommand
         CLI::write('  ✅ NOTIFIKASI SELESAI!', 'green');
         CLI::write('====================================', 'green');
     }
-    
+
+    private function now($format = 'Y-m-d H:i:s')
+    {
+        return date($format);
+    }
+
+    private function formatTanggalIndo($dateStr)
+    {
+        $timestamp = strtotime($dateStr);
+        $day  = date('d', $timestamp);
+        $monthEng = date('F', $timestamp);
+        $year = date('Y', $timestamp);
+        $monthIndo = $this->monthsIndo[$monthEng] ?? $monthEng;
+        return "{$day} {$monthIndo} {$year}";
+    }
+
+    private function getTotalBoxFromDetails($orderId)
+    {
+        $detailModel = new OrderDetailModel();
+        $details = $detailModel->where('order_id', $orderId)->findAll();
+        $total = 0;
+        foreach ($details as $d) {
+            $total += (int)$d['jumlah_box'];
+        }
+        return $total;
+    }
+
+    /**
+     * Kirim reminder untuk order yang slaughter_date + slaughter_time
+     * masih dalam rentang <= 24 jam dari sekarang (real-time WIB).
+     */
     private function sendReminders()
     {
         $orderModel = new OrderModel();
@@ -75,14 +122,39 @@ class NotificationsSend extends BaseCommand
         $detailModel = new OrderDetailModel();
         $notifModel = new NotificationModel();
         $telegram = new TelegramBot();
-        
-        $tomorrow = date('Y-m-d', strtotime('+1 day'));
-        $orders = $orderModel->where('slaughter_date', $tomorrow)
+
+        $now = $this->now('Y-m-d H:i:s');
+        $nowTimestamp = strtotime($now);
+        $plus24hTimestamp = $nowTimestamp + 86400; // +24 jam
+
+        // Ambil semua order non-completed, slaughter_date >= hari ini
+        $orders = $orderModel
+            ->where('slaughter_date >=', date('Y-m-d'))
             ->where('status !=', 'Completed')
             ->findAll();
-        
+
         $sentCount = 0;
         foreach ($orders as $order) {
+            // Gabungkan slaughter_date + slaughter_time
+            $slaughterDatetime = $order['slaughter_date'] . ' ' . ($order['slaughter_time'] ?? '00:00:00');
+            $slaughterTimestamp = strtotime($slaughterDatetime);
+
+            // Lewati jika sudah lewat
+            if ($slaughterTimestamp <= $nowTimestamp) {
+                continue;
+            }
+
+            // Lewati jika masih > 24 jam lagi
+            if ($slaughterTimestamp > $plus24hTimestamp) {
+                continue;
+            }
+
+            // Hitung sisa waktu
+            $selisihJam = round(($slaughterTimestamp - $nowTimestamp) / 3600, 1);
+            $selisihLabel = $selisihJam < 1 
+                ? 'Kurang dari 1 jam lagi'
+                : ($selisihJam == 1 ? '1 jam lagi' : "{$selisihJam} jam lagi");
+
             $customer = $customerModel->find($order['customer_id']);
             $package = $packageModel->find($order['package_id']);
             $details = $detailModel
@@ -93,10 +165,12 @@ class NotificationsSend extends BaseCommand
                 ->findAll();
             
             $menuDetail = '';
+            $totalBox = 0;
             foreach ($details as $d) {
                 $boneName = $d['bone_name'] ? $d['bone_name'] : '-';
                 $meatName = $d['meat_name'] ? $d['meat_name'] : '-';
                 $menuDetail .= "  • {$boneName} + {$meatName} ({$d['box_type']}: {$d['jumlah_box']} box)\n";
+                $totalBox += (int)$d['jumlah_box'];
             }
             
             $fiturText = '';
@@ -109,8 +183,12 @@ class NotificationsSend extends BaseCommand
             $jmlAnakText = $order['jumlah_anak'] . ' ekor';
             $hargaFormat = number_format($order['total_price'], 0, ',', '.');
             $menuDetailText = $menuDetail ? $menuDetail : "  - Belum diatur\n";
+
+            $slaughterDateIndo = $this->formatTanggalIndo($order['slaughter_date']);
+            $deliveryDateIndo = $this->formatTanggalIndo($order['delivery_date']);
+            $slaughterTime = substr($order['slaughter_time'], 0, 5); // HH:mm tanpa detik
             
-            $msg = "🔔 <b>PENGINGAT 24 JAM — PEMOTONGAN AQIQAH</b>\n"
+            $msg = "🔔 <b>PENGINGAT PEMOTONGAN {$selisihLabel}</b>\n"
                  . "━━━━━━━━━━━━━━━━━━━━\n"
                  . "📌 <b>Order #{$order['id_order']}</b>\n"
                  . "👤 Pemesan: {$customer['name']}\n"
@@ -121,19 +199,20 @@ class NotificationsSend extends BaseCommand
                  . "🐏 Hewan: {$order['animal_type']} ({$order['animal_gender']}) — {$jmlAnakText}\n"
                  . "📦 Paket: {$package['name']}\n"
                  . "├─ Bobot: {$package['weight_type']} ({$package['min_weight']}-{$package['max_weight']} kg)\n"
-                 . "├─ Box: {$package['box_count']} box\n"
+                 . "├─ Box: {$totalBox} box\n"
                  . "└─ Harga: Rp {$hargaFormat}\n"
                  . "━━━━━━━━━━━━━━━━━━━━\n"
                  . "<b>🍽 Menu Detail:</b>\n"
                  . $menuDetailText
-                  . "━━━━━━━━━━━━━━━━━━━━\n"
-                  . "📍 Alamat: {$customer['address']}\n"
-                  . "🕐 Jam Potong: {$order['slaughter_time']} WIB\n"
-                  . "📦 Tanggal Antar: {$order['delivery_date']}\n"
-                  . "🎥 Metode: {$order['penyembelihan']}\n"
-                  . ($fiturText ? $fiturText . "\n" : "")
-                  . "━━━━━━━━━━━━━━━━━━━━\n"
-                  . "⚡ Pastikan hewan siap dan koordinasi dengan tim dapur.\n";
+                 . "━━━━━━━━━━━━━━━━━━━━\n"
+                 . "📍 Alamat: {$customer['address']}\n"
+                 . "🕐 Jam Potong: {$slaughterTime} WIB\n"
+                 . "📅 Tanggal Potong: {$slaughterDateIndo}\n"
+                 . "📦 Tanggal Antar: {$deliveryDateIndo}\n"
+                 . "🎥 Metode: {$order['penyembelihan']}\n"
+                 . ($fiturText ? $fiturText . "\n" : "")
+                 . "━━━━━━━━━━━━━━━━━━━━\n"
+                 . "⚡ Pastikan hewan siap dan koordinasi dengan tim dapur.\n";
             
             $telegram->sendMessage($msg);
             
@@ -173,8 +252,10 @@ class NotificationsSend extends BaseCommand
             if ($s['quantity'] <= $s['min_threshold']) $stockWarning = true;
         }
         
+        $todayIndo = $this->formatTanggalIndo($today);
+        
         if (empty($todayOrders)) {
-            $msg = "📊 <b>REKAP HARIAN — " . strtoupper(date('d F Y')) . "</b>\n"
+            $msg = "📊 <b>REKAP HARIAN — {$todayIndo}</b>\n"
                  . "━━━━━━━━━━━━━━━━━━━━\n"
                  . "📦 <b>Total Pesanan:</b> 0\n"
                  . "━━━━━━━━━━━━━━━━━━━━\n"
@@ -195,6 +276,7 @@ class NotificationsSend extends BaseCommand
         $dombaCount = 0;
         $kambingCount = 0;
         $deliveryToday = 0;
+        $deliveryTomorrow = 0;
         $menuBoneList = [];
         $menuMeatList = [];
         $orderList = "";
@@ -225,10 +307,12 @@ class NotificationsSend extends BaseCommand
             else $kambingCount++;
             
             if ($order['delivery_date'] == $today) $deliveryToday++;
+            if ($order['delivery_date'] == date('Y-m-d', strtotime('+1 day'))) $deliveryTomorrow++;
             
             $hargaOrder = number_format($order['total_price'], 0, ',', '.');
             $customerName = $customer ? $customer['child_name'] : 'N/A';
-            $orderList .= "  #{$order['id_order']} | {$customerName} | {$order['animal_type']} ({$order['animal_gender']}) | {$package['name']} | Rp {$hargaOrder}\n";
+            $slaughterTime = substr($order['slaughter_time'], 0, 5);
+            $orderList .= "  #{$order['id_order']} | {$customerName} | {$order['animal_type']} | {$package['name']} | {$orderBoxCount} box | Rp {$hargaOrder} | {$slaughterTime} WIB\n";
         }
         
         $menuBoneStr = '';
@@ -242,7 +326,7 @@ class NotificationsSend extends BaseCommand
         
         $totalPendapatan = number_format($totalPrice, 0, ',', '.');
         
-        $msg = "📊 <b>REKAP HARIAN — " . strtoupper(date('d F Y')) . "</b>\n"
+        $msg = "📊 <b>REKAP HARIAN — {$todayIndo}</b>\n"
              . "━━━━━━━━━━━━━━━━━━━━\n"
              . "<b>📊 RINGKASAN</b>\n"
              . "📦 Total Pesanan: " . count($todayOrders) . "\n"
@@ -250,6 +334,7 @@ class NotificationsSend extends BaseCommand
              . "🐏 Domba: {$dombaCount}\n"
              . "🐐 Kambing: {$kambingCount}\n"
              . "🚚 Pengantaran Hari Ini: {$deliveryToday}\n"
+             . ($deliveryTomorrow ? "🚚 Pengantaran Besok: {$deliveryTomorrow}\n" : "")
              . "💰 Total Pendapatan: Rp {$totalPendapatan}\n"
              . "━━━━━━━━━━━━━━━━━━━━\n"
              . "<b>📋 DAFTAR PESANAN:</b>\n"
