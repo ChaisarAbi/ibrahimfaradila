@@ -26,178 +26,74 @@ class AqiqahSeeder extends Seeder
 
         // ===================== USERS =====================
         $users = [
-            [
-                'username' => 'admin',
-                'password' => hash('sha256', 'admin123'),
-                'fullname' => 'Administrator',
-                'role'     => 'admin'
-            ],
-            [
-                'username' => 'staff1',
-                'password' => hash('sha256', 'staff123'),
-                'fullname' => 'Ahmad Fauzi',
-                'role'     => 'staff'
-            ],
-            [
-                'username' => 'staff2',
-                'password' => hash('sha256', 'staff123'),
-                'fullname' => 'Siti Rahmah',
-                'role'     => 'staff'
-            ],
-            [
-                'username' => 'dapur',
-                'password' => hash('sha256', 'dapur123'),
-                'fullname' => 'Tim Dapur',
-                'role'     => 'kitchen'
-            ]
+            ['username' => 'admin',  'password' => hash('sha256', 'admin'),  'fullname' => 'Administrator', 'role' => 'admin'],
+            ['username' => 'staff1', 'password' => hash('sha256', 'staff123'), 'fullname' => 'Ahmad Fauzi',    'role' => 'staff'],
+            ['username' => 'staff2', 'password' => hash('sha256', 'staff123'), 'fullname' => 'Siti Rahmah',    'role' => 'staff'],
+            ['username' => 'dapur',  'password' => hash('sha256', 'dapur123'), 'fullname' => 'Tim Dapur',      'role' => 'kitchen'],
         ];
         $this->db->table('users')->insertBatch($users);
         echo "  ✓ Users inserted (4 users)\n";
 
         // ===================== BONE MENUS =====================
         $boneMenus = [
-            ['name' => 'Gulai'],
-            ['name' => 'Sop'],
-            ['name' => 'Tongseng'],
-            ['name' => 'Rendang'],
+            ['name' => 'Gulai'], ['name' => 'Sop'], ['name' => 'Tongseng'], ['name' => 'Rendang'],
         ];
         $this->db->table('bone_menus')->insertBatch($boneMenus);
         echo "  ✓ Bone menus inserted (4 menus)\n";
 
         // ===================== MEAT MENUS =====================
         $meatMenus = [
-            ['name' => 'Sate tanpa tusuk'],
-            ['name' => 'Teriyaki'],
-            ['name' => 'Lada Hitam'],
-            ['name' => 'Krengseng'],
-            ['name' => 'Semur'],
-            ['name' => 'Sambal Goreng'],
+            ['name' => 'Sate tanpa tusuk'], ['name' => 'Teriyaki'], ['name' => 'Lada Hitam'],
+            ['name' => 'Krengseng'], ['name' => 'Semur'], ['name' => 'Sambal Goreng'],
         ];
         $this->db->table('meat_menus')->insertBatch($meatMenus);
         echo "  ✓ Meat menus inserted (6 menus)\n";
 
         // ===================== PACKAGES =====================
         $packages = [
-            ['name' => 'Paket Berkah A',    'weight_type' => 'A', 'min_weight' => 16, 'max_weight' => 17, 'box_count' => 50,  'price' => 2500000, 'is_special' => 0],
-            ['name' => 'Paket Special A',    'weight_type' => 'A', 'min_weight' => 16, 'max_weight' => 17, 'box_count' => 50,  'price' => 3000000, 'is_special' => 1],
-            ['name' => 'Paket Berkah B',    'weight_type' => 'B', 'min_weight' => 17, 'max_weight' => 18, 'box_count' => 60,  'price' => 2800000, 'is_special' => 0],
-            ['name' => 'Paket Special B',    'weight_type' => 'B', 'min_weight' => 17, 'max_weight' => 18, 'box_count' => 60,  'price' => 3400000, 'is_special' => 1],
-            ['name' => 'Paket Berkah C',    'weight_type' => 'C', 'min_weight' => 18, 'max_weight' => 20, 'box_count' => 80,  'price' => 3400000, 'is_special' => 0],
-            ['name' => 'Paket Special C',    'weight_type' => 'C', 'min_weight' => 18, 'max_weight' => 20, 'box_count' => 80,  'price' => 4200000, 'is_special' => 1],
-            ['name' => 'Paket Berkah D',    'weight_type' => 'D', 'min_weight' => 21, 'max_weight' => 23, 'box_count' => 100, 'price' => 3900000, 'is_special' => 0],
-            ['name' => 'Paket Special D',    'weight_type' => 'D', 'min_weight' => 21, 'max_weight' => 23, 'box_count' => 100, 'price' => 4900000, 'is_special' => 1],
+            ['name' => 'Paket Berkah A',  'weight_type' => 'A', 'min_weight' => 16, 'max_weight' => 17, 'box_count' => 50,  'price' => 2500000, 'is_special' => 0],
+            ['name' => 'Paket Special A',  'weight_type' => 'A', 'min_weight' => 16, 'max_weight' => 17, 'box_count' => 50,  'price' => 3000000, 'is_special' => 1],
+            ['name' => 'Paket Berkah B',  'weight_type' => 'B', 'min_weight' => 17, 'max_weight' => 18, 'box_count' => 60,  'price' => 2800000, 'is_special' => 0],
+            ['name' => 'Paket Special B',  'weight_type' => 'B', 'min_weight' => 17, 'max_weight' => 18, 'box_count' => 60,  'price' => 3400000, 'is_special' => 1],
+            ['name' => 'Paket Berkah C',  'weight_type' => 'C', 'min_weight' => 18, 'max_weight' => 20, 'box_count' => 80,  'price' => 3400000, 'is_special' => 0],
+            ['name' => 'Paket Special C',  'weight_type' => 'C', 'min_weight' => 18, 'max_weight' => 20, 'box_count' => 80,  'price' => 4200000, 'is_special' => 1],
+            ['name' => 'Paket Berkah D',  'weight_type' => 'D', 'min_weight' => 21, 'max_weight' => 23, 'box_count' => 100, 'price' => 3900000, 'is_special' => 0],
+            ['name' => 'Paket Special D',  'weight_type' => 'D', 'min_weight' => 21, 'max_weight' => 23, 'box_count' => 100, 'price' => 4900000, 'is_special' => 1],
         ];
         $this->db->table('packages')->insertBatch($packages);
         echo "  ✓ Packages inserted (8 packages)\n";
 
         // ===================== CUSTOMERS =====================
         $customers = [
-            [
-                'name'       => 'H. Abdullah Husain',
-                'child_name' => 'Muhammad Al-Fatih',
-                'gender'     => 'Laki-laki',
-                'birth_date' => '2026-01-15',
-                'phone'      => '081234567890',
-                'address'    => 'Jl. Merdeka No. 10, Jakarta Pusat'
-            ],
-            [
-                'name'       => 'Siti Nurhaliza',
-                'child_name' => 'Aisyah Putri',
-                'gender'     => 'Perempuan',
-                'birth_date' => '2026-02-20',
-                'phone'      => '082345678901',
-                'address'    => 'Jl. Sudirman No. 25, Jakarta Selatan'
-            ],
-            [
-                'name'       => 'Ahmad Rizki Pratama',
-                'child_name' => 'Bilal Arrasyid',
-                'gender'     => 'Laki-laki',
-                'birth_date' => '2026-03-10',
-                'phone'      => '083456789012',
-                'address'    => 'Perumahan Citra Indah Blok A5, Bekasi'
-            ],
-            [
-                'name'       => 'Dewi Sartika',
-                'child_name' => 'Haura Azkia',
-                'gender'     => 'Perempuan',
-                'birth_date' => '2026-04-05',
-                'phone'      => '085678901234',
-                'address'    => 'Jl. Diponegoro No. 88, Bandung'
-            ],
-            [
-                'name'       => 'H. Bambang Supriyadi',
-                'child_name' => 'Zaidan Al-Ghifari',
-                'gender'     => 'Laki-laki',
-                'birth_date' => '2026-01-28',
-                'phone'      => '087890123456',
-                'address'    => 'Komplek Bumi Asri No. 15, Tangerang'
-            ],
-            [
-                'name'       => 'Fitriani Kusuma Dewi',
-                'child_name' => 'Nadia Khairunnisa',
-                'gender'     => 'Perempuan',
-                'birth_date' => '2026-05-12',
-                'phone'      => '089012345678',
-                'address'    => 'Jl. Pahlawan No. 7, Depok'
-            ],
-            [
-                'name'       => 'H. Dodi Hermawan',
-                'child_name' => 'Rafi Ahmad',
-                'gender'     => 'Laki-laki',
-                'birth_date' => '2026-03-22',
-                'phone'      => '081298765432',
-                'address'    => 'Villa Bogor Indah Blok C3, Bogor'
-            ],
-            [
-                'name'       => 'Rina Mahardani',
-                'child_name' => 'Salwa Azzahra',
-                'gender'     => 'Perempuan',
-                'birth_date' => '2026-06-18',
-                'phone'      => '082109876543',
-                'address'    => 'Jl. Anggrek No. 33, Jakarta Timur'
-            ],
-            [
-                'name'       => 'H. Agus Salim',
-                'child_name' => 'Hafidz Al-Quran',
-                'gender'     => 'Laki-laki',
-                'birth_date' => '2026-04-01',
-                'phone'      => '083210987654',
-                'address'    => 'Perum Green Garden No. 10, Jakarta Barat'
-            ],
-            [
-                'name'       => 'Mega Wulandari',
-                'child_name' => 'Fatimah Az-Zahra',
-                'gender'     => 'Perempuan',
-                'birth_date' => '2026-07-08',
-                'phone'      => '085432109876',
-                'address'    => 'Jl. Cendrawasih No. 12, Karawang'
-            ],
-            [
-                'name'       => 'H. Syamsul Bahri',
-                'child_name' => 'Ibrahim Malik',
-                'gender'     => 'Laki-laki',
-                'birth_date' => '2026-05-30',
-                'phone'      => '087654321098',
-                'address'    => 'Komplek Permata Hijau No. 5, Serang'
-            ],
-            [
-                'name'       => 'Lilis Suryani',
-                'child_name' => 'Zahra Ramadhani',
-                'gender'     => 'Perempuan',
-                'birth_date' => '2026-08-15',
-                'phone'      => '089876543210',
-                'address'    => 'Jl. Kenanga No. 20, Cilegon'
-            ],
+            ['name' => 'H. Abdullah Husain',     'child_name' => 'Muhammad Al-Fatih',  'gender' => 'Laki-laki',  'birth_date' => '2026-01-15', 'phone' => '081234567890', 'address' => 'Jl. Merdeka No. 10, Jakarta Pusat'],
+            ['name' => 'Siti Nurhaliza',          'child_name' => 'Aisyah Putri',       'gender' => 'Perempuan',  'birth_date' => '2026-02-20', 'phone' => '082345678901', 'address' => 'Jl. Sudirman No. 25, Jakarta Selatan'],
+            ['name' => 'Ahmad Rizki Pratama',     'child_name' => 'Bilal Arrasyid',     'gender' => 'Laki-laki',  'birth_date' => '2026-03-10', 'phone' => '083456789012', 'address' => 'Perumahan Citra Indah Blok A5, Bekasi'],
+            ['name' => 'Dewi Sartika',            'child_name' => 'Haura Azkia',        'gender' => 'Perempuan',  'birth_date' => '2026-04-05', 'phone' => '085678901234', 'address' => 'Jl. Diponegoro No. 88, Bandung'],
+            ['name' => 'H. Bambang Supriyadi',    'child_name' => 'Zaidan Al-Ghifari',  'gender' => 'Laki-laki',  'birth_date' => '2026-01-28', 'phone' => '087890123456', 'address' => 'Komplek Bumi Asri No. 15, Tangerang'],
+            ['name' => 'Fitriani Kusuma Dewi',    'child_name' => 'Nadia Khairunnisa',  'gender' => 'Perempuan',  'birth_date' => '2026-05-12', 'phone' => '089012345678', 'address' => 'Jl. Pahlawan No. 7, Depok'],
+            ['name' => 'H. Dodi Hermawan',        'child_name' => 'Rafi Ahmad',         'gender' => 'Laki-laki',  'birth_date' => '2026-03-22', 'phone' => '081298765432', 'address' => 'Villa Bogor Indah Blok C3, Bogor'],
+            ['name' => 'Rina Mahardani',          'child_name' => 'Salwa Azzahra',      'gender' => 'Perempuan',  'birth_date' => '2026-06-18', 'phone' => '082109876543', 'address' => 'Jl. Anggrek No. 33, Jakarta Timur'],
+            ['name' => 'H. Agus Salim',           'child_name' => 'Hafidz Al-Quran',    'gender' => 'Laki-laki',  'birth_date' => '2026-04-01', 'phone' => '083210987654', 'address' => 'Perum Green Garden No. 10, Jakarta Barat'],
+            ['name' => 'Mega Wulandari',          'child_name' => 'Fatimah Az-Zahra',   'gender' => 'Perempuan',  'birth_date' => '2026-07-08', 'phone' => '085432109876', 'address' => 'Jl. Cendrawasih No. 12, Karawang'],
+            ['name' => 'H. Syamsul Bahri',        'child_name' => 'Ibrahim Malik',      'gender' => 'Laki-laki',  'birth_date' => '2026-05-30', 'phone' => '087654321098', 'address' => 'Komplek Permata Hijau No. 5, Serang'],
+            ['name' => 'Lilis Suryani',           'child_name' => 'Zahra Ramadhani',    'gender' => 'Perempuan',  'birth_date' => '2026-08-15', 'phone' => '089876543210', 'address' => 'Jl. Kenanga No. 20, Cilegon'],
+            ['name' => 'H. Faisal Rahman',        'child_name' => 'Ahmad Syauqi',       'gender' => 'Laki-laki',  'birth_date' => '2026-06-01', 'phone' => '081111222333', 'address' => 'Jl. Mawar No. 5, Bogor'],
+            ['name' => 'Nurul Hidayah',           'child_name' => 'Hana Safira',        'gender' => 'Perempuan',  'birth_date' => '2026-07-20', 'phone' => '082222333444', 'address' => 'Perum Pondok Indah Blok D, Depok'],
+            ['name' => 'H. Hasan Basri',          'child_name' => 'Yusuf Al-Farizi',    'gender' => 'Laki-laki',  'birth_date' => '2026-05-05', 'phone' => '083333444555', 'address' => 'Komplek Puri Mutiara No. 8, Bekasi'],
+            ['name' => 'Ratna Sari Dewi',         'child_name' => 'Sofia Rahmawati',    'gender' => 'Perempuan',  'birth_date' => '2026-08-01', 'phone' => '085555666777', 'address' => 'Jl. Melati No. 12, Tangerang'],
+            ['name' => 'H. Zainal Arifin',        'child_name' => 'Mikail Al-Ghifari',  'gender' => 'Laki-laki',  'birth_date' => '2026-06-15', 'phone' => '087777888999', 'address' => 'Villa Bintang Mas Blok A, Serang'],
+            ['name' => 'Amalia Putri',            'child_name' => 'Aisyah Ramadhani',   'gender' => 'Perempuan',  'birth_date' => '2026-09-01', 'phone' => '089999000111', 'address' => 'Jl. Flamboyan No. 22, Jakarta Timur'],
+            ['name' => 'H. Burhanuddin',          'child_name' => 'Ishaq Al-Karim',     'gender' => 'Laki-laki',  'birth_date' => '2026-07-12', 'phone' => '081000111222', 'address' => 'Perum Bukit Indah No. 3, Cilegon'],
         ];
         $this->db->table('customers')->insertBatch($customers);
-        echo "  ✓ Customers inserted (12 customers)\n";
+        echo "  ✓ Customers inserted (" . count($customers) . " customers)\n";
 
         // ===================== STOCKS =====================
         $stocks = [
-            ['item_name' => 'Kambing', 'category' => 'hewan',  'quantity' => 25, 'min_threshold' => 5,  'unit' => 'ekor'],
-            ['item_name' => 'Domba',   'category' => 'hewan',  'quantity' => 18, 'min_threshold' => 5,  'unit' => 'ekor'],
-            ['item_name' => 'Beras',   'category' => 'bahan',  'quantity' => 200, 'min_threshold' => 30, 'unit' => 'kg'],
-            ['item_name' => 'Minyak Goreng', 'category' => 'bahan', 'quantity' => 50, 'min_threshold' => 10, 'unit' => 'liter'],
+            ['item_name' => 'Kambing',     'category' => 'hewan', 'quantity' => 25, 'min_threshold' => 5,  'unit' => 'ekor'],
+            ['item_name' => 'Domba',       'category' => 'hewan', 'quantity' => 18, 'min_threshold' => 5,  'unit' => 'ekor'],
+            ['item_name' => 'Beras',       'category' => 'bahan', 'quantity' => 200, 'min_threshold' => 30, 'unit' => 'kg'],
+            ['item_name' => 'Minyak Goreng','category' => 'bahan', 'quantity' => 50, 'min_threshold' => 10, 'unit' => 'liter'],
             ['item_name' => 'Bumbu Gulai',  'category' => 'bahan', 'quantity' => 30, 'min_threshold' => 5,  'unit' => 'pack'],
             ['item_name' => 'Bumbu Sop',    'category' => 'bahan', 'quantity' => 25, 'min_threshold' => 5,  'unit' => 'pack'],
             ['item_name' => 'Tusuk Sate',   'category' => 'bahan', 'quantity' => 500, 'min_threshold' => 100, 'unit' => 'batang'],
@@ -209,177 +105,268 @@ class AqiqahSeeder extends Seeder
         $this->db->table('stocks')->insertBatch($stocks);
         echo "  ✓ Stocks inserted (11 items)\n";
 
-        // ===================== ORDERS =====================
-        $orders = [
-            // 1 - order hari ini (slaughter today) - kambing jantan untuk laki-laki (2 anak)
-            ['customer_id' => 1, 'package_id' => 2, 'animal_type' => 'Kambing', 'animal_gender' => 'Jantan', 'jumlah_anak' => 2, 'slaughter_date' => date('Y-m-d'), 'delivery_date' => date('Y-m-d', strtotime('+1 day')), 'slaughter_time' => '07:00:00', 'penyembelihan' => 'Dokumentasi', 'use_photo_card' => 1, 'use_photo_certificate' => 1, 'status' => 'Scheduled', 'total_price' => 3000000],
-            // 2 - order besok - domba betina untuk perempuan
-            ['customer_id' => 2, 'package_id' => 1, 'animal_type' => 'Domba',   'animal_gender' => 'Betina', 'jumlah_anak' => 1, 'slaughter_date' => date('Y-m-d', strtotime('+1 day')), 'delivery_date' => date('Y-m-d', strtotime('+2 days')), 'slaughter_time' => '08:00:00', 'penyembelihan' => 'Video Call', 'use_photo_card' => 1, 'use_photo_certificate' => 0, 'status' => 'Pending', 'total_price' => 2500000],
-            // 3 - order 3 hari lagi - kambing jantan untuk laki-laki (2 anak) - special
-            ['customer_id' => 3, 'package_id' => 4, 'animal_type' => 'Kambing', 'animal_gender' => 'Jantan', 'jumlah_anak' => 2, 'slaughter_date' => date('Y-m-d', strtotime('+3 days')), 'delivery_date' => date('Y-m-d', strtotime('+4 days')), 'slaughter_time' => '06:30:00', 'penyembelihan' => 'Visit', 'use_photo_card' => 0, 'use_photo_certificate' => 1, 'status' => 'Pending', 'total_price' => 3400000],
-            // 4 - order yang sudah selesai (completed)
-            ['customer_id' => 4, 'package_id' => 3, 'animal_type' => 'Domba',   'animal_gender' => 'Betina', 'jumlah_anak' => 1, 'slaughter_date' => date('Y-m-d', strtotime('-5 days')), 'delivery_date' => date('Y-m-d', strtotime('-4 days')), 'slaughter_time' => '09:00:00', 'penyembelihan' => 'Dokumentasi', 'use_photo_card' => 0, 'use_photo_certificate' => 0, 'status' => 'Completed', 'total_price' => 2800000],
-            // 5 - order 4 hari lagi - kambing jantan special
-            ['customer_id' => 5, 'package_id' => 6, 'animal_type' => 'Kambing', 'animal_gender' => 'Jantan', 'jumlah_anak' => 2, 'slaughter_date' => date('Y-m-d', strtotime('+4 days')), 'delivery_date' => date('Y-m-d', strtotime('+5 days')), 'slaughter_time' => '07:30:00', 'penyembelihan' => 'Video Call', 'use_photo_card' => 1, 'use_photo_certificate' => 1, 'status' => 'Scheduled', 'total_price' => 4200000],
-            // 6 - besok juga - domba betina
-            ['customer_id' => 6, 'package_id' => 1, 'animal_type' => 'Domba',   'animal_gender' => 'Betina', 'jumlah_anak' => 1, 'slaughter_date' => date('Y-m-d', strtotime('+1 day')), 'delivery_date' => date('Y-m-d', strtotime('+2 days')), 'slaughter_time' => '10:00:00', 'penyembelihan' => 'Dokumentasi', 'use_photo_card' => 1, 'use_photo_certificate' => 0, 'status' => 'Pending', 'total_price' => 2500000],
-            // 7 - 2 hari lagi - kambing jantan
-            ['customer_id' => 7, 'package_id' => 5, 'animal_type' => 'Kambing', 'animal_gender' => 'Jantan', 'jumlah_anak' => 2, 'slaughter_date' => date('Y-m-d', strtotime('+2 days')), 'delivery_date' => date('Y-m-d', strtotime('+3 days')), 'slaughter_time' => '06:00:00', 'penyembelihan' => 'Visit', 'use_photo_card' => 1, 'use_photo_certificate' => 1, 'status' => 'Pending', 'total_price' => 3400000],
-            // 8 - 6 hari lalu (completed) - perempuan
-            ['customer_id' => 8, 'package_id' => 3, 'animal_type' => 'Domba',   'animal_gender' => 'Betina', 'jumlah_anak' => 1, 'slaughter_date' => date('Y-m-d', strtotime('-6 days')), 'delivery_date' => date('Y-m-d', strtotime('-5 days')), 'slaughter_time' => '08:30:00', 'penyembelihan' => 'Dokumentasi', 'use_photo_card' => 0, 'use_photo_certificate' => 1, 'status' => 'Completed', 'total_price' => 2800000],
-            // 9 - 7 hari lagi - kambing jantan special D
-            ['customer_id' => 9, 'package_id' => 8, 'animal_type' => 'Kambing', 'animal_gender' => 'Jantan', 'jumlah_anak' => 2, 'slaughter_date' => date('Y-m-d', strtotime('+7 days')), 'delivery_date' => date('Y-m-d', strtotime('+8 days')), 'slaughter_time' => '07:00:00', 'penyembelihan' => 'Video Call', 'use_photo_card' => 1, 'use_photo_certificate' => 1, 'status' => 'Pending', 'total_price' => 4900000],
-            // 10 - 5 hari lagi - domba betina
-            ['customer_id' => 10, 'package_id' => 1, 'animal_type' => 'Domba',   'animal_gender' => 'Betina', 'jumlah_anak' => 1, 'slaughter_date' => date('Y-m-d', strtotime('+5 days')), 'delivery_date' => date('Y-m-d', strtotime('+6 days')), 'slaughter_time' => '09:00:00', 'penyembelihan' => 'Dokumentasi', 'use_photo_card' => 0, 'use_photo_certificate' => 0, 'status' => 'Pending', 'total_price' => 2500000],
-            // 11 - 3 hari lagi (same as order 3) - domba jantan
-            ['customer_id' => 11, 'package_id' => 2, 'animal_type' => 'Kambing', 'animal_gender' => 'Jantan', 'jumlah_anak' => 2, 'slaughter_date' => date('Y-m-d', strtotime('+3 days')), 'delivery_date' => date('Y-m-d', strtotime('+4 days')), 'slaughter_time' => '10:30:00', 'penyembelihan' => 'Visit', 'use_photo_card' => 1, 'use_photo_certificate' => 1, 'status' => 'Pending', 'total_price' => 3000000],
-            // 12 - hari ini juga - domba betina
-            ['customer_id' => 12, 'package_id' => 7, 'animal_type' => 'Domba',   'animal_gender' => 'Betina', 'jumlah_anak' => 1, 'slaughter_date' => date('Y-m-d'), 'delivery_date' => date('Y-m-d', strtotime('+1 day')), 'slaughter_time' => '08:00:00', 'penyembelihan' => 'Dokumentasi', 'use_photo_card' => 1, 'use_photo_certificate' => 0, 'status' => 'Scheduled', 'total_price' => 3900000],
-        ];
-        $this->db->table('orders')->insertBatch($orders);
-        echo "  ✓ Orders inserted (12 orders)\n";
+        // ================================================================
+        //  GENERATE ORDERS FOR 14 DAYS (Hari ini + 13 hari ke depan)
+        // ================================================================
+        // Variasi data for 14 days:
+        // - Day 0 (hari ini): 2 order (sudah Scheduled)
+        // - Day 1 (besok):    2 order
+        // - Day 2:            2 order
+        // - Day 3:            2 order
+        // - Day 4:            1 order
+        // - Day 5-13:         1 order per day
+        // Total: 19 order (customer 1-19)
+        // ================================================================
+
+        $animalTypes = ['Kambing', 'Domba'];
+        $animalGenders = ['Jantan', 'Betina'];
+        $penyembelihan = ['Dokumentasi', 'Video Call', 'Visit'];
+        $slaughterTimes = ['06:00:00', '06:30:00', '07:00:00', '07:30:00', '08:00:00', '08:30:00', '09:00:00', '09:30:00', '10:00:00'];
+
+        // Define how many orders per day (day 0 = today, day 13 = last day)
+        $ordersPerDay = [2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+        $today = date('Y-m-d');
+        $allOrders = [];
+        $customerIdx = 0;
+        $timeIdx = 0;
+
+        foreach ($ordersPerDay as $dayOffset => $count) {
+            $slaughterDate = date('Y-m-d', strtotime("+{$dayOffset} days"));
+            $deliveryDate = date('Y-m-d', strtotime("+{$dayOffset} days +1 day"));
+
+            for ($o = 0; $o < $count; $o++) {
+                $customerIdx++; // 1-based
+                $pkgId = ($customerIdx % 8) + 1; // 1-8
+                $animalType = $animalTypes[$customerIdx % 2];
+                $animalGender = $animalGenders[$customerIdx % 2];
+                $jmlAnak = ($customerIdx % 2 == 0) ? 2 : 1;
+                $peny = $penyembelihan[$customerIdx % 3];
+                $useCard = ($customerIdx % 3 != 0);
+                $useCert = ($customerIdx % 2 == 0);
+
+                // Status: today's orders are Scheduled, others are Pending
+                $status = ($dayOffset == 0) ? 'Scheduled' : 'Pending';
+
+                $slaughterTime = $slaughterTimes[$timeIdx % count($slaughterTimes)];
+                $timeIdx++;
+
+                // Price from packages
+                $pkgPrices = [2500000, 3000000, 2800000, 3400000, 3400000, 4200000, 3900000, 4900000];
+                $totalPrice = $pkgPrices[$pkgId - 1];
+
+                $allOrders[] = [
+                    'customer_id'           => $customerIdx,
+                    'package_id'            => $pkgId,
+                    'animal_type'           => $animalType,
+                    'animal_gender'         => $animalGender,
+                    'jumlah_anak'           => $jmlAnak,
+                    'slaughter_date'        => $slaughterDate,
+                    'delivery_date'         => $deliveryDate,
+                    'slaughter_time'        => $slaughterTime,
+                    'penyembelihan'         => $peny,
+                    'use_photo_card'        => $useCard ? 1 : 0,
+                    'use_photo_certificate' => $useCert ? 1 : 0,
+                    'status'                => $status,
+                    'total_price'           => $totalPrice,
+                ];
+            }
+        }
+
+        $this->db->table('orders')->insertBatch($allOrders);
+        echo "  ✓ Orders inserted (" . count($allOrders) . " orders for 14 days)\n";
 
         // ===================== ORDER DETAILS =====================
-        $orderDetails = [
-            // Order 1 - Paket Special A (50 box) - Laki-laki => gulai + sate
-            ['order_id' => 1, 'bone_menu_id' => 1, 'meat_menu_id' => 1, 'box_type' => 'Box Premium', 'jumlah_box' => 30],
-            ['order_id' => 1, 'bone_menu_id' => 2, 'meat_menu_id' => 2, 'box_type' => 'Box Premium', 'jumlah_box' => 20],
-            // Order 2 - Paket Berkah A (50 box) - Perempuan => sop + teriyaki
-            ['order_id' => 2, 'bone_menu_id' => 2, 'meat_menu_id' => 2, 'box_type' => 'Bento Pack', 'jumlah_box' => 25],
-            ['order_id' => 2, 'bone_menu_id' => 3, 'meat_menu_id' => 3, 'box_type' => 'Bento Pack', 'jumlah_box' => 25],
-            // Order 3 - Paket Special B (60 box) - Laki-laki
-            ['order_id' => 3, 'bone_menu_id' => 1, 'meat_menu_id' => 4, 'box_type' => 'Box Premium', 'jumlah_box' => 30],
-            ['order_id' => 3, 'bone_menu_id' => 3, 'meat_menu_id' => 5, 'box_type' => 'Box Premium', 'jumlah_box' => 30],
-            // Order 4 - Completed (50 box)
-            ['order_id' => 4, 'bone_menu_id' => 1, 'meat_menu_id' => 1, 'box_type' => 'Box Premium', 'jumlah_box' => 30],
-            ['order_id' => 4, 'bone_menu_id' => 2, 'meat_menu_id' => 5, 'box_type' => 'Box Premium', 'jumlah_box' => 20],
-            // Order 5 - Paket Special C (80 box)
-            ['order_id' => 5, 'bone_menu_id' => 4, 'meat_menu_id' => 1, 'box_type' => 'Box Premium', 'jumlah_box' => 40],
-            ['order_id' => 5, 'bone_menu_id' => 1, 'meat_menu_id' => 3, 'box_type' => 'Box Premium', 'jumlah_box' => 40],
-            // Order 6 - Paket Berkah A
-            ['order_id' => 6, 'bone_menu_id' => 2, 'meat_menu_id' => 2, 'box_type' => 'Bento Pack', 'jumlah_box' => 50],
-            // Order 7 - Paket Berkah C (80 box)
-            ['order_id' => 7, 'bone_menu_id' => 3, 'meat_menu_id' => 6, 'box_type' => 'Bento Pack', 'jumlah_box' => 40],
-            ['order_id' => 7, 'bone_menu_id' => 1, 'meat_menu_id' => 4, 'box_type' => 'Bento Pack', 'jumlah_box' => 40],
-            // Order 8 - Completed
-            ['order_id' => 8, 'bone_menu_id' => 2, 'meat_menu_id' => 1, 'box_type' => 'Box Premium', 'jumlah_box' => 30],
-            ['order_id' => 8, 'bone_menu_id' => 4, 'meat_menu_id' => 5, 'box_type' => 'Box Premium', 'jumlah_box' => 20],
-            // Order 9 - Paket Special D (100 box)
-            ['order_id' => 9, 'bone_menu_id' => 1, 'meat_menu_id' => 1, 'box_type' => 'Box Premium', 'jumlah_box' => 50],
-            ['order_id' => 9, 'bone_menu_id' => 2, 'meat_menu_id' => 2, 'box_type' => 'Box Premium', 'jumlah_box' => 50],
-            // Order 10
-            ['order_id' => 10, 'bone_menu_id' => 3, 'meat_menu_id' => 3, 'box_type' => 'Bento Pack', 'jumlah_box' => 25],
-            ['order_id' => 10, 'bone_menu_id' => 2, 'meat_menu_id' => 6, 'box_type' => 'Bento Pack', 'jumlah_box' => 25],
-            // Order 11
-            ['order_id' => 11, 'bone_menu_id' => 1, 'meat_menu_id' => 4, 'box_type' => 'Box Premium', 'jumlah_box' => 25],
-            ['order_id' => 11, 'bone_menu_id' => 4, 'meat_menu_id' => 5, 'box_type' => 'Box Premium', 'jumlah_box' => 25],
-            // Order 12 - Paket Berkah D (100 box) - hari ini
-            ['order_id' => 12, 'bone_menu_id' => 2, 'meat_menu_id' => 1, 'box_type' => 'Box Premium', 'jumlah_box' => 50],
-            ['order_id' => 12, 'bone_menu_id' => 3, 'meat_menu_id' => 3, 'box_type' => 'Box Premium', 'jumlah_box' => 50],
+        $orderDetails = [];
+        $boneMenuCombos = [
+            [1, 1], [1, 2], [2, 2], [2, 3],
+            [3, 1], [3, 4], [4, 5], [1, 5],
+            [2, 1], [4, 1], [4, 3], [1, 3],
+            [2, 6], [3, 6], [1, 4], [2, 5],
+            [3, 5], [4, 4], [4, 2],
         ];
+        $boxTypes = ['Box Premium', 'Bento Pack'];
+
+        for ($oid = 1; $oid <= count($allOrders); $oid++) {
+            $combo = $boneMenuCombos[($oid - 1) % count($boneMenuCombos)];
+            $bType = $boxTypes[$oid % 2];
+            $totalBox = ($oid % 2 == 0) ? 25 : 30; // 25 or 30 per detail
+
+            $orderDetails[] = [
+                'order_id'    => $oid,
+                'bone_menu_id' => $combo[0],
+                'meat_menu_id' => $combo[1],
+                'box_type'     => $bType,
+                'jumlah_box'   => $totalBox,
+            ];
+
+            // Add second detail for odd order IDs
+            if ($oid % 2 == 1 && $oid <= count($allOrders)) {
+                $combo2 = $boneMenuCombos[($oid + 3) % count($boneMenuCombos)];
+                $bType2 = ($oid % 2 == 0) ? 'Box Premium' : 'Bento Pack';
+                $orderDetails[] = [
+                    'order_id'    => $oid,
+                    'bone_menu_id' => $combo2[0],
+                    'meat_menu_id' => $combo2[1],
+                    'box_type'     => $bType2,
+                    'jumlah_box'   => $totalBox,
+                ];
+            }
+        }
+
         $this->db->table('order_details')->insertBatch($orderDetails);
-        echo "  ✓ Order details inserted (22 details)\n";
+        echo "  ✓ Order details inserted (" . count($orderDetails) . " details)\n";
 
         // ===================== SCHEDULES (EDF) =====================
-        // Get all pending/scheduled orders sorted by slaughter_date ASC
-        $allOrders = $this->db->table('orders')
+        $pendingOrders = $this->db->table('orders')
             ->whereIn('status', ['Pending', 'Scheduled'])
             ->orderBy('slaughter_date', 'ASC')
+            ->orderBy('id_order', 'ASC')
             ->get()
             ->getResultArray();
 
         $schedules = [];
         $priority = 1;
-        foreach ($allOrders as $order) {
+        foreach ($pendingOrders as $order) {
+            $isToday = ($order['slaughter_date'] == $today);
             $schedules[] = [
                 'order_id'       => $order['id_order'],
                 'slaughter_date' => $order['slaughter_date'],
                 'priority'       => $priority++,
-                'status'         => ($order['slaughter_date'] <= date('Y-m-d')) ? 'In Progress' : 'Scheduled'
+                'status'         => $isToday ? 'In Progress' : 'Scheduled',
             ];
         }
         if (!empty($schedules)) {
             $this->db->table('schedules')->insertBatch($schedules);
             echo "  ✓ Schedules inserted (" . count($schedules) . " schedules)\n";
-        } else {
-            echo "  - No schedules to insert (no pending orders)\n";
         }
 
-        // ===================== NOTIFICATIONS =====================
-        $notifications = [
-            [
-                'order_id' => 1,
+        // ================================================================
+        //  NOTIFICATIONS
+        // ================================================================
+        // 1. 24h REMINDER → untuk order yang slaughter_date-nya besok (H+1)
+        // 2. DAILY RECAP → rekap untuk hari ini
+        // 3. ORDER CONFIRMATION → untuk setiap order
+        // ================================================================
+
+        $notifications = [];
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+        $allOrdersData = $this->db->table('orders')
+            ->join('customers', 'customers.id_customer = orders.customer_id')
+            ->join('packages', 'packages.id_package = orders.package_id')
+            ->select('orders.*, customers.name as customer_name, customers.child_name, customers.gender as child_gender, customers.phone, customers.birth_date, customers.address, packages.name as package_name')
+            ->get()
+            ->getResultArray();
+
+        foreach ($allOrdersData as $order) {
+            $hargaFormat = number_format($order['total_price'], 0, ',', '.');
+            $jmlAnakText = $order['jumlah_anak'] . ' ekor';
+
+            // ORDER CONFIRMATION untuk setiap order
+            $notifications[] = [
+                'order_id' => $order['id_order'],
                 'type'     => 'order_confirmation',
-                'message'  => "✅ Konfirmasi Pesanan #1\n👤 H. Abdullah Husain\n📅 Penyembelihan: " . date('Y-m-d') . "\n🐑 Kambing Jantan - Paket Special A\n💰 Rp 3.000.000\nStatus: Terjadwal"
-            ],
-            [
-                'order_id' => 4,
-                'type'     => 'order_confirmation',
-                'message'  => "✅ Konfirmasi Pesanan #4\n👤 Dewi Sartika\n📅 Penyembelihan: " . date('Y-m-d', strtotime('-5 days')) . "\n🐑 Domba Betina - Paket Berkah B\n💰 Rp 2.800.000\nStatus: Selesai"
-            ],
-            [
-                'order_id' => 1,
-                'type'     => '24h_reminder',
-                'message'  => "🔔 *Pengingat 24 Jam!*\nHewan akan dipotong hari ini!\n📌 Order: #1\n👤 Pemesan: H. Abdullah Husain\n📅 Tanggal: " . date('Y-m-d') . "\n⏰ Waktu: 07:00"
-            ],
-            [
-                'order_id' => 12,
-                'type'     => '24h_reminder',
-                'message'  => "🔔 *Pengingat 24 Jam!*\nHewan akan dipotong hari ini!\n📌 Order: #12\n👤 Pemesan: Mega Wulandari\n📅 Tanggal: " . date('Y-m-d') . "\n⏰ Waktu: 08:00"
-            ],
-            [
-                'order_id' => 2,
-                'type'     => '24h_reminder',
-                'message'  => "🔔 *Pengingat 24 Jam!*\nHewan akan dipotong besok!\n📌 Order: #2\n👤 Pemesan: Siti Nurhaliza\n📅 Tanggal: " . date('Y-m-d', strtotime('+1 day')) . "\n⏰ Waktu: 08:00"
-            ],
-            [
-                'order_id' => 6,
-                'type'     => '24h_reminder',
-                'message'  => "🔔 *Pengingat 24 Jam!*\nHewan akan dipotong besok!\n📌 Order: #6\n👤 Pemesan: Fitriani Kusuma Dewi\n📅 Tanggal: " . date('Y-m-d', strtotime('+1 day')) . "\n⏰ Waktu: 10:00"
-            ],
-            [
-                'order_id' => null,
-                'type'     => 'daily_recap',
-                'message'  => "📊 *Rekap Harian - " . date('d/m/Y') . "*\n\n📦 Total Order: 12\n✅ Selesai: 2\n🔄 Diproses: 3\n⏳ Pending: 7\n\n💰 Pendapatan Bulan Ini: Rp 39.500.000\n🐑 Stok Kambing: 25 ekor\n🐏 Stok Domba: 18 ekor"
-            ],
-            [
-                'order_id' => 5,
-                'type'     => 'order_confirmation',
-                'message'  => "✅ Konfirmasi Pesanan #5\n👤 H. Bambang Supriyadi\n📅 Penyembelihan: " . date('Y-m-d', strtotime('+4 days')) . "\n🐑 Kambing Jantan - Paket Special C\n💰 Rp 4.200.000\nStatus: Terjadwal"
-            ],
-            [
-                'order_id' => null,
-                'type'     => 'stock_alert',
-                'message'  => "⚠️ *Peringatan Stok Menipis!*\n• Bumbu Sop: 25 pack\n• Tusuk Sate: 500 batang\n• Bento Pack: 200 buah\n\nSegera lakukan restock!"
-            ],
-            [
-                'order_id' => null,
-                'type'     => 'daily_recap',
-                'message'  => "📊 *Rekap Harian - " . date('d/m/Y', strtotime('-1 day')) . "*\n\n📦 Total Order: 10\n✅ Selesai: 1\n🔄 Diproses: 2\n⏳ Pending: 7\n\n💰 Pendapatan: Rp 2.800.000"
-            ]
+                'message'  => "✅ Konfirmasi Pesanan #{$order['id_order']}\n👤 {$order['customer_name']}\n📅 Penyembelihan: {$order['slaughter_date']}\n🐑 {$order['animal_type']} {$order['animal_gender']} - {$order['package_name']}\n💰 Rp {$hargaFormat}\nStatus: Terjadwal",
+            ];
+
+            // 24h REMINDER untuk order besok
+            if ($order['slaughter_date'] == $tomorrow) {
+                $notifications[] = [
+                    'order_id' => $order['id_order'],
+                    'type'     => '24h_reminder',
+                    'message'  => "🔔 *Pengingat 24 Jam!*\nHewan akan dipotong besok!\n📌 Order: #{$order['id_order']}\n👤 Pemesan: {$order['customer_name']}\n👶 Anak: {$order['child_name']}\n📅 Tanggal: {$order['slaughter_date']}\n⏰ Waktu: {$order['slaughter_time']}",
+                ];
+            }
+        }
+
+        // DAILY RECAP untuk hari ini
+        $todayOrders = array_filter($allOrdersData, function ($o) use ($today) {
+            return $o['slaughter_date'] == $today;
+        });
+
+        $totalBox = 0;
+        $totalPrice = 0;
+        $dombaCount = 0;
+        $kambingCount = 0;
+        $orderList = "";
+
+        foreach ($todayOrders as $order) {
+            // Count box from order_details
+            $details = $this->db->table('order_details')
+                ->where('order_id', $order['id_order'])
+                ->get()
+                ->getResultArray();
+            $boxCount = 0;
+            foreach ($details as $d) {
+                $boxCount += (int)$d['jumlah_box'];
+            }
+            $totalBox += $boxCount;
+            $totalPrice += $order['total_price'];
+            if ($order['animal_type'] == 'Domba') $dombaCount++;
+            else $kambingCount++;
+            $hargaOrder = number_format($order['total_price'], 0, ',', '.');
+            $orderList .= "  #{$order['id_order']} | {$order['child_name']} | {$order['animal_type']} | {$order['package_name']} | Rp {$hargaOrder}\n";
+        }
+
+        // Stock info
+        $stockInfo = '';
+        $stocksList = $this->db->table('stocks')->get()->getResultArray();
+        $stockWarning = false;
+        foreach ($stocksList as $s) {
+            $status = $s['quantity'] <= $s['min_threshold'] ? '⚠️ STOK MENIPIS' : '✅ OK';
+            $stockInfo .= "• {$s['item_name']}: {$s['quantity']} {$s['unit']} {$status}\n";
+            if ($s['quantity'] <= $s['min_threshold']) $stockWarning = true;
+        }
+
+        $totalPendapatan = number_format($totalPrice, 0, ',', '.');
+        $totalHariIni = count($todayOrders);
+
+        $recapMsg = "📊 *REKAP HARIAN - " . strtoupper(date('d F Y')) . "*\n"
+                  . "━━━━━━━━━━━━━━━━━━━━\n"
+                  . "📦 Total Pesanan: {$totalHariIni}\n"
+                  . "📦 Total Box: {$totalBox}\n"
+                  . "🐏 Domba: {$dombaCount}\n"
+                  . "🐐 Kambing: {$kambingCount}\n"
+                  . "💰 Total Pendapatan: Rp {$totalPendapatan}\n"
+                  . "━━━━━━━━━━━━━━━━━━━━\n"
+                  . "📋 DAFTAR PESANAN:\n"
+                  . ($orderList ?: "  - Tidak ada pesanan hari ini\n")
+                  . "━━━━━━━━━━━━━━━━━━━━\n"
+                  . "📦 STOK TERKINI:\n"
+                  . $stockInfo
+                  . ($stockWarning ? "⚠️ Ada stok yang menipis! Segera lakukan pengadaan.\n" : "")
+                  . "━━━━━━━━━━━━━━━━━━━━\n"
+                  . "⚡ Semoga lancar hari ini! 🙏";
+
+        $notifications[] = [
+            'order_id' => null,
+            'type'     => 'daily_recap',
+            'message'  => $recapMsg,
         ];
+
         $this->db->table('notifications')->insertBatch($notifications);
         echo "  ✓ Notifications inserted (" . count($notifications) . " notifications)\n";
 
         // ===================== SETTINGS =====================
         $settings = [
-            ['setting_key' => 'shop_name',        'setting_value' => 'Aqiqah Cahaya Berkah'],
-            ['setting_key' => 'shop_address',     'setting_value' => 'Jl. Raya Bogor KM 30, Cibinong, Bogor'],
-            ['setting_key' => 'shop_phone',       'setting_value' => '021-87965432'],
-            ['setting_key' => 'shop_whatsapp',    'setting_value' => '6281234567890'],
-            ['setting_key' => 'telegram_bot_token', 'setting_value' => ''],
-            ['setting_key' => 'telegram_chat_id',   'setting_value' => ''],
-            ['setting_key' => 'admin_email',      'setting_value' => 'admin@aqiqah-berkah.com'],
-            ['setting_key' => 'pricing_note',     'setting_value' => 'Harga termasuk biaya penyembelihan, pengolahan, dan pengemasan'],
-            ['setting_key' => 'last_scheduler_run', 'setting_value' => date('Y-m-d H:i:s')],
+            ['setting_key' => 'shop_name',           'setting_value' => 'Aqiqah Cahaya Berkah'],
+            ['setting_key' => 'shop_address',        'setting_value' => 'Jl. Raya Bogor KM 30, Cibinong, Bogor'],
+            ['setting_key' => 'shop_phone',          'setting_value' => '021-87965432'],
+            ['setting_key' => 'shop_whatsapp',       'setting_value' => '6281234567890'],
+            ['setting_key' => 'telegram_bot_token',  'setting_value' => ''],
+            ['setting_key' => 'telegram_chat_id',    'setting_value' => ''],
+            ['setting_key' => 'admin_email',         'setting_value' => 'admin@aqiqah-berkah.com'],
+            ['setting_key' => 'pricing_note',        'setting_value' => 'Harga termasuk biaya penyembelihan, pengolahan, dan pengemasan'],
+            ['setting_key' => 'last_scheduler_run',  'setting_value' => date('Y-m-d H:i:s')],
         ];
         $this->db->table('settings')->insertBatch($settings);
         echo "  ✓ Settings inserted (9 settings)\n";
 
-        echo "\n✅ Seeder selesai! Semua data dummy berhasil dimasukkan.\n";
-        echo "   Login Admin: admin / admin123\n";
+        echo "\n✅ Seeder selesai! Data dummy selama 14 hari berhasil dimasukkan.\n";
+        echo "   Login Admin: admin / admin\n";
         echo "   Login Staff: staff1 / staff123\n";
         echo "   Login Dapur: dapur / dapur123\n";
-        echo "   Total: 4 users, 12 customers, 12 orders, 22 order details, " . count($schedules) . " schedules\n";
+        echo "   Total: 4 users, " . count($customers) . " customers, " . count($allOrders) . " orders, "
+             . count($orderDetails) . " order details, " . count($schedules) . " schedules\n";
     }
 }

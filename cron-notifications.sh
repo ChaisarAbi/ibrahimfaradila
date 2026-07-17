@@ -3,22 +3,29 @@
 # CRON JOB NOTIFICATIONS - Sistem Aqiqah
 # ============================================
 # Script ini menjalankan notifikasi Telegram 
-# (24h reminders + daily recap) via Spark CLI
+# via Spark CLI dengan mode berbeda:
+#   reminders   -> Kirim pengingat 24 jam (06:00 & 18:00)
+#   recap       -> Kirim rekap harian (23:00)
+#   all         -> Kirim keduanya
 # ============================================
-# 
+#
 # Cara Install di VPS / Linux Server:
 # 1. Letakkan script ini di folder project
 # 2. chmod +x cron-notifications.sh
 # 3. Edit crontab: crontab -e
 # 4. Tambahkan baris berikut:
 #
-#    # Jalankan reminder setiap jam 06:00 pagi
-#    0 6 * * * /path/to/project-aqiqah/cron-notifications.sh >> /path/to/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    # Pengingat 24 jam (06:00 & 18:00)
+#    0 6 * * * /var/www/project-aqiqah/cron-notifications.sh reminders >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    0 18 * * * /var/www/project-aqiqah/cron-notifications.sh reminders >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
 #
-#    # Jalankan juga jam 18:00 sebagai backup
-#    0 18 * * * /path/to/project-aqiqah/cron-notifications.sh >> /path/to/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    # Rekap harian (23:00)
+#    0 23 * * * /var/www/project-aqiqah/cron-notifications.sh recap >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
 #
 # ============================================
+
+# Mode: reminders / recap / all
+MODE="${1:-all}"
 
 # Konfigurasi Path (Sesuaikan dengan lokasi deploy)
 PROJECT_DIR="/var/www/project-aqiqah"
@@ -29,7 +36,7 @@ SPARK="spark"
 DATETIME=$(date '+%Y-%m-%d %H:%M:%S')
 
 echo "========================================"
-echo "[$DATETIME] Memulai cron notifications..."
+echo "[$DATETIME] Memulai cron notifications (mode: $MODE)..."
 echo "========================================"
 
 # Pindah ke direktori project
@@ -44,15 +51,15 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-# Jalankan Spark Command
-echo "[$(date '+%H:%M:%S')] Menjalankan notifications:send..."
-$PHP_BIN $SPARK notifications:send
+# Jalankan Spark Command sesuai mode
+echo "[$(date '+%H:%M:%S')] Menjalankan notifications:send dengan mode: $MODE..."
+$PHP_BIN $SPARK notifications:send "$MODE"
 
 # Cek exit code
 if [ $? -eq 0 ]; then
-    echo "[$(date '+%H:%M:%S')] ✅ Notifikasi berhasil dikirim."
+    echo "[$(date '+%H:%M:%S')] ✅ Notifikasi ($MODE) berhasil dikirim."
 else
-    echo "[$(date '+%H:%M:%S')] ❌ Gagal mengirim notifikasi."
+    echo "[$(date '+%H:%M:%S')] ❌ Gagal mengirim notifikasi ($MODE)."
 fi
 
 echo "========================================"

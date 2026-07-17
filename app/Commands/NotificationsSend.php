@@ -18,44 +18,52 @@ class NotificationsSend extends BaseCommand
 
     public function run(array $params)
     {
+        // Determine mode from first parameter
+        $mode = $params[0] ?? 'all';
+        
         CLI::write('====================================', 'yellow');
         CLI::write('  SISTEM NOTIFIKASI TELEGRAM', 'yellow');
         CLI::write('====================================', 'yellow');
         
         $telegram = new TelegramBot();
         
-        // Test connection first
-        CLI::write('🔌 Menghubungkan ke Telegram...', 'cyan');
-        $testMsg = "🤖 <b>Sistem Aqiqah Online</b>\nBot Telegram berhasil terhubung!\nWaktu: " . date('d/m/Y H:i');
-        $testResult = $telegram->sendMessage($testMsg);
-        
-        if ($testResult === false) {
-            CLI::error('❌ Gagal terhubung ke Telegram. Cek token di .env');
-            CLI::write('Pastikan TELEGRAM_BOT_TOKEN dan TELEGRAM_CHAT_ID terisi di file .env', 'red');
-            return;
+        // Skip test connection if just testing token (runs inside each method anyway)
+        if ($mode === 'all') {
+            CLI::write('🔌 Menghubungkan ke Telegram...', 'cyan');
+            $testMsg = "🤖 <b>Sistem Aqiqah Online</b>\nBot Telegram berhasil terhubung!\nWaktu: " . date('d/m/Y H:i');
+            $testResult = $telegram->sendMessage($testMsg);
+            
+            if ($testResult === false) {
+                CLI::error('❌ Gagal terhubung ke Telegram. Cek token di .env');
+                CLI::write('Pastikan TELEGRAM_BOT_TOKEN dan TELEGRAM_CHAT_ID terisi di file .env', 'red');
+                return;
+            }
+            
+            $response = json_decode($testResult, true);
+            if (!$response || !($response['ok'] ?? false)) {
+                CLI::error('❌ Gagal kirim test message: ' . ($response['description'] ?? 'Unknown error'));
+                CLI::write('Response: ' . $testResult, 'red');
+                return;
+            }
+            
+            CLI::write('✅ Bot Telegram terhubung!', 'green');
         }
         
-        $response = json_decode($testResult, true);
-        if (!$response || !($response['ok'] ?? false)) {
-            CLI::error('❌ Gagal kirim test message: ' . ($response['description'] ?? 'Unknown error'));
-            CLI::write('Response: ' . $testResult, 'red');
-            return;
-        }
-        
-        CLI::write('✅ Bot Telegram terhubung!', 'green');
         CLI::write('');
         
-        // === SEND 24H REMINDERS ===
-        CLI::write('⏰ [' . date('H:i:s') . '] Mengirim pengingat 24 jam...', 'yellow');
-        $this->sendReminders();
+        if ($mode === 'all' || $mode === 'reminders') {
+            CLI::write('⏰ [' . date('H:i:s') . '] Mengirim pengingat 24 jam...', 'yellow');
+            $this->sendReminders();
+        }
         
-        // === SEND DAILY RECAP ===
-        CLI::write('📊 [' . date('H:i:s') . '] Mengirim rekap harian...', 'yellow');
-        $this->sendRecap();
+        if ($mode === 'all' || $mode === 'recap') {
+            CLI::write('📊 [' . date('H:i:s') . '] Mengirim rekap harian...', 'yellow');
+            $this->sendRecap();
+        }
         
         CLI::write('');
         CLI::write('====================================', 'green');
-        CLI::write('  ✅ SEMUA NOTIFIKASI TERKIRIM!', 'green');
+        CLI::write('  ✅ NOTIFIKASI SELESAI!', 'green');
         CLI::write('====================================', 'green');
     }
     
