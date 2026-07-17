@@ -122,5 +122,16 @@ _modules/*
 # Visual Studio Code
 .vscode/
 
+# Session files from CI4
+public/null/
+
+# Custom project files
+.env
+fix_db_cascade.sql
+fix_views.php
+cron-notifications.sh
+/public/uploads/photos/
+public/public/
+
 /results/
 /phpunit*.xml
