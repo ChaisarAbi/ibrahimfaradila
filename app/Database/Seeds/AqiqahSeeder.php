@@ -9,22 +9,7 @@ class AqiqahSeeder extends Seeder
     public function run()
     {
         $this->createSchemaIfNeeded();
-
-        // Disable FK checks, truncate, then re-enable
-        $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
-        $this->db->table('notifications')->truncate();
-        $this->db->table('schedules')->truncate();
-        $this->db->table('order_details')->truncate();
-        $this->db->table('orders')->truncate();
-        $this->db->table('customers')->truncate();
-        $this->db->table('stocks')->truncate();
-        $this->db->table('settings')->truncate();
-        $this->db->table('packages')->truncate();
-        $this->db->table('meat_menus')->truncate();
-        $this->db->table('bone_menus')->truncate();
-        $this->db->table('users')->truncate();
-        $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
-        echo "  ✓ Existing data truncated\n";
+        $this->truncateAndSeed();
     }
 
     private function createSchemaIfNeeded()
@@ -32,7 +17,7 @@ class AqiqahSeeder extends Seeder
         // Cek apakah tabel users sudah ada
         $tableExists = $this->db->query("SHOW TABLES LIKE 'users'")->getNumRows() > 0;
         if ($tableExists) {
-            echo "  ✓ Schema already exists, skipping schema creation\n";
+            echo "  ✓ Tables already exist, skipping schema creation\n";
             return;
         }
 
@@ -68,6 +53,25 @@ class AqiqahSeeder extends Seeder
         }
 
         echo "  ✓ Schema created ($createCount tables/indices)\n";
+    }
+
+    private function truncateAndSeed()
+    {
+        // Disable FK checks, truncate, then re-enable
+        $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
+        $this->db->table('notifications')->truncate();
+        $this->db->table('schedules')->truncate();
+        $this->db->table('order_details')->truncate();
+        $this->db->table('orders')->truncate();
+        $this->db->table('customers')->truncate();
+        $this->db->table('stocks')->truncate();
+        $this->db->table('settings')->truncate();
+        $this->db->table('packages')->truncate();
+        $this->db->table('meat_menus')->truncate();
+        $this->db->table('bone_menus')->truncate();
+        $this->db->table('users')->truncate();
+        $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
+        echo "  ✓ Existing data truncated\n";
 
         // ===================== USERS =====================
         $users = [
@@ -152,22 +156,11 @@ class AqiqahSeeder extends Seeder
         // ================================================================
         //  GENERATE ORDERS FOR 14 DAYS (Hari ini + 13 hari ke depan)
         // ================================================================
-        // Variasi data for 14 days:
-        // - Day 0 (hari ini): 2 order (sudah Scheduled)
-        // - Day 1 (besok):    2 order
-        // - Day 2:            2 order
-        // - Day 3:            2 order
-        // - Day 4:            1 order
-        // - Day 5-13:         1 order per day
-        // Total: 19 order (customer 1-19)
-        // ================================================================
-
         $animalTypes = ['Kambing', 'Domba'];
         $animalGenders = ['Jantan', 'Betina'];
         $penyembelihan = ['Dokumentasi', 'Video Call', 'Visit'];
         $slaughterTimes = ['06:00:00', '06:30:00', '07:00:00', '07:30:00', '08:00:00', '08:30:00', '09:00:00', '09:30:00', '10:00:00'];
 
-        // Define how many orders per day (day 0 = today, day 13 = last day)
         $ordersPerDay = [2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
         $today = date('Y-m-d');
@@ -189,13 +182,11 @@ class AqiqahSeeder extends Seeder
                 $useCard = ($customerIdx % 3 != 0);
                 $useCert = ($customerIdx % 2 == 0);
 
-                // Status: today's orders are Scheduled, others are Pending
                 $status = ($dayOffset == 0) ? 'Scheduled' : 'Pending';
 
                 $slaughterTime = $slaughterTimes[$timeIdx % count($slaughterTimes)];
                 $timeIdx++;
 
-                // Price from packages
                 $pkgPrices = [2500000, 3000000, 2800000, 3400000, 3400000, 4200000, 3900000, 4900000];
                 $totalPrice = $pkgPrices[$pkgId - 1];
 
@@ -234,7 +225,7 @@ class AqiqahSeeder extends Seeder
         for ($oid = 1; $oid <= count($allOrders); $oid++) {
             $combo = $boneMenuCombos[($oid - 1) % count($boneMenuCombos)];
             $bType = $boxTypes[$oid % 2];
-            $totalBox = ($oid % 2 == 0) ? 25 : 30; // 25 or 30 per detail
+            $totalBox = ($oid % 2 == 0) ? 25 : 30;
 
             $orderDetails[] = [
                 'order_id'    => $oid,
@@ -244,7 +235,6 @@ class AqiqahSeeder extends Seeder
                 'jumlah_box'   => $totalBox,
             ];
 
-            // Add second detail for odd order IDs
             if ($oid % 2 == 1 && $oid <= count($allOrders)) {
                 $combo2 = $boneMenuCombos[($oid + 3) % count($boneMenuCombos)];
                 $bType2 = ($oid % 2 == 0) ? 'Box Premium' : 'Bento Pack';
@@ -288,11 +278,6 @@ class AqiqahSeeder extends Seeder
         // ================================================================
         //  NOTIFICATIONS
         // ================================================================
-        // 1. 24h REMINDER → untuk order yang slaughter_date-nya besok (H+1)
-        // 2. DAILY RECAP → rekap untuk hari ini
-        // 3. ORDER CONFIRMATION → untuk setiap order
-        // ================================================================
-
         $notifications = [];
         $tomorrow = date('Y-m-d', strtotime('+1 day'));
         $allOrdersData = $this->db->table('orders')
@@ -306,14 +291,12 @@ class AqiqahSeeder extends Seeder
             $hargaFormat = number_format($order['total_price'], 0, ',', '.');
             $jmlAnakText = $order['jumlah_anak'] . ' ekor';
 
-            // ORDER CONFIRMATION untuk setiap order
             $notifications[] = [
                 'order_id' => $order['id_order'],
                 'type'     => 'order_confirmation',
                 'message'  => "✅ Konfirmasi Pesanan #{$order['id_order']}\n👤 {$order['customer_name']}\n📅 Penyembelihan: {$order['slaughter_date']}\n🐑 {$order['animal_type']} {$order['animal_gender']} - {$order['package_name']}\n💰 Rp {$hargaFormat}\nStatus: Terjadwal",
             ];
 
-            // 24h REMINDER untuk order besok
             if ($order['slaughter_date'] == $tomorrow) {
                 $notifications[] = [
                     'order_id' => $order['id_order'],
@@ -335,7 +318,6 @@ class AqiqahSeeder extends Seeder
         $orderList = "";
 
         foreach ($todayOrders as $order) {
-            // Count box from order_details
             $details = $this->db->table('order_details')
                 ->where('order_id', $order['id_order'])
                 ->get()
@@ -352,7 +334,6 @@ class AqiqahSeeder extends Seeder
             $orderList .= "  #{$order['id_order']} | {$order['child_name']} | {$order['animal_type']} | {$order['package_name']} | Rp {$hargaOrder}\n";
         }
 
-        // Stock info
         $stockInfo = '';
         $stocksList = $this->db->table('stocks')->get()->getResultArray();
         $stockWarning = false;
