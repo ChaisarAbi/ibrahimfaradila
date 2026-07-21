@@ -8,6 +8,8 @@ class AqiqahSeeder extends Seeder
 {
     public function run()
     {
+        $this->createSchemaIfNeeded();
+
         // Disable FK checks, truncate, then re-enable
         $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
         $this->db->table('notifications')->truncate();
@@ -23,6 +25,66 @@ class AqiqahSeeder extends Seeder
         $this->db->table('users')->truncate();
         $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
         echo "  ✓ Existing data truncated\n";
+    }
+
+    private function createSchemaIfNeeded()
+    {
+        // Cek apakah tabel users sudah ada
+        $tableExists = $this->db->query("SHOW TABLES LIKE 'users'")->getNumRows() > 0;
+        if ($tableExists) {
+            echo "  ✓ Schema already exists, skipping schema creation\n";
+            return;
+        }
+
+        echo "  ⏳ Creating schema from database.sql...\n";
+
+        // Baca file database.sql dari root project
+        $sqlPath = ROOTPATH . 'database.sql';
+        if (!file_exists($sqlPath)) {
+            echo "  ✗ database.sql not found at: $sqlPath\n";
+            return;
+        }
+
+        $sql = file_get_contents($sqlPath);
+
+        // Hanya ambil bagian CREATE TABLE (abaikan INSERT dan USE DATABASE)
+        $lines = explode("\n", $sql);
+        $createQueries = [];
+        $currentQuery = '';
+        $inCreateBlock = false;
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+
+            // Skip USE database statement
+            if (preg_match('/^USE /i', $trimmed)) {
+                continue;
+            }
+
+            // Mulai CREATE TABLE
+            if (preg_match('/^CREATE TABLE/i', $trimmed)) {
+                $inCreateBlock = true;
+                $currentQuery = $line;
+                continue;
+            }
+
+            // Akhiri CREATE TABLE
+            if ($inCreateBlock) {
+                $currentQuery .= "\n" . $line;
+                if (rtrim($trimmed) === ';') {
+                    $createQueries[] = $currentQuery;
+                    $currentQuery = '';
+                    $inCreateBlock = false;
+                }
+            }
+        }
+
+        // Eksekusi semua CREATE TABLE
+        foreach ($createQueries as $query) {
+            $this->db->query($query);
+        }
+
+        echo "  ✓ Schema created (" . count($createQueries) . " tables)\n";
 
         // ===================== USERS =====================
         $users = [
