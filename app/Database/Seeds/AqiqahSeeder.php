@@ -47,44 +47,27 @@ class AqiqahSeeder extends Seeder
 
         $sql = file_get_contents($sqlPath);
 
-        // Hanya ambil bagian CREATE TABLE (abaikan INSERT dan USE DATABASE)
-        $lines = explode("\n", $sql);
-        $createQueries = [];
-        $currentQuery = '';
-        $inCreateBlock = false;
+        // Hapus komentar SQL (baris diawali -- atau #)
+        $sql = preg_replace('/^(--|#).*$/m', '', $sql);
 
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
+        // Split semua query berdasarkan titik koma
+        $queries = explode(';', $sql);
 
-            // Skip USE database statement
-            if (preg_match('/^USE /i', $trimmed)) {
-                continue;
-            }
+        $createCount = 0;
+        foreach ($queries as $query) {
+            $trimmed = trim($query);
+            if (empty($trimmed)) continue;
+            if (preg_match('/^USE /i', $trimmed)) continue;
+            if (preg_match('/^INSERT /i', $trimmed)) continue;
+            if (preg_match('/^CREATE DATABASE/i', $trimmed)) continue;
 
-            // Mulai CREATE TABLE
-            if (preg_match('/^CREATE TABLE/i', $trimmed)) {
-                $inCreateBlock = true;
-                $currentQuery = $line;
-                continue;
-            }
-
-            // Akhiri CREATE TABLE
-            if ($inCreateBlock) {
-                $currentQuery .= "\n" . $line;
-                if (rtrim($trimmed) === ';') {
-                    $createQueries[] = $currentQuery;
-                    $currentQuery = '';
-                    $inCreateBlock = false;
-                }
-            }
+            // Tambahin ; kembali untuk execute
+            $fullQuery = $trimmed . ';';
+            $this->db->query($fullQuery);
+            $createCount++;
         }
 
-        // Eksekusi semua CREATE TABLE
-        foreach ($createQueries as $query) {
-            $this->db->query($query);
-        }
-
-        echo "  ✓ Schema created (" . count($createQueries) . " tables)\n";
+        echo "  ✓ Schema created ($createCount tables/indices)\n";
 
         // ===================== USERS =====================
         $users = [
