@@ -81,6 +81,76 @@
     </style>
 </head>
 <body>
+    <?php if (isset($details)): ?>
+    <!-- SINGLE ORDER PDF: Large name display -->
+    <div class="header">
+        <div class="logo-text">🏡 IBRAHIM AQIQAH</div>
+        <h1 style="font-size:24px;margin:20px 0 5px;">LAPORAN PESANAN</h1>
+        <div class="sub" style="font-size:13px;">Nomor Order: #<?= $order['id_order'] ?? '' ?></div>
+        <div class="sub">Dicetak: <?= date('d/m/Y H:i:s') ?></div>
+    </div>
+
+    <div style="text-align:center;margin:30px 0;padding:25px;border:3px solid #2E7D32;border-radius:10px;background:#f0fff0;">
+        <div style="font-size:13px;color:#666;margin-bottom:5px;">Atas Nama</div>
+        <div style="font-size:28px;font-weight:bold;color:#1B5E20;margin-bottom:5px;"><?= strtoupper($customer['name'] ?? '-') ?></div>
+        <div style="font-size:16px;color:#555;">Putra / Putri: <strong><?= $customer['child_name'] ?? '-' ?></strong></div>
+        <div style="font-size:14px;color:#2E7D32;margin-top:10px;"><?= $order['jumlah_anak'] ?? '1' ?> Ekor <?= $order['animal_type'] ?? '' ?> - <?= $package['name'] ?? '' ?></div>
+    </div>
+
+    <table>
+        <tr>
+            <th style="width:50%;">Detail Pemesan</th>
+            <th style="width:50%;">Detail Pesanan</th>
+        </tr>
+        <tr>
+            <td style="text-align:left;vertical-align:top;">
+                <strong>Nama:</strong> <?= $customer['name'] ?? '-' ?><br>
+                <strong>Anak:</strong> <?= $customer['child_name'] ?? '-' ?><br>
+                <strong>Gender:</strong> <?= $customer['gender'] ?? '-' ?><br>
+                <strong>Telepon:</strong> <?= $customer['phone'] ?? '-' ?><br>
+                <strong>Alamat:</strong> <?= $customer['address'] ?? '-' ?>
+            </td>
+            <td style="text-align:left;vertical-align:top;">
+                <strong>Paket:</strong> <?= $package['name'] ?? '-' ?><br>
+                <strong>Hewan:</strong> <?= $order['animal_type'] ?? '-' ?> (<?= $order['animal_gender'] ?? 'Jantan' ?>)<br>
+                <strong>Jumlah:</strong> <?= $order['jumlah_anak'] ?? '1' ?> ekor<br>
+                <strong>Tgl Potong:</strong> <?= date('d/m/Y', strtotime($order['slaughter_date'])) ?><br>
+                <strong>Tgl Antar:</strong> <?= date('d/m/Y', strtotime($order['delivery_date'])) ?><br>
+                <strong>Status:</strong> <?= $order['status'] ?? '-' ?><br>
+                <strong>Total:</strong> Rp <?= number_format($order['total_price'] ?? 0, 0, ',', '.') ?>
+            </td>
+        </tr>
+    </table>
+
+    <?php if (!empty($details)): ?>
+    <h3 style="color:#1B5E20;margin-top:20px;">Menu & Box</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Menu Tulang</th>
+                <th>Menu Daging</th>
+                <th>Jenis Box</th>
+                <th>Jumlah Box</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($details as $d): ?>
+            <tr>
+                <td><?= $d['bone_name'] ?? '-' ?></td>
+                <td><?= $d['meat_name'] ?? '-' ?></td>
+                <td><?= $d['box_type'] ?? '-' ?></td>
+                <td><?= $d['jumlah_box'] ?? 0 ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+
+    <div class="footer-note">
+        Dicetak pada: <?= date('d/m/Y H:i:s') ?> | Ibrahim Aqiqah - Sistem Penjadwalan
+    </div>
+    <?php else: ?>
+    <!-- MULTI-ORDER REPORT -->
     <div class="header">
         <div class="logo-text">🏡 IBRAHIM AQIQAH</div>
         <h1>LAPORAN ORDER</h1>
@@ -135,5 +205,6 @@
     <div class="footer-note">
         Dicetak pada: <?= date('d/m/Y H:i:s') ?> | Ibrahim Aqiqah - Sistem Penjadwalan
     </div>
+    <?php endif; ?>
 </body>
 </html>

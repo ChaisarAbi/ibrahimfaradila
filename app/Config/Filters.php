@@ -35,6 +35,8 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class,
+        'dapur'         => \App\Filters\DapurFilter::class,
+        'rph'           => \App\Filters\RphFilter::class,
     ];
 
     /**

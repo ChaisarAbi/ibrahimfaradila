@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     fullname VARCHAR(100),
-    role ENUM('admin', 'staff', 'kitchen') DEFAULT 'staff',
+    role ENUM('admin', 'rph', 'dapur') DEFAULT 'admin',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -134,9 +134,11 @@ INSERT INTO packages (name, weight_type, min_weight, max_weight, box_count, pric
 ('Paket Berkah D', 'D', 21, 23, 100, 3900000, 0),
 ('Paket Special D', 'D', 21, 23, 100, 4900000, 1);
 
--- Insert User default (password: admin123)
+-- Insert User default (password bcrypt)
 INSERT INTO users (username, password, fullname, role) VALUES
-('admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Administrator', 'admin');
+('admin', '$2y$10$fGKEqVLlcihXDvgR5kwDVe4MVbwcfhs/5IfPIJ09GPiDF9uMjmQ.m', 'Administrator', 'admin'),
+('rph',   '$2y$10$pauCsYPIqMibPmI/l365k.5uBBPdkIR6q0fJm8KNIx/Z5uLtNMoG.', 'RPH Operasional', 'rph'),
+('dapur', '$2y$10$yrANE9nwUuxSBAZB3Prz/.8Cqs27HU/YE8zPyOrT/bKuZTyD3nzTC', 'Tim Dapur', 'dapur');
 
 -- Insert Stock default
 INSERT INTO stocks (item_name, category, quantity, min_threshold) VALUES

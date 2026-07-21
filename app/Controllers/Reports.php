@@ -9,8 +9,32 @@ use App\Models\MeatMenuModel;
 
 class Reports extends BaseController
 {
+    public function index()
+    {
+        $orderModel = new OrderModel();
+        $totalOrders = $orderModel->countAllResults();
+        $todayOrders = $orderModel->where('slaughter_date', date('Y-m-d'))->countAllResults();
+        $completedOrders = $orderModel->where('status', 'Completed')->countAllResults();
+        
+        $data = [
+            'title'           => 'Laporan',
+            'total_orders'    => $totalOrders,
+            'today_orders'    => $todayOrders,
+            'completed_orders' => $completedOrders
+        ];
+        
+        return view('reports/index', $data);
+    }
+
     public function certificate($id_order = null)
     {
+        if (!$id_order) {
+            $id_order = $this->request->getGet('id_order');
+        }
+        if (!$id_order) {
+            return redirect()->to('/admin/reports')->with('error', 'ID Order tidak valid');
+        }
+        
         $orderModel = new OrderModel();
         $customerModel = new CustomerModel();
         $packageModel = new PackageModel();
@@ -45,8 +69,64 @@ class Reports extends BaseController
             ->setBody($pdfOutput);
     }
     
+    public function detailPemesanan($id_order = null)
+    {
+        // Support both segment (/detail-pemesanan/2) and query string (?id_order=2)
+        if (!$id_order) {
+            $id_order = $this->request->getGet('id_order');
+        }
+        if (!$id_order) {
+            return redirect()->to('/admin/reports')->with('error', 'ID Order tidak valid');
+        }
+        
+        $orderModel = new OrderModel();
+        $customerModel = new CustomerModel();
+        $packageModel = new PackageModel();
+        $detailModel = new OrderDetailModel();
+        
+        $order = $orderModel->find($id_order);
+        if (!$order) {
+            return redirect()->to('/admin/orders')->with('error', 'Order tidak ditemukan');
+        }
+        
+        $customer = $customerModel->find($order['customer_id']);
+        $package = $packageModel->find($order['package_id']);
+        $details = $detailModel
+            ->select('order_details.*, bone_menus.name as bone_name, meat_menus.name as meat_name')
+            ->join('bone_menus', 'bone_menus.id_bone = order_details.bone_menu_id', 'left')
+            ->join('meat_menus', 'meat_menus.id_meat = order_details.meat_menu_id', 'left')
+            ->where('order_id', $id_order)
+            ->findAll();
+        
+        $data = [
+            'order'    => $order,
+            'customer' => $customer,
+            'package'  => $package,
+            'details'  => $details
+        ];
+        
+        $html = view('reports/detail_pemesanan', $data);
+        
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $pdfOutput = $dompdf->output();
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="detail_pemesanan_' . $id_order . '.pdf"')
+            ->setBody($pdfOutput);
+    }
+
     public function invitation($id_order = null)
     {
+        if (!$id_order) {
+            $id_order = $this->request->getGet('id_order');
+        }
+        if (!$id_order) {
+            return redirect()->to('/admin/reports')->with('error', 'ID Order tidak valid');
+        }
+        
         $orderModel = new OrderModel();
         $customerModel = new CustomerModel();
         $packageModel = new PackageModel();
@@ -79,15 +159,36 @@ class Reports extends BaseController
             ->setBody($pdfOutput);
     }
     
-    public function orderReport($date = null)
+    public function orderReport($startDate = null, $endDate = null)
     {
-        if (!$date) $date = date('Y-m-d');
-        
         $orderModel = new OrderModel();
         $customerModel = new CustomerModel();
         $packageModel = new PackageModel();
         
-        $orders = $orderModel->where('slaughter_date', $date)->findAll();
+        // Support query string from form: ?start_date=...&end_date=...
+        if (!$startDate) {
+            $startDate = $this->request->getGet('start_date');
+        }
+        if (!$endDate) {
+            $endDate = $this->request->getGet('end_date');
+        }
+        
+        // Support both single date and range: if only 1 param or param contains '~', treat differently
+        if (!$startDate) $startDate = date('Y-m-d');
+        
+        // Cek apakah parameter berupa "startDate/endDate" dari route
+        if ($endDate === null && strpos($startDate, '~') !== false) {
+            list($startDate, $endDate) = explode('~', $startDate, 2);
+        }
+        
+        // Jika endDate tidak diisi, gunakan startDate (single day)
+        if (!$endDate) $endDate = $startDate;
+        
+        // Query range
+        $orders = $orderModel
+            ->where('slaughter_date >=', $startDate)
+            ->where('slaughter_date <=', $endDate)
+            ->findAll();
         
         // Enrich orders with customer and package data
         $enrichedOrders = [];
@@ -100,14 +201,13 @@ class Reports extends BaseController
             $enrichedOrders[] = $o;
         }
         
-        $monthStart = date('Y-m-01', strtotime($date));
-        
         $data = [
-            'title'         => 'Laporan Order - ' . $date,
+            'title'         => 'Laporan Order - ' . $startDate . ' s/d ' . $endDate,
             'orders'        => $enrichedOrders,
-            'tanggal_awal'  => $monthStart,
-            'tanggal_akhir' => $date,
-            'date'          => $date
+            'tanggal_awal'  => $startDate,
+            'tanggal_akhir' => $endDate,
+            'start_date'    => $startDate,
+            'end_date'      => $endDate
         ];
         
         $html = view('reports/order_report', $data);
@@ -119,7 +219,50 @@ class Reports extends BaseController
         $pdfOutput = $dompdf->output();
         return $this->response
             ->setContentType('application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="laporan_order_' . $date . '.pdf"')
+            ->setHeader('Content-Disposition', 'inline; filename="laporan_order_' . $startDate . '_sampai_' . $endDate . '.pdf"')
+            ->setBody($pdfOutput);
+    }
+    
+    public function orderReportPdf($id_order = null)
+    {
+        $orderModel = new OrderModel();
+        $customerModel = new CustomerModel();
+        $packageModel = new PackageModel();
+        $detailModel = new OrderDetailModel();
+        $boneMenuModel = new BoneMenuModel();
+        $meatMenuModel = new MeatMenuModel();
+        
+        $order = $orderModel->find($id_order);
+        if (!$order) {
+            return redirect()->to('/admin/orders')->with('error', 'Order tidak ditemukan');
+        }
+        
+        $customer = $customerModel->find($order['customer_id']);
+        $package = $packageModel->find($order['package_id']);
+        $details = $detailModel
+            ->select('order_details.*, bone_menus.name as bone_name, meat_menus.name as meat_name')
+            ->join('bone_menus', 'bone_menus.id_bone = order_details.bone_menu_id', 'left')
+            ->join('meat_menus', 'meat_menus.id_meat = order_details.meat_menu_id', 'left')
+            ->where('order_id', $id_order)
+            ->findAll();
+        
+        $data = [
+            'order'    => $order,
+            'customer' => $customer,
+            'package'  => $package,
+            'details'  => $details
+        ];
+        
+        $html = view('reports/order_report', $data);
+        
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $pdfOutput = $dompdf->output();
+        return $this->response
+            ->setContentType('application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="pesanan_' . $id_order . '.pdf"')
             ->setBody($pdfOutput);
     }
     

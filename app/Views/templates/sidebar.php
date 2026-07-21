@@ -374,12 +374,20 @@
     <div class="sidebar-nav-header">Menu Utama</div>
     
     <nav class="sidebar-nav">
+        <?php $userRole = session()->get('role'); ?>
+        
+        <!-- Dashboard (Semua role) -->
+        <?php if (true): ?>
         <div class="sidebar-item">
             <a href="/admin/dashboard" class="sidebar-link <?= (current_url() == base_url('/admin/dashboard')) ? 'active' : '' ?>">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="link-text">Dashboard</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Pesanan (Admin & Dapur) -->
+        <?php if ($userRole === 'admin' || $userRole === 'dapur'): ?>
         <div class="sidebar-item">
             <a href="/admin/orders" class="sidebar-link <?= strpos(current_url(), '/admin/orders') !== false || strpos(current_url(), '/admin/orders/') !== false ? 'active' : '' ?>">
                 <i class="fas fa-shopping-cart"></i>
@@ -387,48 +395,77 @@
                 <span class="link-badge" id="orderBadge">0</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Pelanggan (Admin) -->
+        <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
             <a href="/admin/customers" class="sidebar-link <?= strpos(current_url(), '/admin/customers') !== false ? 'active' : '' ?>">
                 <i class="fas fa-users"></i>
                 <span class="link-text">Pelanggan</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Paket (Admin) -->
+        <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
             <a href="/admin/packages" class="sidebar-link <?= strpos(current_url(), '/admin/packages') !== false ? 'active' : '' ?>">
                 <i class="fas fa-box"></i>
                 <span class="link-text">Paket</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Jadwalkan / Scheduler (Admin & RPH) -->
+        <?php if ($userRole === 'admin' || $userRole === 'rph'): ?>
         <div class="sidebar-item">
             <a href="/admin/scheduler/run" class="sidebar-link">
                 <i class="fas fa-calendar-alt"></i>
                 <span class="link-text">Jadwalkan (EDF)</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Dapur (Admin & Dapur) -->
+        <?php if ($userRole === 'admin' || $userRole === 'dapur'): ?>
         <div class="sidebar-item">
             <a href="/admin/kitchen" class="sidebar-link <?= strpos(current_url(), '/admin/kitchen') !== false ? 'active' : '' ?>">
                 <i class="fas fa-utensils"></i>
                 <span class="link-text">Dapur</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Stok (Semua role) -->
+        <?php if (true): ?>
         <div class="sidebar-item">
             <a href="/admin/stock" class="sidebar-link <?= strpos(current_url(), '/admin/stock') !== false ? 'active' : '' ?>">
                 <i class="fas fa-warehouse"></i>
                 <span class="link-text">Stok</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Notifikasi (Admin) -->
+        <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
-            <a href="/admin/notifications/history" class="sidebar-link <?= strpos(current_url(), '/admin/notifications') !== false ? 'active' : '' ?>">
+            <a href="/admin/notifications/manual" class="sidebar-link <?= strpos(current_url(), '/admin/notifications') !== false ? 'active' : '' ?>">
                 <i class="fas fa-bell"></i>
                 <span class="link-text">Notifikasi</span>
             </a>
         </div>
+        <?php endif; ?>
+        
+        <!-- Laporan (Admin & Dapur) -->
+        <?php if ($userRole === 'admin' || $userRole === 'dapur'): ?>
         <div class="sidebar-item">
-            <a href="/admin/reports/order-report/<?= date('Y-m-d') ?>" class="sidebar-link <?= strpos(current_url(), '/admin/reports') !== false ? 'active' : '' ?>">
+            <a href="/admin/reports" class="sidebar-link <?= strpos(current_url(), '/admin/reports') !== false ? 'active' : '' ?>">
                 <i class="fas fa-file-pdf"></i>
                 <span class="link-text">Laporan</span>
             </a>
         </div>
+        <?php endif; ?>
     </nav>
     
     <!-- Footer -->

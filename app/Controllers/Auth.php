@@ -17,12 +17,12 @@ class Auth extends BaseController
         $session = session();
         $model = new UserModel();
         $username = $this->request->getVar('username');
-        $password = hash('sha256', $this->request->getVar('password'));
+        $password = $this->request->getVar('password');
         
         $data = $model->where('username', $username)->first();
         if ($data) {
             $pass = $data['password'];
-            $verify_pass = ($password === $pass);
+            $verify_pass = password_verify($password, $pass);
             if ($verify_pass) {
                 $ses_data = [
                     'id_user'    => $data['id_user'],

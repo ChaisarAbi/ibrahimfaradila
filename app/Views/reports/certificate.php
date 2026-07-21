@@ -2,181 +2,253 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sertifikat Aqiqah - Ibrahim Aqiqah</title>
     <style>
         @page {
-            margin: 15px;
+            margin: 10mm;
         }
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
-            color: #333;
+            margin: 0;
+            padding: 0;
+            font-family: 'DejaVu Sans', 'Times New Roman', serif;
+            color: #2c3e50;
         }
-        .certificate {
-            border: 5px solid #2E7D32;
-            padding: 40px;
+        .certificate-border {
+            border: 6px solid #b8860b;
+            padding: 6px;
+        }
+        .certificate-inner {
+            border: 2px solid #c9a84c;
+            padding: 25px 30px;
+        }
+        .header-section {
             text-align: center;
-            position: relative;
+            border-bottom: 2px solid #c9a84c;
+            padding-bottom: 10px;
         }
-        .logo-header {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #2E7D32;
-        }
-        .logo-header .logo-text {
-            font-size: 18px;
+        .header-section .brand-name {
+            font-size: 20px;
             font-weight: bold;
-            color: #1B5E20;
+            color: #1a3c2e;
+            letter-spacing: 3px;
         }
-        .logo-header .logo-sub {
-            font-size: 11px;
-            color: #666;
+        .header-section .brand-sub {
+            font-size: 10px;
+            color: #7f8c8d;
         }
-        .certificate h1 {
-            color: #2E7D32;
+        .certificate-title {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .certificate-title h1 {
             font-size: 28px;
-            margin-bottom: 5px;
+            color: #b8860b;
+            letter-spacing: 4px;
+            margin: 0;
         }
-        .certificate h2 {
-            color: #1B5E20;
-            font-size: 22px;
-            margin-bottom: 20px;
+        .gold-line {
+            width: 180px;
+            height: 2px;
+            background-color: #c9a84c;
+            margin: 5px auto;
         }
-        .certificate .bismillah {
-            font-size: 24px;
-            margin: 15px 0;
-            color: #2E7D32;
-        }
-        .certificate .hadits {
-            font-size: 12px;
-            font-style: italic;
-            color: #555;
-            margin: 5px 0 15px 0;
-        }
-        .certificate .content {
-            font-size: 14px;
-            line-height: 1.8;
-            text-align: justify;
-            margin: 15px 0;
-        }
-        .certificate .content .highlight {
-            font-weight: bold;
-            color: #2E7D32;
-            font-size: 16px;
-        }
-        .certificate .footer {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .certificate .footer .signature {
+        .bismillah-section {
             text-align: center;
-            width: 200px;
+            font-size: 20px;
+            color: #1a3c2e;
+            margin: 10px 0 3px;
         }
-        .certificate .divider {
-            border: 1px solid #2E7D32;
-            margin: 15px 0;
+        .hadits-section {
+            text-align: center;
+            font-size: 10px;
+            color: #7f8c8d;
+            font-style: italic;
+            margin: 0 0 10px;
         }
-        .certificate .border-decorative {
-            border: 2px solid #4CAF50;
-            padding: 30px;
-            margin: 10px;
-        }
-        .certificate .label {
+        .content-section {
+            text-align: center;
+            margin: 8px 0;
             font-size: 12px;
-            color: #666;
+            line-height: 1.6;
         }
-        .child-name {
-            font-size: 26px;
-            margin: 20px 0;
-            color: #1B5E20;
+        .content-section .highlight {
+            color: #1a3c2e;
+            font-weight: bold;
+        }
+        .child-name-box {
+            text-align: center;
+            margin: 10px auto;
+            padding: 8px 20px;
+            border: 2px solid #c9a84c;
+            background-color: #fdfcf0;
+            width: 80%;
+        }
+        .child-name-box .child-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1a3c2e;
+        }
+        .child-name-box .bin-text {
+            font-size: 16px;
+            color: #b8860b;
+            font-style: italic;
+        }
+        .details-table {
+            margin: 8px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        .details-table td {
+            padding: 3px 10px;
+            text-align: center;
+            vertical-align: top;
+            border: none;
+        }
+        .details-table .label {
+            font-size: 8px;
+            color: #7f8c8d;
+        }
+        .details-table .value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #1a3c2e;
+        }
+        .divider {
+            height: 1px;
+            background-color: #c9a84c;
+            margin: 10px 0;
+        }
+        .package-info {
+            text-align: center;
+            margin: 8px 0;
+            font-size: 11px;
+        }
+        .package-info .highlight {
+            color: #1a3c2e;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .footer-section {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .footer-table td {
+            width: 50%;
+            text-align: center;
+            vertical-align: bottom;
+            padding: 10px;
+        }
+        .signature-label {
+            font-size: 8px;
+            color: #7f8c8d;
+        }
+        .stamp-circle {
+            width: 60px;
+            height: 60px;
+            border: 2px dashed #b8860b;
+            border-radius: 50%;
+            margin: 3px auto;
+            text-align: center;
+            font-size: 7px;
+            color: #b8860b;
+        }
+        .signature-line {
+            width: 120px;
+            border-top: 1px solid #333;
+            margin: 20px auto 3px;
+        }
+        .signature-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #1a3c2e;
         }
         .footer-note {
-            margin-top: 25px;
-            font-size: 10px;
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 8px;
             color: #999;
-            border-top: 1px solid #ddd;
-            padding-top: 10px;
-        }
-        .stamp-area {
-            width: 100px;
-            height: 100px;
-            border: 2px dashed #2E7D32;
-            border-radius: 50%;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: #2E7D32;
         }
     </style>
 </head>
 <body>
-    <div class="certificate">
-        <div class="border-decorative">
-            <!-- Header Ibrahim Aqiqah -->
-            <div class="logo-header">
-                <div style="font-size: 32px; margin-bottom: 5px;">🏡</div>
-                <div class="logo-text">IBRAHIM AQIQAH</div>
-                <div class="logo-sub">Sistem Penjadwalan Aqiqah Terpercaya</div>
-                <div class="divider" style="width: 60%; margin: 8px auto;"></div>
+    <div class="certificate-border">
+        <div class="certificate-inner">
+            <!-- Header -->
+            <div class="header-section">
+                <div style="font-size:30px;margin-bottom:3px;">🕌</div>
+                <div class="brand-name">Ibrahim Aqiqah</div>
+                <div class="brand-sub">Sistem Penjadwalan Aqiqah Terpercaya</div>
             </div>
-
-            <h1>▸ SERTIFIKAT AQIQAH ◂</h1>
-            <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
-            <div class="hadits">"Setiap anak tergadaikan dengan aqiqahnya..." (HR. Ahmad)</div>
+            
+            <!-- Title -->
+            <div class="certificate-title">
+                <h1>SERTIFIKAT AQIQAH</h1>
+                <div class="gold-line"></div>
+            </div>
+            
+            <!-- Bismillah -->
+            <div class="bismillah-section">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+            <div class="hadits-section">"Setiap anak tergadaikan dengan aqiqahnya..." (HR. Ahmad)</div>
             
             <div class="divider"></div>
             
-            <div class="content">
-                <p>Telah dilaksanakan ibadah Aqiqah pada hari <span class="highlight"><?= $order['hari'] ?></span>, 
+            <!-- Content -->
+            <div class="content-section">
+                Telah dilaksanakan ibadah Aqiqah pada hari 
+                <span class="highlight"><?= $order['hari'] ?></span>, 
                 tanggal <span class="highlight"><?= $order['tanggal'] ?></span>,
-                atas nama:</p>
-                
-                <div class="child-name"><?= $customer['child_name'] ?></div>
-                
-                <p>Anak dari Bapak/Ibu <span class="highlight"><?= $customer['name'] ?></span></p>
-                <p>Jenis Kelamin: <span class="highlight"><?= $customer['gender'] ?></span></p>
-                <p>Tanggal Lahir: <span class="highlight"><?= $customer['birth_date'] ?></span></p>
-                
-                <div class="divider"></div>
-                
-                <p>Hewan yang disembelih: <span class="highlight"><?= $order['animal_type'] ?> (<?= $order['animal_gender'] ?>)</span></p>
-                <p>Paket: <span class="highlight"><?= $package['name'] ?></span></p>
-                <p>Jumlah Box: <span class="highlight">
-                    <?php 
-                    $totalBox = 0;
-                    if (!empty($details)) {
-                        foreach ($details as $d) {
-                            $totalBox += $d['jumlah_box'] ?? 0;
-                        }
-                    }
-                    echo $totalBox . ' box';
-                    ?>
-                </span></p>
+                atas nama:
             </div>
+            
+            <!-- Child Name -->
+            <div class="child-name-box">
+                <div class="child-name">
+                    <?= $customer['child_name'] ?> <span class="bin-text">bin</span> <?= $customer['name'] ?>
+                </div>
+            </div>
+            
+            <!-- Details -->
+            <table class="details-table">
+                <tr>
+                    <td><div class="label">Jenis Kelamin</div><div class="value"><?= $customer['gender'] ?></div></td>
+                    <td><div class="label">Tanggal Lahir</div><div class="value"><?= $customer['birth_date'] ?></div></td>
+                    <td><div class="label">Hewan</div><div class="value"><?= $order['animal_type'] ?> (<?= $order['animal_gender'] ?>)</div></td>
+                </tr>
+            </table>
             
             <div class="divider"></div>
             
-            <div class="footer">
-                <div class="signature">
-                    <p class="label">Penyelenggara</p>
-                    <div class="stamp-area">STEMPEL</div>
-                    <br>
-                    <p>_____________________</p>
-                    <p style="font-size: 11px; margin-top: 5px;">(Ibrahim Aqiqah)</p>
-                </div>
-                <div class="signature">
-                    <p class="label">Pemesan</p>
-                    <br><br><br>
-                    <p>_____________________</p>
-                    <p style="font-size: 11px; margin-top: 5px;">(<?= $customer['name'] ?>)</p>
-                </div>
+   
+            
+            <!-- Footer Signatures -->
+            <div class="footer-section">
+                <table class="footer-table">
+                    <tr>
+                        <td>
+                            <div class="signature-label">Penyelenggara</div>
+                        
+                            <div class="signature-line"></div>
+                            <div class="signature-name">Ibrahim Aqiqah</div>
+                        </td>
+                        <td>
+                            <div class="signature-label">Pemesan</div>
+                            <div style="height:66px;"></div>
+                            <div class="signature-line"></div>
+                            <div class="signature-name"><?= $customer['name'] ?></div>
+                        </td>
+                    </tr>
+                </table>
             </div>
             
+            <!-- Footer Note -->
             <div class="footer-note">
-                Dokumen ini sah dan diproses oleh Ibrahim Aqiqah - Sistem Penjadwalan &bull; Dicetak: <?= date('d/m/Y H:i') ?>
+                Dokumen ini sah dan diproses oleh Ibrahim Aqiqah &bull; Dicetak: <?= date('d/m/Y H:i') ?>
             </div>
         </div>
     </div>

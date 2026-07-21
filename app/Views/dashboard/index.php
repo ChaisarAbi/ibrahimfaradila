@@ -97,47 +97,97 @@
         </div>
     </div>
 
+    <!-- Recap 24 Jam Card -->
+    <?php if (!empty($upcoming_slaughter)): ?>
+    <div class="card border-warning mb-4 animate-fade-up">
+        <div class="card-header bg-warning bg-opacity-10 border-warning d-flex justify-content-between align-items-center py-2">
+            <h6 class="fw-bold mb-0 text-warning"><i class="fas fa-clock me-2"></i>Pengingat Pemotongan 24 Jam (<?= date('d/m/Y', strtotime($upcoming_date)) ?>)</h6>
+            <a href="/admin/notifications/send-reminders" class="btn btn-warning btn-sm" onclick="return confirm('Kirim pengingat ke semua pelanggan?')">
+                <i class="fas fa-paper-plane me-1"></i> Kirim Pengingat
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Pelanggan</th>
+                            <th>Anak</th>
+                            <th>Paket</th>
+                            <th>Jam Potong</th>
+                            <th>Telepon</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($upcoming_slaughter as $u): ?>
+                        <tr>
+                            <td><strong>#<?= $u['id_order'] ?></strong></td>
+                            <td><?= $u['customer_name'] ?? 'N/A' ?></td>
+                            <td><?= $u['child_name'] ?? '-' ?></td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary"><?= $u['package_name'] ?? 'N/A' ?></span></td>
+                            <td><?= $u['slaughter_time'] ? date('H:i', strtotime($u['slaughter_time'])) : '<em class="text-muted">Belum diatur</em>' ?></td>
+                            <td>
+                                <?php if (!empty($u['customer_phone'])): ?>
+                                <a href="https://wa.me/62<?= preg_replace('/^0?/', '', $u['customer_phone']) ?>" target="_blank" class="btn btn-sm btn-outline-success" style="border-color:#25D366;color:#25D366;">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <?php else: ?>
+                                <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="/admin/orders/edit/<?= $u['id_order'] ?>" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Charts & Calendar Row -->
     <div class="row g-3 mb-4">
-        <div class="col-md-8">
+        <div class="col-lg-9">
             <div class="card animate-fade-up stagger-1 h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5><i class="fas fa-calendar-alt me-2"></i>Kalender Penjadwalan</h5>
-                    <div>
-                        <span class="badge bg-danger me-1">Priority 1</span>
-                        <span class="badge bg-warning me-1">Priority 2</span>
-                        <span class="badge bg-success">Priority 3+</span>
-                    </div>
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Kalender Penjadwalan</h5>
+                    <small class="text-muted">Klik event untuk detail pesanan</small>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-3">
                     <div id="calendar"></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-lg-3">
             <div class="card animate-fade-up stagger-2 h-100">
-                <div class="card-header">
-                    <h5><i class="fas fa-chart-pie me-2"></i>Statistik Pesanan</h5>
+                <div class="card-header py-2">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Statistik Pesanan</h5>
                 </div>
-                <div class="card-body" style="padding-bottom: 8px;">
-                    <div class="chart-container" style="position: relative; width: 100%; height: 220px; margin: 0 auto;">
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 180px; margin: 0 auto;">
                         <canvas id="orderChart"></canvas>
                     </div>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-circle text-warning me-2" style="font-size:0.6rem;"></i>Pending</span>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span><span class="badge bg-warning" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Pending</span>
                         <span class="fw-bold" id="pendingCount">0</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-circle text-info me-2" style="font-size:0.6rem;"></i>Processing</span>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span><span class="badge bg-info" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Processing</span>
                         <span class="fw-bold" id="processingCount">0</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-circle text-success me-2" style="font-size:0.6rem;"></i>Completed</span>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span><span class="badge bg-success" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Completed</span>
                         <span class="fw-bold" id="completedCount">0</span>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <span><i class="fas fa-circle text-secondary me-2" style="font-size:0.6rem;"></i>Scheduled</span>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><span class="badge bg-secondary" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Scheduled</span>
                         <span class="fw-bold" id="scheduledCount">0</span>
                     </div>
                 </div>
@@ -145,58 +195,44 @@
         </div>
     </div>
     
-    <!-- Notification Panel -->
-    <div class="card animate-fade-up stagger-3 mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5><i class="fab fa-telegram me-2 text-primary"></i>Notifikasi Telegram</h5>
-            <span class="badge bg-primary bg-opacity-10 text-primary"><i class="fas fa-bolt me-1"></i>Real-time</span>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center p-3 rounded-3 bg-light">
-                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;font-size:1.2rem;">
-                            <i class="fab fa-telegram-plane"></i>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block">Status Bot</small>
-                            <strong class="text-success"><i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>Terhubung</strong>
-                        </div>
+    <!-- Charts Row: Weekly Orders + Stock -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card animate-fade-up stagger-3 h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line me-2 text-success"></i>Pesanan Mingguan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 220px;">
+                        <canvas id="weeklyChart"></canvas>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <a href="/admin/notifications/send-reminders" class="text-decoration-none" onclick="return confirm('Kirim pengingat 24 jam via Telegram?')">
-                        <div class="d-flex align-items-center p-3 rounded-3 bg-light hover-shadow">
-                            <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;font-size:1.2rem;">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block">Kirim Notifikasi</small>
-                                <strong>Pengingat 24 Jam</strong>
-                            </div>
-                        </div>
-                    </a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card animate-fade-up stagger-4 h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-warehouse me-2 text-warning"></i>Stok Terkini</h5>
                 </div>
-                <div class="col-md-4">
-                    <a href="/admin/notifications/send-recap" class="text-decoration-none" onclick="return confirm('Kirim rekap harian via Telegram?')">
-                        <div class="d-flex align-items-center p-3 rounded-3 bg-light hover-shadow">
-                            <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;font-size:1.2rem;">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block">Kirim Notifikasi</small>
-                                <strong>Rekap Harian</strong>
-                            </div>
-                        </div>
-                    </a>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 220px;">
+                        <canvas id="stockChart"></canvas>
+                    </div>
                 </div>
-                <div class="col-12">
-                    <div class="d-flex align-items-center p-2 bg-light rounded-3">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        <small class="text-muted">
-                            Notifikasi otomatis: jalankan <code>php spark notifications:send</code> setiap pukul 06:00 via Task Scheduler.
-                            <a href="/admin/notifications/history" class="ms-2"><i class="fas fa-history me-1"></i>Lihat Riwayat</a>
-                        </small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Revenue Chart -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="card animate-fade-up stagger-5">
+                <div class="card-header">
+                    <h5><i class="fas fa-money-bill-trend-up me-2 text-primary"></i>Pendapatan Bulanan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 250px;">
+                        <canvas id="monthlyChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -293,8 +329,9 @@ document.addEventListener('DOMContentLoaded', function() {
         eventClick: function(info) {
             alert(info.event.extendedProps.description || 'Order #' + info.event.id);
         },
-        height: 400,
-        aspectRatio: 1.8
+        height: 'auto',
+        aspectRatio: 2.2,
+        contentHeight: 400
     });
     calendar.render();
 
@@ -344,6 +381,105 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(err => console.log('Stats not available'));
+    
+    // Load chart data for weekly, stock, and monthly charts
+    fetch('/admin/dashboard/chart-data')
+        .then(res => res.json())
+        .then(data => {
+            // Weekly Orders Chart (Bar)
+            const weeklyCtx = document.getElementById('weeklyChart');
+            if (weeklyCtx) {
+                new Chart(weeklyCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.weekly_labels,
+                        datasets: [{
+                            label: 'Pesanan',
+                            data: data.weekly_data,
+                            backgroundColor: 'rgba(40, 167, 69, 0.6)',
+                            borderColor: '#28a745',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+            }
+            
+            // Stock Chart (Horizontal Bar)
+            const stockCtx = document.getElementById('stockChart');
+            if (stockCtx) {
+                new Chart(stockCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.stock_labels,
+                        datasets: [{
+                            label: 'Jumlah',
+                            data: data.stock_data,
+                            backgroundColor: data.stock_colors,
+                            borderColor: data.stock_colors.map(c => c),
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+            }
+            
+            // Monthly Revenue Chart (Line)
+            const monthlyCtx = document.getElementById('monthlyChart');
+            if (monthlyCtx) {
+                new Chart(monthlyCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.monthly_labels,
+                        datasets: [{
+                            label: 'Pendapatan',
+                            data: data.monthly_revenue,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#0d6efd',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp' + value.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        })
+        .catch(err => console.log('Chart data not available:', err));
 });
 </script>
 </body>

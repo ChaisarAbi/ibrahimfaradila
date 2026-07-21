@@ -91,7 +91,7 @@
                             <th>Tgl. Potong</th>
                             <th>Total</th>
                             <th>Status</th>
-                            <th style="width:140px">Aksi</th>
+                            <th style="width:200px">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -126,18 +126,21 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="d-flex gap-1">
+                                <div class="btn-group-actions">
                                     <button class="btn btn-sm btn-info btn-action" onclick="showDetail(<?= htmlspecialchars(json_encode($o)) ?>)" title="Detail">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <a href="/admin/orders/edit/<?= $o['id_order'] ?>" class="btn btn-sm btn-warning btn-action" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <a href="https://wa.me/62<?= preg_replace('/^0?/', '', $o['customer_phone'] ?? '') ?>?text=Assalamualaikum%20<?= urlencode($o['customer_name'] ?? '') ?>%2C%20kami%20dari%20Ibrahim%20Aqiqah.%20Mengingatkan%20jadwal%20pemotongan%20ananda%20<?= urlencode($o['child_name'] ?? '') ?>%20pada%20<?= urlencode($o['slaughter_date'] ?? '') ?>." class="btn btn-sm btn-success btn-action" target="_blank" title="WhatsApp" style="background:#25D366;border-color:#25D366;">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="/admin/reports/detail-pemesanan/<?= $o['id_order'] ?>" class="btn btn-sm btn-secondary btn-action" target="_blank" title="Detail Pemesanan">
+                                        <i class="fas fa-file-alt"></i>
+                                    </a>
                                     <a href="/admin/reports/certificate/<?= $o['id_order'] ?>" class="btn btn-sm btn-success btn-action" target="_blank" title="Sertifikat">
                                         <i class="fas fa-file-pdf"></i>
-                                    </a>
-                                    <a href="/admin/reports/invitation/<?= $o['id_order'] ?>" class="btn btn-sm btn-secondary btn-action" target="_blank" title="Undangan">
-                                        <i class="fas fa-envelope"></i>
                                     </a>
                                     <a href="/admin/orders/delete/<?= $o['id_order'] ?>" class="btn btn-sm btn-danger btn-action" onclick="return confirm('Hapus pesanan #<?= $o['id_order'] ?>?')" title="Hapus">
                                         <i class="fas fa-trash"></i>
@@ -229,6 +232,7 @@
             </div>
             <div class="modal-footer">
                 <a href="#" id="detailEditBtn" class="btn btn-warning"><i class="fas fa-edit me-1"></i>Edit</a>
+                <a href="#" id="detailCetakBtn" class="btn btn-info" target="_blank"><i class="fas fa-file-alt me-1"></i>Detail</a>
                 <a href="#" id="detailCertBtn" class="btn btn-success" target="_blank"><i class="fas fa-file-pdf me-1"></i>Sertifikat</a>
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
@@ -310,6 +314,7 @@ function showDetail(order) {
     statusBadge.textContent = s;
     
     document.getElementById('detailEditBtn').href = '/admin/orders/edit/' + order.id_order;
+    document.getElementById('detailCetakBtn').href = '/admin/reports/detail-pemesanan/' + order.id_order;
     document.getElementById('detailCertBtn').href = '/admin/reports/certificate/' + order.id_order;
     
     document.getElementById('detailMenu').innerHTML = '<p class="text-muted mb-0">Menu & box details available in edit page.</p>';

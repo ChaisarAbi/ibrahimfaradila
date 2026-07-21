@@ -404,24 +404,36 @@
 
         /* FullCalendar Override */
         #calendar {
-            min-height: 500px;
+            min-height: 380px;
         }
         .fc {
             font-family: 'Inter', sans-serif !important;
         }
+        .fc table {
+            font-size: 0.85rem !important;
+        }
+        .fc .fc-toolbar {
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+        }
         .fc .fc-toolbar-title {
             color: var(--primary-dark) !important;
             font-weight: 700 !important;
-            font-size: 1.4rem !important;
+            font-size: 1.1rem !important;
+        }
+        .fc .fc-button {
+            padding: 4px 10px !important;
+            font-size: 0.78rem !important;
         }
         .fc .fc-button-primary {
             background: var(--primary-gradient) !important;
             border: none !important;
             box-shadow: 0 2px 10px rgba(46,125,50,0.2) !important;
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-            padding: 8px 16px !important;
+            border-radius: 6px !important;
+            font-weight: 500 !important;
+            padding: 4px 12px !important;
             transition: var(--transition) !important;
+            font-size: 0.78rem !important;
         }
         .fc .fc-button-primary:hover {
             background: var(--primary-gradient-hover) !important;
@@ -432,24 +444,43 @@
             background: var(--primary-dark) !important;
         }
         .fc .fc-daygrid-day.fc-day-today {
-            background: rgba(46,125,50,0.05) !important;
+            background: rgba(46,125,50,0.06) !important;
+        }
+        .fc .fc-daygrid-day-frame {
+            min-height: 50px !important;
         }
         .fc .fc-daygrid-day-number {
             color: var(--text-dark) !important;
             font-weight: 500 !important;
+            font-size: 0.82rem !important;
+            padding: 2px 4px !important;
+        }
+        .fc .fc-col-header-cell-cushion {
+            font-size: 0.78rem !important;
+            font-weight: 600 !important;
+            padding: 4px 2px !important;
+        }
+        .fc-daygrid-more-link {
+            font-size: 0.72rem !important;
         }
         .fc-event {
-            border-radius: 8px !important;
-            padding: 4px 8px !important;
-            font-size: 0.8rem !important;
+            border-radius: 4px !important;
+            padding: 2px 5px !important;
+            font-size: 0.7rem !important;
             cursor: pointer;
             border: none !important;
             font-weight: 500 !important;
             transition: var(--transition) !important;
+            margin: 1px 2px !important;
         }
         .fc-event:hover {
-            transform: scale(1.03) !important;
+            transform: scale(1.02) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        .fc .fc-toolbar-chunk {
+            display: flex !important;
+            align-items: center !important;
+            gap: 4px !important;
         }
 
         /* Footer */
@@ -566,6 +597,125 @@
         }
         .main-content::-webkit-scrollbar-thumb:hover {
             background: #a0aec0;
+        }
+
+        /* ===== Icon & Button Enhancement ===== */
+        /* Action buttons group - compact & clean */
+        .btn-group-actions {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+        .btn-group-actions .btn-action {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            transition: all 0.2s ease;
+        }
+        .btn-group-actions .btn-action i {
+            font-size: 0.75rem;
+        }
+        .btn-group-actions .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Consistent icon sizing */
+        .icon-md { font-size: 1rem; }
+        .icon-lg { font-size: 1.3rem; }
+        .icon-sm { font-size: 0.78rem; }
+
+        /* Stat card icon on reports */
+        .stat-circle-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .stat-circle-icon i {
+            font-size: 1.2rem;
+        }
+
+        /* Card icon header - rounded square with gradient */
+        .card-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        /* Report card consistent sizing */
+        .report-card .card-body {
+            padding: 18px 20px;
+        }
+        .report-card .report-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .report-card h6 {
+            font-size: 0.92rem;
+            margin-bottom: 1px;
+        }
+        .report-card small.text-muted {
+            font-size: 0.72rem;
+        }
+        .report-card p.small {
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+        .report-card .form-control-sm {
+            font-size: 0.78rem;
+            padding: 5px 8px;
+        }
+        .report-card .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+
+        /* Form page enhancements */
+        .form-section-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-section-title i {
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+        .form-section-title small {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+
+        /* Mobile bottom nav icon fix */
+        .mobile-bottom-nav {
+            display: none;
         }
 
         /* Responsive */

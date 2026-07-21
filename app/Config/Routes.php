@@ -16,6 +16,7 @@ $routes->get('/logout', 'Auth::logout');
 $routes->group('admin', ['filter' => 'auth'], function($routes) {
     // Dashboard
     $routes->get('dashboard', 'Dashboard::index');
+    $routes->get('dashboard/chart-data', 'Dashboard::chartData');
     
     // Customers
     $routes->get('customers', 'Customers::index');
@@ -44,26 +45,27 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('packages/update/(:num)', 'Packages::update/$1');
     $routes->get('packages/delete/(:num)', 'Packages::delete/$1');
     
-    // Scheduler
-    $routes->get('scheduler/run', 'Scheduler::run');
-    
-    // Calendar
-    $routes->get('calendar/events', 'Calendar::getEvents');
-    
     // Reports
+    $routes->get('reports', 'Reports::index');
+    $routes->get('reports/certificate', 'Reports::certificate');
     $routes->get('reports/certificate/(:num)', 'Reports::certificate/$1');
+    $routes->get('reports/invitation', 'Reports::invitation');
     $routes->get('reports/invitation/(:num)', 'Reports::invitation/$1');
+    $routes->get('reports/detail-pemesanan', 'Reports::detailPemesanan');
+    $routes->get('reports/detail-pemesanan/(:num)', 'Reports::detailPemesanan/$1');
+    $routes->get('reports/order-report', 'Reports::orderReport');
     $routes->get('reports/order-report/(:any)', 'Reports::orderReport/$1');
+    $routes->get('reports/order-report/pdf/(:num)', 'Reports::orderReportPdf/$1');
     $routes->get('reports/kitchen-sheet', 'Reports::kitchenSheet');
     $routes->get('reports/kitchen-sheet/(:any)', 'Reports::kitchenSheet/$1');
     
-    // Kitchen
-    $routes->get('kitchen', 'Kitchen::index');
-    $routes->get('kitchen/(:any)', 'Kitchen::index/$1');
-    $routes->post('kitchen/update-status/(:num)', 'Kitchen::updateStatus/$1');
-    $routes->post('kitchen/update-stock', 'Kitchen::updateStock');
+    // Kitchen (Admin & Dapur only)
+    $routes->get('kitchen', 'Kitchen::index', ['filter' => 'dapur']);
+    $routes->get('kitchen/(:any)', 'Kitchen::index/$1', ['filter' => 'dapur']);
+    $routes->post('kitchen/update-status/(:num)', 'Kitchen::updateStatus/$1', ['filter' => 'dapur']);
+    $routes->post('kitchen/update-stock', 'Kitchen::updateStock', ['filter' => 'dapur']);
     
-    // Stock Management
+    // Stock Management (All roles)
     $routes->get('stock', 'Stock::index');
     $routes->get('stock/create', 'Stock::create');
     $routes->post('stock/store', 'Stock::store');
@@ -71,8 +73,19 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('stock/update/(:num)', 'Stock::update/$1');
     $routes->get('stock/delete/(:num)', 'Stock::delete/$1');
     
+    // Scheduler (Admin & RPH only)
+    $routes->get('scheduler/run', 'Scheduler::run', ['filter' => 'rph']);
+    
+    // Calendar (Admin & RPH only)
+    $routes->get('calendar/events', 'Calendar::getEvents', ['filter' => 'rph']);
+    
     // Notifications
-    $routes->get('notifications/send-reminders', 'Notification::send24hReminders');
-    $routes->get('notifications/send-recap', 'Notification::sendDailyRecap');
+    $routes->get('notifications/send-recap-today', 'Notification::sendTodayRecap');
+    $routes->get('notifications/send-preview-tomorrow', 'Notification::sendTomorrowPreview');
+    $routes->get('notifications/send-hplus1', 'Notification::sendHPlus1');
+    $routes->get('notifications/send-stock-alert', 'Notification::sendStockAlert');
+    $routes->post('notifications/send-custom', 'Notification::sendCustom');
+    $routes->get('notifications/test', 'Notification::test');
     $routes->get('notifications/history', 'Notification::history');
+    $routes->get('notifications/manual', 'Notification::manual');
 });

@@ -26,13 +26,12 @@ class AqiqahSeeder extends Seeder
 
         // ===================== USERS =====================
         $users = [
-            ['username' => 'admin',  'password' => hash('sha256', 'admin'),  'fullname' => 'Administrator', 'role' => 'admin'],
-            ['username' => 'staff1', 'password' => hash('sha256', 'staff123'), 'fullname' => 'Ahmad Fauzi',    'role' => 'staff'],
-            ['username' => 'staff2', 'password' => hash('sha256', 'staff123'), 'fullname' => 'Siti Rahmah',    'role' => 'staff'],
-            ['username' => 'dapur',  'password' => hash('sha256', 'dapur123'), 'fullname' => 'Tim Dapur',      'role' => 'kitchen'],
+            ['username' => 'admin',  'password' => password_hash('admin123', PASSWORD_BCRYPT),  'fullname' => 'Administrator', 'role' => 'admin'],
+            ['username' => 'rph',    'password' => password_hash('rph123', PASSWORD_BCRYPT),    'fullname' => 'RPH Operasional', 'role' => 'rph'],
+            ['username' => 'dapur',  'password' => password_hash('dapur123', PASSWORD_BCRYPT),  'fullname' => 'Tim Dapur',      'role' => 'dapur'],
         ];
         $this->db->table('users')->insertBatch($users);
-        echo "  ✓ Users inserted (4 users)\n";
+        echo "  ✓ Users inserted (3 users)\n";
 
         // ===================== BONE MENUS =====================
         $boneMenus = [
@@ -363,10 +362,10 @@ class AqiqahSeeder extends Seeder
         echo "  ✓ Settings inserted (9 settings)\n";
 
         echo "\n✅ Seeder selesai! Data dummy selama 14 hari berhasil dimasukkan.\n";
-        echo "   Login Admin: admin / admin\n";
-        echo "   Login Staff: staff1 / staff123\n";
+        echo "   Login Admin: admin / admin123\n";
+        echo "   Login RPH:   rph   / rph123\n";
         echo "   Login Dapur: dapur / dapur123\n";
-        echo "   Total: 4 users, " . count($customers) . " customers, " . count($allOrders) . " orders, "
+        echo "   Total: 3 users, " . count($customers) . " customers, " . count($allOrders) . " orders, "
              . count($orderDetails) . " order details, " . count($schedules) . " schedules\n";
     }
 }

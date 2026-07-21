@@ -3,20 +3,55 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main
+      - main  # Deploy otomatis setiap push ke branch main
 
 jobs:
   deploy:
+    name: 🚀 Deploy to Production
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: 🔍 Validate composer.json
+        run: |
+          if [ -f "composer.json" ]; then
+            echo "✅ composer.json found"
+          else
+            echo "❌ composer.json not found!"
+            exit 1
+          fi
+
+      - name: 🚀 Deploy via SSH to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22' }}
           script: |
-            bash /var/www/deploy.sh
+            set -e
+            echo "============================================"
+            echo "  🚀 Starting remote deployment..."
+            echo "============================================"
+            
+            # Pull latest code & run deploy script
+            cd /var/www/ibrahimfaradila
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Run the deploy script
+            bash deploy.sh
+            
+            echo "============================================"
+            echo "  ✅ Remote deployment complete!"
+            echo "============================================"
+
+      - name: ✅ Deployment Status
+        if: success()
+        run: echo "🎉 Deployment to VPS berhasil!"
+
+      - name: ❌ Deployment Failed
+        if: failure()
+        run: echo "😞 Deployment gagal! Cek log di atas."

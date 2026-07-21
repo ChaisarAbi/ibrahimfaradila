@@ -4,9 +4,9 @@
 # ============================================
 # Script ini menjalankan notifikasi Telegram 
 # via Spark CLI dengan mode berbeda:
-#   reminders   -> Kirim pengingat 24 jam (06:00 & 18:00)
-#   recap       -> Kirim rekap harian (23:00)
-#   all         -> Kirim keduanya
+#   today       -> Kirim rekap pemotongan hari ini (12:00 WIB)
+#   tomorrow    -> Kirim preview jadwal besok (20:00 WIB)
+#   all         -> Kirim rekap hari ini + preview besok (default)
 # ============================================
 #
 # Cara Install di VPS / Linux Server:
@@ -15,16 +15,15 @@
 # 3. Edit crontab: crontab -e
 # 4. Tambahkan baris berikut:
 #
-#    # Pengingat 24 jam (06:00 & 18:00)
-#    0 6 * * * /var/www/project-aqiqah/cron-notifications.sh reminders >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
-#    0 18 * * * /var/www/project-aqiqah/cron-notifications.sh reminders >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    # Rekap pemotongan hari ini (12:00 WIB)
+#    0 12 * * * /var/www/project-aqiqah/cron-notifications.sh today >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
 #
-#    # Rekap harian (23:00)
-#    0 23 * * * /var/www/project-aqiqah/cron-notifications.sh recap >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    # Preview jadwal besok (20:00 WIB)
+#    0 20 * * * /var/www/project-aqiqah/cron-notifications.sh tomorrow >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
 #
 # ============================================
 
-# Mode: reminders / recap / all
+# Mode: today / tomorrow / all
 MODE="${1:-all}"
 
 # Konfigurasi Path (Sesuaikan dengan lokasi deploy)

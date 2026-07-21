@@ -32,6 +32,18 @@ class Dashboard extends BaseController
             ->get()
             ->getResultArray();
         
+        // Orders for next 24 hours (tomorrow's slaughter)
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+        $upcoming_slaughter = $db->table('orders')
+            ->select('orders.*, customers.name as customer_name, customers.phone as customer_phone, customers.child_name, packages.name as package_name')
+            ->join('customers', 'customers.id_customer = orders.customer_id')
+            ->join('packages', 'packages.id_package = orders.package_id')
+            ->where('orders.slaughter_date', $tomorrow)
+            ->whereIn('orders.status', ['Pending', 'Scheduled'])
+            ->orderBy('orders.slaughter_time', 'ASC')
+            ->get()
+            ->getResultArray();
+        
         $data = [
             'title' => 'Dashboard',
             'total_orders' => $orderModel->countAllResults(),
@@ -41,8 +53,65 @@ class Dashboard extends BaseController
             'total_stock' => $total_stock,
             'monthly_revenue' => $orderModel->getMonthlyRevenue(),
             'recent_orders' => $recent_orders,
+            'upcoming_slaughter' => $upcoming_slaughter,
+            'upcoming_date' => $tomorrow,
         ];
         
         return $this->render('dashboard/index', $data);
+    }
+    
+    public function chartData()
+    {
+        $orderModel = new OrderModel();
+        $stockModel = new StockModel();
+        $db = \Config\Database::connect();
+        
+        // --- Weekly orders (last 7 days) ---
+        $weeklyData = [];
+        $weeklyLabels = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+            $weeklyLabels[] = date('D', strtotime($date));
+            $count = $db->table('orders')
+                ->where('DATE(created_at)', $date)
+                ->countAllResults();
+            $weeklyData[] = (int)$count;
+        }
+        
+        // --- Monthly revenue (last 6 months) ---
+        $monthlyRevenue = [];
+        $monthlyLabels = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = date('Y-m', strtotime("-$i months"));
+            $monthlyLabels[] = date('M', strtotime($month . '-01'));
+            $revenue = $db->table('orders')
+                ->select('COALESCE(SUM(total_price), 0) as total')
+                ->like('created_at', $month, 'after')
+                ->get()
+                ->getRow()
+                ->total;
+            $monthlyRevenue[] = (int)$revenue;
+        }
+        
+        // --- Stock values ---
+        $stocks = $stockModel->findAll();
+        $stockLabels = [];
+        $stockData = [];
+        $stockColors = [];
+        foreach ($stocks as $s) {
+            $stockLabels[] = $s['item_name'];
+            $stockData[] = (int)$s['quantity'];
+            $stockColors[] = $s['quantity'] <= $s['min_threshold'] ? '#ef4444' : '#22c55e';
+        }
+        
+        return $this->response->setJSON([
+            'weekly_labels' => $weeklyLabels,
+            'weekly_data' => $weeklyData,
+            'monthly_labels' => $monthlyLabels,
+            'monthly_revenue' => $monthlyRevenue,
+            'stock_labels' => $stockLabels,
+            'stock_data' => $stockData,
+            'stock_colors' => $stockColors,
+        ]);
     }
 }

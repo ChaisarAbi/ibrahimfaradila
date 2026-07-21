@@ -100,9 +100,12 @@ return $this->render('orders/create', $data);
         
         $order_id = $orderModel->insertID();
         
-        // Handle photo upload
+        // Handle photo upload (max 2MB)
         $photo = $this->request->getFile('photo');
         if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            if ($photo->getSize() > 2 * 1024 * 1024) {
+                return redirect()->back()->withInput()->with('error', 'Ukuran foto maksimal 2MB.');
+            }
             $newName = "customer_{$customer_id}_child.jpg";
             $photo->move('public/uploads/photos', $newName);
             $orderModel->update($order_id, ['photo_path' => 'uploads/photos/' . $newName]);
