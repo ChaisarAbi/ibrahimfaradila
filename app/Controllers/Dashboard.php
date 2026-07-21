@@ -101,7 +101,8 @@ class Dashboard extends BaseController
         foreach ($stocks as $s) {
             $stockLabels[] = $s['item_name'];
             $stockData[] = (int)$s['quantity'];
-            $stockColors[] = $s['quantity'] <= $s['min_threshold'] ? '#ef4444' : '#22c55e';
+            $minThreshold = $s['min_threshold'] ?? 0;
+            $stockColors[] = $s['quantity'] <= $minThreshold ? '#ef4444' : '#22c55e';
         }
         
         return $this->response->setJSON([

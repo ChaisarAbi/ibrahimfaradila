@@ -28,9 +28,10 @@ class Notification extends BaseController
         $stockInfo = '';
         $stockWarning = false;
         foreach ($stocks as $s) {
-            $status = $s['quantity'] <= $s['min_threshold'] ? 'STOK MENIPIS' : 'OK';
+            $minThreshold = $s['min_threshold'] ?? 0;
+            $status = $s['quantity'] <= $minThreshold ? 'STOK MENIPIS' : 'OK';
             $stockInfo .= "  - {$s['item_name']}: {$s['quantity']} {$s['unit']} {$status}\n";
-            if ($s['quantity'] <= $s['min_threshold']) $stockWarning = true;
+            if ($s['quantity'] <= $minThreshold) $stockWarning = true;
         }
         
         $todayStr = strtoupper(date('d F Y'));
@@ -386,9 +387,10 @@ class Notification extends BaseController
         $stockInfo = '';
         
         foreach ($stocks as $s) {
-            $status = $s['quantity'] <= $s['min_threshold'] ? 'STOK MENIPIS' : 'OK';
+            $minThreshold = $s['min_threshold'] ?? 0;
+            $status = $s['quantity'] <= $minThreshold ? 'STOK MENIPIS' : 'OK';
             $stockInfo .= "  - {$s['item_name']}: {$s['quantity']} {$s['unit']} {$status}\n";
-            if ($s['quantity'] <= $s['min_threshold']) {
+            if ($s['quantity'] <= $minThreshold) {
                 $lowStockItems[] = $s;
             }
         }

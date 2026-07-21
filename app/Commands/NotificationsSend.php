@@ -115,9 +115,10 @@ class NotificationsSend extends BaseCommand
         $stockInfo = '';
         $stockWarning = false;
         foreach ($stocks as $s) {
-            $status = $s['quantity'] <= $s['min_threshold'] ? ' STOK MENIPIS' : ' OK';
+            $minThreshold = $s['min_threshold'] ?? 0;
+            $status = $s['quantity'] <= $minThreshold ? ' STOK MENIPIS' : ' OK';
             $stockInfo .= '  ' . $s['item_name'] . ': ' . $s['quantity'] . ' ' . $s['unit'] . ' ' . $status . "\n";
-            if ($s['quantity'] <= $s['min_threshold']) {
+            if ($s['quantity'] <= $minThreshold) {
                 $stockWarning = true;
             }
         }

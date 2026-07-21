@@ -44,7 +44,8 @@ abstract class BaseController extends Controller
             $lowStockCount = 0;
             $stocks = $stockModel->findAll();
             foreach ($stocks as $s) {
-                if ($s['quantity'] <= $s['min_threshold']) {
+                $minThreshold = $s['min_threshold'] ?? 0;
+                if ($s['quantity'] <= $minThreshold) {
                     $lowStockCount++;
                 }
             }
