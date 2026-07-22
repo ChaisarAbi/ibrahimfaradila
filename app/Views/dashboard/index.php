@@ -100,9 +100,6 @@
     <!-- Recap 24 Jam Card -->
     <?php if (!empty($upcoming_slaughter)): ?>
     <div class="card border-warning mb-4 animate-fade-up">
-        <div class="card-header bg-warning bg-opacity-10 border-warning d-flex justify-content-between align-items-center py-2">
-        
-        </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-sm mb-0">
