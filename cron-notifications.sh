@@ -4,8 +4,8 @@
 # ============================================
 # Script ini menjalankan notifikasi Telegram 
 # via Spark CLI dengan mode berbeda:
-#   today       -> Kirim rekap pemotongan hari ini (12:00 WIB)
-#   tomorrow    -> Kirim preview jadwal besok (20:00 WIB)
+#   today       -> Kirim rekap pemotongan hari ini (23:59 WIB)
+#   tomorrow    -> Kirim preview jadwal besok (00:00 WIB)
 #   all         -> Kirim rekap hari ini + preview besok (default)
 # ============================================
 #
@@ -15,11 +15,11 @@
 # 3. Edit crontab: crontab -e
 # 4. Tambahkan baris berikut:
 #
-#    # Rekap pemotongan hari ini (12:00 WIB)
-#    0 12 * * * /var/www/project-aqiqah/cron-notifications.sh today >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    # Rekap pemotongan hari ini (23:59 WIB)
+#    59 23 * * * /var/www/project-aqiqah/cron-notifications.sh today >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
 #
-#    # Preview jadwal besok (20:00 WIB)
-#    0 20 * * * /var/www/project-aqiqah/cron-notifications.sh tomorrow >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
+#    # Preview jadwal besok (00:00 WIB)
+#    0 0 * * * /var/www/project-aqiqah/cron-notifications.sh tomorrow >> /var/www/project-aqiqah/writable/logs/cron-notifications.log 2>&1
 #
 # ============================================
 
