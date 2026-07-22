@@ -467,13 +467,13 @@ class Notification extends BaseController
         $chatId = $this->request->getPost('chat_id');
         $name = $this->request->getPost('name');
         $type = $this->request->getPost('type');
-        $isActive = $this->request->getPost('is_active') ? 1 : 0;
+        $isActive = $this->request->getPost('is_active') ? '1' : '0';
 
         if (empty($chatId)) {
             return redirect()->back()->with('error', 'Chat ID tidak boleh kosong.');
         }
 
-        $recipientModel->save([
+        $recipientModel->insert([
             'chat_id'   => trim($chatId),
             'name'      => trim($name),
             'type'      => $type,
@@ -495,8 +495,9 @@ class Notification extends BaseController
         $recipientModel = new TelegramRecipientModel();
         $recipient = $recipientModel->find($id);
         if ($recipient) {
+            $newStatus = $recipient['is_active'] ? '0' : '1';
             $recipientModel->update($id, [
-                'is_active' => $recipient['is_active'] ? 0 : 1
+                'is_active' => $newStatus
             ]);
         }
         return redirect()->to('/admin/notifications/recipients')->with('success', 'Status penerima notifikasi berhasil diubah.');
