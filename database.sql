@@ -113,7 +113,17 @@ CREATE TABLE IF NOT EXISTS stocks (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 11. SETTINGS (Konfigurasi Telegram & Toko)
+-- 11. TELEGRAM RECIPIENTS (Penerima Notifikasi)
+CREATE TABLE IF NOT EXISTS telegram_recipients (
+    id_recipient INT AUTO_INCREMENT PRIMARY KEY,
+    chat_id VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NULL,
+    type ENUM('personal', 'group') DEFAULT 'personal',
+    is_active TINYINT(1) DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 12. SETTINGS (Konfigurasi Telegram & Toko)
 CREATE TABLE IF NOT EXISTS settings (
     id_setting INT AUTO_INCREMENT PRIMARY KEY,
     setting_key VARCHAR(50) UNIQUE NOT NULL,

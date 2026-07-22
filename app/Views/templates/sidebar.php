@@ -450,9 +450,15 @@
         <!-- Notifikasi (Admin) -->
         <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
-            <a href="/admin/notifications/manual" class="sidebar-link <?= strpos(current_url(), '/admin/notifications') !== false ? 'active' : '' ?>">
+            <a href="/admin/notifications/manual" class="sidebar-link <?= (strpos(current_url(), '/admin/notifications') !== false && strpos(current_url(), '/admin/notifications/recipients') === false) ? 'active' : '' ?>">
                 <i class="fas fa-bell"></i>
                 <span class="link-text">Notifikasi</span>
+            </a>
+        </div>
+        <div class="sidebar-item ms-3">
+            <a href="/admin/notifications/recipients" class="sidebar-link small <?= strpos(current_url(), '/admin/notifications/recipients') !== false ? 'active' : '' ?>">
+                <i class="fas fa-users"></i>
+                <span class="link-text">Kelola Penerima</span>
             </a>
         </div>
         <?php endif; ?>

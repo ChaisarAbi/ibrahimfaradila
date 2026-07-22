@@ -6,6 +6,7 @@ use App\Models\OrderDetailModel;
 use App\Models\PackageModel;
 use App\Models\StockModel;
 use App\Models\NotificationModel;
+use App\Models\TelegramRecipientModel;
 use App\Libraries\TelegramBot;
 
 class Notification extends BaseController
@@ -447,5 +448,57 @@ class Notification extends BaseController
             'notifications' => $notifModel->orderBy('sent_at', 'DESC')->findAll(50)
         ];
         return $this->render('notifications/history', $data);
+    }
+
+    public function recipients()
+    {
+        $recipientModel = new TelegramRecipientModel();
+        $data = [
+            'title' => 'Kelola Penerima Notifikasi',
+            'recipients' => $recipientModel->findAll()
+        ];
+        return $this->render('notifications/recipients', $data);
+    }
+
+    public function addRecipient()
+    {
+        $recipientModel = new TelegramRecipientModel();
+
+        $chatId = $this->request->getPost('chat_id');
+        $name = $this->request->getPost('name');
+        $type = $this->request->getPost('type');
+        $isActive = $this->request->getPost('is_active') ? 1 : 0;
+
+        if (empty($chatId)) {
+            return redirect()->back()->with('error', 'Chat ID tidak boleh kosong.');
+        }
+
+        $recipientModel->save([
+            'chat_id'   => trim($chatId),
+            'name'      => trim($name),
+            'type'      => $type,
+            'is_active' => $isActive,
+        ]);
+
+        return redirect()->to('/admin/notifications/recipients')->with('success', 'Penerima notifikasi berhasil ditambahkan.');
+    }
+
+    public function deleteRecipient($id)
+    {
+        $recipientModel = new TelegramRecipientModel();
+        $recipientModel->delete($id);
+        return redirect()->to('/admin/notifications/recipients')->with('success', 'Penerima notifikasi berhasil dihapus.');
+    }
+
+    public function toggleRecipient($id)
+    {
+        $recipientModel = new TelegramRecipientModel();
+        $recipient = $recipientModel->find($id);
+        if ($recipient) {
+            $recipientModel->update($id, [
+                'is_active' => $recipient['is_active'] ? 0 : 1
+            ]);
+        }
+        return redirect()->to('/admin/notifications/recipients')->with('success', 'Status penerima notifikasi berhasil diubah.');
     }
 }

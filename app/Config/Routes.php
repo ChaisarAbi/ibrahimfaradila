@@ -88,4 +88,10 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('notifications/test', 'Notification::test');
     $routes->get('notifications/history', 'Notification::history');
     $routes->get('notifications/manual', 'Notification::manual');
+    
+    // Telegram Recipients Management
+    $routes->get('notifications/recipients', 'Notification::recipients');
+    $routes->post('notifications/add-recipient', 'Notification::addRecipient');
+    $routes->get('notifications/delete-recipient/(:num)', 'Notification::deleteRecipient/$1');
+    $routes->get('notifications/toggle-recipient/(:num)', 'Notification::toggleRecipient/$1');
 });

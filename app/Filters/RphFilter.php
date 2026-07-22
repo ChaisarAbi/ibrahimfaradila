@@ -10,7 +10,7 @@ class RphFilter implements FilterInterface
     {
         $role = session()->get('role');
         if ($role !== 'admin' && $role !== 'rph') {
-            return redirect()->to('/admin/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+            return redirect()->to('/admin/stock')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
     }
 
