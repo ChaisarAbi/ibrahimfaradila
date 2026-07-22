@@ -1,6 +1,7 @@
-<?= $this->extend('templates/main') ?>
-
-<?= $this->section('content') ?>
+<?= view('templates/header') ?>
+<?= view('templates/sidebar') ?>
+<main class="main-content">
+    <div class="container-fluid p-3">
 <div class="container-fluid px-0">
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <div>
@@ -134,4 +135,21 @@
         </div>
     </div>
 </div>
-<?= $this->endSection() ?>
+    </div>
+</main>
+<script>
+    // Konfirmasi sebelum hapus
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (!confirm('Hapus penerima ini?')) {
+                e.preventDefault();
+            }
+        });
+    });
+    // Auto-hide alert
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(a => a.remove());
+    }, 5000);
+</script>
+</body>
+</html>
