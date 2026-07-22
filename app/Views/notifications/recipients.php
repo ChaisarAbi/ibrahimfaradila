@@ -36,6 +36,7 @@
                 </div>
                 <div class="card-body">
                     <form action="/admin/notifications/add-recipient" method="post">
+                        <?= csrf_field() ?>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Chat ID <span class="text-danger">*</span></label>
                             <input type="text" name="chat_id" class="form-control form-control-sm" placeholder="Contoh: 1234567890" required>
