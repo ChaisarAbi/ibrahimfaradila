@@ -101,10 +101,7 @@
     <?php if (!empty($upcoming_slaughter)): ?>
     <div class="card border-warning mb-4 animate-fade-up">
         <div class="card-header bg-warning bg-opacity-10 border-warning d-flex justify-content-between align-items-center py-2">
-            <h6 class="fw-bold mb-0 text-warning"><i class="fas fa-clock me-2"></i>Pengingat Pemotongan 24 Jam (<?= date('d/m/Y', strtotime($upcoming_date)) ?>)</h6>
-            <a href="/admin/notifications/send-reminders" class="btn btn-warning btn-sm" onclick="return confirm('Kirim pengingat ke semua pelanggan?')">
-                <i class="fas fa-paper-plane me-1"></i> Kirim Pengingat
-            </a>
+        
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
