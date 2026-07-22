@@ -53,10 +53,6 @@
                                 <option value="group">Group (Grup Telegram)</option>
                             </select>
                         </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" name="is_active" class="form-check-input" id="isActive" checked>
-                            <label class="form-check-label small" for="isActive">Aktif (terima notifikasi)</label>
-                        </div>
                         <button type="submit" class="btn btn-success btn-sm w-100">
                             <i class="fas fa-save me-1"></i> Simpan
                         </button>
@@ -87,7 +83,6 @@
                                         <th>Chat ID</th>
                                         <th>Nama</th>
                                         <th>Tipe</th>
-                                        <th>Status</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
@@ -103,27 +98,13 @@
                                                 <span class="badge bg-secondary">Personal</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <?php if ($r['is_active']): ?>
-                                                <span class="badge bg-success">Aktif</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-danger">Nonaktif</span>
-                                            <?php endif; ?>
-                                        </td>
                                         <td class="text-center">
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="/admin/notifications/toggle-recipient/<?= $r['id_recipient'] ?>" 
-                                                   class="btn btn-outline-<?= $r['is_active'] ? 'warning' : 'success' ?>"
-                                                   title="<?= $r['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>">
-                                                    <i class="fas fa-<?= $r['is_active'] ? 'pause' : 'play' ?>"></i>
-                                                </a>
-                                                <a href="/admin/notifications/delete-recipient/<?= $r['id_recipient'] ?>" 
-                                                   class="btn btn-outline-danger"
-                                                   onclick="return confirm('Hapus penerima ini?')"
-                                                   title="Hapus">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
+                                            <a href="/admin/notifications/delete-recipient/<?= $r['id_recipient'] ?>" 
+                                               class="btn btn-outline-danger btn-sm"
+                                               onclick="return confirm('Hapus penerima ini?')"
+                                               title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

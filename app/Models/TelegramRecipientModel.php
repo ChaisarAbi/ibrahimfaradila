@@ -6,7 +6,7 @@ class TelegramRecipientModel extends Model
 {
     protected $table = 'telegram_recipients';
     protected $primaryKey = 'id_recipient';
-    protected $allowedFields = ['chat_id', 'name', 'type', 'is_active'];
+    protected $allowedFields = ['chat_id', 'name', 'type'];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = false;

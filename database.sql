@@ -119,7 +119,6 @@ CREATE TABLE IF NOT EXISTS telegram_recipients (
     chat_id VARCHAR(100) NOT NULL,
     name VARCHAR(255) NULL,
     type ENUM('personal', 'group') DEFAULT 'personal',
-    is_active TINYINT(1) DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
