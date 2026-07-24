@@ -115,16 +115,20 @@
                             </div>
                         </div>
                         <div class="row g-2 mb-2">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Jumlah Anak</label>
                                 <input type="number" name="jumlah_anak" class="form-control form-control-sm" id="jumlah_anak" value="1" readonly>
                                 <small class="text-muted">Laki=2, Perempuan=1</small>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label class="form-label">Tanggal Potong</label>
                                 <input type="date" name="slaughter_date" class="form-control form-control-sm" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label class="form-label">Jam Potong</label>
+                                <input type="time" name="slaughter_time" class="form-control form-control-sm" value="08:00">
+                            </div>
+                            <div class="col-md-3">
                                 <label class="form-label">Tanggal Antar</label>
                                 <input type="date" name="delivery_date" class="form-control form-control-sm" required>
                             </div>

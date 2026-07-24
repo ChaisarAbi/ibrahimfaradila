@@ -376,8 +376,8 @@
     <nav class="sidebar-nav">
         <?php $userRole = session()->get('role'); ?>
         
-        <!-- Dashboard (Semua role) -->
-        <?php if (true): ?>
+        <!-- Dashboard (Admin only) -->
+        <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
             <a href="/admin/dashboard" class="sidebar-link <?= (current_url() == base_url('/admin/dashboard')) ? 'active' : '' ?>">
                 <i class="fas fa-tachometer-alt"></i>
@@ -386,8 +386,8 @@
         </div>
         <?php endif; ?>
         
-        <!-- Pesanan (Admin & Dapur) -->
-        <?php if ($userRole === 'admin' || $userRole === 'dapur'): ?>
+        <!-- Pesanan (Admin only) -->
+        <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
             <a href="/admin/orders" class="sidebar-link <?= strpos(current_url(), '/admin/orders') !== false || strpos(current_url(), '/admin/orders/') !== false ? 'active' : '' ?>">
                 <i class="fas fa-shopping-cart"></i>
@@ -463,8 +463,8 @@
         </div>
         <?php endif; ?>
         
-        <!-- Laporan (Admin & Dapur) -->
-        <?php if ($userRole === 'admin' || $userRole === 'dapur'): ?>
+        <!-- Laporan (Admin only) -->
+        <?php if ($userRole === 'admin'): ?>
         <div class="sidebar-item">
             <a href="/admin/reports" class="sidebar-link <?= strpos(current_url(), '/admin/reports') !== false ? 'active' : '' ?>">
                 <i class="fas fa-file-pdf"></i>

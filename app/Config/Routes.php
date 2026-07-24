@@ -14,20 +14,20 @@ $routes->get('/logout', 'Auth::logout');
 
 // Admin group with auth filter
 $routes->group('admin', ['filter' => 'auth'], function($routes) {
-    // Dashboard
-    $routes->get('dashboard', 'Dashboard::index');
-    $routes->get('dashboard/chart-data', 'Dashboard::chartData');
+    // Dashboard (Admin only)
+    $routes->get('dashboard', 'Dashboard::index', ['filter' => 'admin']);
+    $routes->get('dashboard/chart-data', 'Dashboard::chartData', ['filter' => 'admin']);
     
-    // Customers
-    $routes->get('customers', 'Customers::index');
+    // Customers (Admin only)
+    $routes->get('customers', 'Customers::index', ['filter' => 'admin']);
     $routes->get('customers/create', 'Customers::create');
     $routes->post('customers/store', 'Customers::store');
     $routes->get('customers/edit/(:num)', 'Customers::edit/$1');
     $routes->post('customers/update/(:num)', 'Customers::update/$1');
     $routes->get('customers/delete/(:num)', 'Customers::delete/$1');
     
-    // Orders
-    $routes->get('orders', 'Orders::index');
+    // Orders (Admin only)
+    $routes->get('orders', 'Orders::index', ['filter' => 'admin']);
     $routes->get('orders/create', 'Orders::create');
     $routes->post('orders/store', 'Orders::store');
     $routes->get('orders/edit/(:num)', 'Orders::edit/$1');
@@ -45,8 +45,8 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('packages/update/(:num)', 'Packages::update/$1');
     $routes->get('packages/delete/(:num)', 'Packages::delete/$1');
     
-    // Reports
-    $routes->get('reports', 'Reports::index');
+    // Reports (Admin only)
+    $routes->get('reports', 'Reports::index', ['filter' => 'admin']);
     $routes->get('reports/certificate', 'Reports::certificate');
     $routes->get('reports/certificate/(:num)', 'Reports::certificate/$1');
     $routes->get('reports/invitation', 'Reports::invitation');

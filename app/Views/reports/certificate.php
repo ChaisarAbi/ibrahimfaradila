@@ -213,6 +213,12 @@
                 </div>
             </div>
             
+            <?php if (!empty($order['photo_path'])): ?>
+            <div style="text-align:center;margin:10px 0;">
+                <img src="<?= base_url($order['photo_path']) ?>" alt="Foto Anak" style="max-width:120px;max-height:150px;border:2px solid #c9a84c;border-radius:4px;">
+            </div>
+            <?php endif; ?>
+            
             <!-- Details -->
             <table class="details-table">
                 <tr>

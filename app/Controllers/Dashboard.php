@@ -23,6 +23,21 @@ class Dashboard extends BaseController
         
         // Get recent orders with join to customers and packages
         $db = \Config\Database::connect();
+        $today = date('Y-m-d');
+        
+        // Auto-update status based on slaughter_date
+        $db->table('orders')
+            ->where('slaughter_date <', $today)
+            ->whereIn('status', ['Pending', 'Scheduled'])
+            ->set(['status' => 'Completed'])
+            ->update();
+        
+        $db->table('orders')
+            ->where('slaughter_date', $today)
+            ->whereIn('status', ['Pending', 'Scheduled'])
+            ->set(['status' => 'Processing'])
+            ->update();
+        
         $recent_orders = $db->table('orders')
             ->select('orders.*, customers.name as customer_name, packages.name as package_name')
             ->join('customers', 'customers.id_customer = orders.customer_id')
@@ -78,12 +93,18 @@ class Dashboard extends BaseController
             $weeklyData[] = (int)$count;
         }
         
-        // --- Monthly revenue (last 6 months) ---
+        // --- Monthly revenue (last 12 months) ---
         $monthlyRevenue = [];
+        // --- Monthly orders count (last 12 months) ---
+        $monthlyOrders = [];
         $monthlyLabels = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $month = date('Y-m', strtotime("-$i months"));
             $monthlyLabels[] = date('M', strtotime($month . '-01'));
+            $count = $db->table('orders')
+                ->like('created_at', $month, 'after')
+                ->countAllResults();
+            $monthlyOrders[] = (int)$count;
             $revenue = $db->table('orders')
                 ->select('COALESCE(SUM(total_price), 0) as total')
                 ->like('created_at', $month, 'after')
@@ -109,6 +130,7 @@ class Dashboard extends BaseController
             'weekly_labels' => $weeklyLabels,
             'weekly_data' => $weeklyData,
             'monthly_labels' => $monthlyLabels,
+            'monthly_orders' => $monthlyOrders,
             'monthly_revenue' => $monthlyRevenue,
             'stock_labels' => $stockLabels,
             'stock_data' => $stockData,

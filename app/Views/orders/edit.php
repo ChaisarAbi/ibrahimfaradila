@@ -98,15 +98,19 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Tanggal Potong</label>
                                         <input type="date" name="slaughter_date" class="form-control" value="<?= $order['slaughter_date'] ?>" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Jam Potong</label>
+                                        <input type="time" name="slaughter_time" class="form-control" value="<?= $order['slaughter_time'] ? date('H:i', strtotime($order['slaughter_time'])) : '08:00' ?>">
+                                    </div>
+                                    <div class="col-md-3">
                                         <label class="form-label">Tanggal Antar</label>
                                         <input type="date" name="delivery_date" class="form-control" value="<?= $order['delivery_date'] ?>" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label">Total Harga</label>
                                         <input type="text" class="form-control fw-bold text-success" id="display_price" value="Rp <?= number_format($order['total_price'], 0, ',', '.') ?>" readonly>
                                         <input type="hidden" name="total_price" id="total_price" value="<?= $order['total_price'] ?>">

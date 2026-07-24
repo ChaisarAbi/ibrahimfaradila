@@ -161,28 +161,11 @@
         <div class="col-lg-3">
             <div class="card animate-fade-up stagger-2 h-100">
                 <div class="card-header py-2">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Statistik Pesanan</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Total Pesanan Per Bulan</h5>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="position: relative; width: 100%; height: 180px; margin: 0 auto;">
+                    <div class="chart-container" style="position: relative; width: 100%; height: 200px; margin: 0 auto;">
                         <canvas id="orderChart"></canvas>
-                    </div>
-                    <hr class="my-2">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span><span class="badge bg-warning" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Pending</span>
-                        <span class="fw-bold" id="pendingCount">0</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span><span class="badge bg-info" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Processing</span>
-                        <span class="fw-bold" id="processingCount">0</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span><span class="badge bg-success" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Completed</span>
-                        <span class="fw-bold" id="completedCount">0</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span><span class="badge bg-secondary" style="width:10px;height:10px;display:inline-block;border-radius:50%;padding:0;vertical-align:middle;"></span> Scheduled</span>
-                        <span class="fw-bold" id="scheduledCount">0</span>
                     </div>
                 </div>
             </div>
@@ -329,54 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     calendar.render();
 
-    // Chart.js - Pie chart for order status
-    fetch('/admin/orders/stats')
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.status_counts) {
-                const ctx = document.getElementById('orderChart').getContext('2d');
-                document.getElementById('pendingCount').textContent = data.status_counts.Pending || 0;
-                document.getElementById('processingCount').textContent = data.status_counts.Processing || 0;
-                document.getElementById('completedCount').textContent = data.status_counts.Completed || 0;
-                document.getElementById('scheduledCount').textContent = data.status_counts.Scheduled || 0;
-                
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Pending', 'Processing', 'Completed', 'Scheduled'],
-                        datasets: [{
-                            data: [
-                                data.status_counts.Pending || 0,
-                                data.status_counts.Processing || 0,
-                                data.status_counts.Completed || 0,
-                                data.status_counts.Scheduled || 0
-                            ],
-                            backgroundColor: [
-                                '#ffc107',
-                                '#17a2b8',
-                                '#28a745',
-                                '#6c757d'
-                            ],
-                            borderWidth: 0,
-                            hoverOffset: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '55%',
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
-                });
-            }
-        })
-        .catch(err => console.log('Stats not available'));
-    
-    // Load chart data for weekly, stock, and monthly charts
+    // Load chart data for monthly, weekly, stock charts
     fetch('/admin/dashboard/chart-data')
         .then(res => res.json())
         .then(data => {
@@ -430,6 +366,34 @@ document.addEventListener('DOMContentLoaded', function() {
                         plugins: { legend: { display: false } },
                         scales: {
                             x: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+            }
+            
+            // Monthly Orders Chart (Bar) - Right sidebar
+            const orderCtx = document.getElementById('orderChart');
+            if (orderCtx) {
+                new Chart(orderCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.monthly_labels,
+                        datasets: [{
+                            label: 'Pesanan',
+                            data: data.monthly_orders,
+                            backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                            borderColor: '#0d6efd',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                            x: { ticks: { font: { size: 9 } } }
                         }
                     }
                 });
