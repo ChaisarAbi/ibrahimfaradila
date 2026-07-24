@@ -51,7 +51,7 @@ class TelegramBot
         $postData = [
             'chat_id' => $chatId,
             'text' => $message,
-            'parse_mode' => 'HTML'
+            'parse_mode' => 'Markdown'
         ];
 
         $ch = curl_init();
