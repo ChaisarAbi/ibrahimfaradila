@@ -170,17 +170,14 @@ class Notification extends BaseController
             $dapurLines[] = '• *Menu Daging:* ' . implode(', ', $meatParts);
         }
 
-        // Stok
+        // Stok - tampilkan semua item
         $stocks = $stockModel->findAll();
-        $stockCriticalLines = [];
-        $stockOkCount = 0;
+        $stockLines = [];
         foreach ($stocks as $s) {
             $minThreshold = $s['min_threshold'] ?? 0;
-            if ($s['quantity'] <= $minThreshold) {
-                $stockCriticalLines[] = '⚠️ ' . $s['item_name'] . ': *' . $s['quantity'] . ' ' . $s['unit'] . '* (Menipis)';
-            } else {
-                $stockOkCount++;
-            }
+            $icon = $s['quantity'] <= $minThreshold ? '⚠️' : '✅';
+            $status = $s['quantity'] <= $minThreshold ? ' (Menipis)' : '';
+            $stockLines[] = $icon . ' ' . $s['item_name'] . ': *' . $s['quantity'] . ' ' . $s['unit'] . '*' . $status;
         }
 
         // Hewan summary
@@ -204,12 +201,9 @@ class Notification extends BaseController
                   . implode("\n", $dapurLines) . "\n\n";
         }
 
-        $msg .= "📦 *STATUS STOK*";
-        if (!empty($stockCriticalLines)) {
-            $msg .= "\n" . implode("\n", $stockCriticalLines);
-        }
-        if ($stockOkCount > 0) {
-            $msg .= "\n✅ Stok aman: *{$stockOkCount} item* lainnya tersembunyi";
+        $msg .= "📦 *STATUS STOK*\n";
+        if (!empty($stockLines)) {
+            $msg .= implode("\n", $stockLines);
         }
 
         $msg .= "\n\n────────────────────\n"

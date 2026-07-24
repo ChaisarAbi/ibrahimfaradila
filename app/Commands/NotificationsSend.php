@@ -161,29 +161,23 @@ class NotificationsSend extends BaseCommand
         $dayName = $this->dayNames[date('w')];
 
         if (empty($todayOrders)) {
-            // Stok info
+            // Stok info - tampilkan semua item
             $stocks = $stockModel->findAll();
-            $stockCriticalLines = [];
-            $stockOkCount = 0;
+            $stockLines = [];
             foreach ($stocks as $s) {
                 $minThreshold = $s['min_threshold'] ?? 0;
-                if ($s['quantity'] <= $minThreshold) {
-                    $stockCriticalLines[] = '⚠️ ' . $s['item_name'] . ': *' . $s['quantity'] . ' ' . $s['unit'] . '* (Menipis)';
-                } else {
-                    $stockOkCount++;
-                }
+                $icon = $s['quantity'] <= $minThreshold ? "\xE2\x9A\xA0\xEF\xB8\x8F" : "\xE2\x9C\x85";
+                $status = $s['quantity'] <= $minThreshold ? ' (Menipis)' : '';
+                $stockLines[] = $icon . ' ' . $s['item_name'] . ': *' . $s['quantity'] . ' ' . $s['unit'] . '*' . $status;
             }
 
-            $msg = "📊 *REKAP HARIAN AQIQAH*\n"
-                 . '🗓 *' . $dayName . ', ' . $todayIndo . "*\n"
+            $msg = "\xF0\x9F\x93\x8A *REKAP HARIAN AQIQAH*\n"
+                 . "\xF0\x9F\x97\x93 *" . $dayName . ', ' . $todayIndo . "*\n"
                  . "────────────────────\n\n"
                  . "Tidak ada jadwal pemotongan untuk hari ini.\n\n"
-                 . "📦 *STATUS STOK*\n";
-            if (!empty($stockCriticalLines)) {
-                $msg .= implode("\n", $stockCriticalLines) . "\n";
-            }
-            if ($stockOkCount > 0) {
-                $msg .= "✅ *{$stockOkCount} item* stok dalam kondisi aman.\n";
+                 . "\xF0\x9F\x93\xA6 *STATUS STOK*\n";
+            if (!empty($stockLines)) {
+                $msg .= implode("\n", $stockLines) . "\n";
             }
             $msg .= "\n────────────────────\n"
                   . "Sistem berjalan normal.";
@@ -198,8 +192,8 @@ class NotificationsSend extends BaseCommand
         // --- Daftar Pesanan Compact ---
         $orderList = '';
         // --- Rekap Dapur ---
-        $dapurBone = [];    // menu tulang
-        $dapurMeat = [];    // menu daging
+        $dapurBone = [];
+        $dapurMeat = [];
 
         foreach ($todayOrders as $order) {
             $customer = $customerModel->find($order['customer_id']);
@@ -228,11 +222,11 @@ class NotificationsSend extends BaseCommand
             }
 
             $slaughterTime = substr($order['slaughter_time'], 0, 5) ?: '-';
-            $animalEmoji = $order['animal_type'] == 'Domba' ? '🐑' : '🐐';
+            $animalEmoji = $order['animal_type'] == 'Domba' ? "\xF0\x9F\x90\x91" : "\xF0\x9F\x90\x90";
 
             // Compact order line
-            $orderList .= '🔹 `#' . $order['id_order'] . '` *' . ($customer['child_name'] ?: $customer['name']) . "*\n";
-            $orderList .= '   └ ' . $animalEmoji . ' ' . $order['animal_type'] . ' | ' . ($package['name'] ?? '-') . ' | *' . $orderBoxCount . ' Box* | 🕒 ' . $slaughterTime . " WIB\n";
+            $orderList .= "\xF0\x9F\x94\xB9 `#" . $order['id_order'] . '` *' . ($customer['child_name'] ?: $customer['name']) . "*\n";
+            $orderList .= '   \xE2\x94\x94 ' . $animalEmoji . ' ' . $order['animal_type'] . ' | ' . ($package['name'] ?? '-') . ' | *' . $orderBoxCount . ' Box* | ' . "\xF0\x9F\x95\x92" . ' ' . $slaughterTime . " WIB\n";
         }
 
         // --- Rekap Dapur ---
@@ -242,60 +236,54 @@ class NotificationsSend extends BaseCommand
             foreach ($dapurBone as $name => $count) {
                 $boneParts[] = $name . ' (' . $count . ')';
             }
-            $dapurLines[] = '• *Menu Tulang:* ' . implode(', ', $boneParts);
+            $dapurLines[] = "\xE2\x80\xA2 *Menu Tulang:* " . implode(', ', $boneParts);
         }
         if (!empty($dapurMeat)) {
             $meatParts = [];
             foreach ($dapurMeat as $name => $count) {
                 $meatParts[] = $name . ' (' . $count . ')';
             }
-            $dapurLines[] = '• *Menu Daging:* ' . implode(', ', $meatParts);
+            $dapurLines[] = "\xE2\x80\xA2 *Menu Daging:* " . implode(', ', $meatParts);
         }
 
-        // --- Stok: hanya tampilkan yang critical/warning ---
+        // --- Stok: tampilkan semua item ---
         $stocks = $stockModel->findAll();
-        $stockCriticalLines = [];
-        $stockOkCount = 0;
+        $stockLines = [];
         foreach ($stocks as $s) {
             $minThreshold = $s['min_threshold'] ?? 0;
-            if ($s['quantity'] <= $minThreshold) {
-                $stockCriticalLines[] = '⚠️ ' . $s['item_name'] . ': *' . $s['quantity'] . ' ' . $s['unit'] . '* (Menipis)';
-            } else {
-                $stockOkCount++;
-            }
+            $icon = $s['quantity'] <= $minThreshold ? "\xE2\x9A\xA0\xEF\xB8\x8F" : "\xE2\x9C\x85";
+            $status = $s['quantity'] <= $minThreshold ? ' (Menipis)' : '';
+            $stockLines[] = $icon . ' ' . $s['item_name'] . ': *' . $s['quantity'] . ' ' . $s['unit'] . '*' . $status;
         }
 
         // Build hewan summary
         $hewanParts = [];
-        if ($ringkasan['dombaCount'] > 0) $hewanParts[] = '🐑 ' . $ringkasan['dombaCount'] . ' Domba';
-        if ($ringkasan['kambingCount'] > 0) $hewanParts[] = '🐐 ' . $ringkasan['kambingCount'] . ' Kambing';
+        if ($ringkasan['dombaCount'] > 0) $hewanParts[] = "\xF0\x9F\x90\x91 " . $ringkasan['dombaCount'] . ' Domba';
+        if ($ringkasan['kambingCount'] > 0) $hewanParts[] = "\xF0\x9F\x90\x90 " . $ringkasan['kambingCount'] . ' Kambing';
 
-        $msg = "📊 *REKAP HARIAN AQIQAH*\n"
-             . '🗓 *' . $dayName . ', ' . $todayIndo . "*\n"
+        $msg = "\xF0\x9F\x93\x8A *REKAP HARIAN AQIQAH*\n"
+             . "\xF0\x9F\x97\x93 *" . $dayName . ', ' . $todayIndo . "*\n"
              . "────────────────────\n\n"
-             . "📈 *RINGKASAN OPERASIONAL*\n"
-             . '• Total Pesanan : *' . $ringkasan['totalOrders'] . " Order*\n"
-             . '• Total Olahan  : *' . $ringkasan['totalBox'] . " Box*\n"
-             . '• Rincian Hewan : ' . implode(' | ', $hewanParts) . "\n"
-             . '• Pengantaran   : ' . ($deliveryTodayCount > 0 ? '🚚 *' . $deliveryTodayCount . ' Hari ini*' : '🚚 -') . "\n\n"
-             . "📦 *DAFTAR PESANAN*\n"
+             . "\xF0\x9F\x93\x88 *RINGKASAN OPERASIONAL*\n"
+             . "\xE2\x80\xA2 Total Pesanan : *" . $ringkasan['totalOrders'] . " Order*\n"
+             . "\xE2\x80\xA2 Total Olahan  : *" . $ringkasan['totalBox'] . " Box*\n"
+             . "\xE2\x80\xA2 Rincian Hewan : " . implode(' | ', $hewanParts) . "\n"
+             . "\xE2\x80\xA2 Pengantaran   : " . ($deliveryTodayCount > 0 ? "\xF0\x9F\x9A\x9A *" . $deliveryTodayCount . ' Hari ini*' : "\xF0\x9F\x9A\x9A -") . "\n\n"
+             . "\xF0\x9F\x93\xA6 *DAFTAR PESANAN*\n"
              . $orderList . "\n";
 
         if (!empty($dapurLines)) {
-            $msg .= "🍲 *REKAP DAPUR*\n"
+            $msg .= "\xF0\x9F\x8D\xB2 *REKAP DAPUR*\n"
                   . implode("\n", $dapurLines) . "\n\n";
         }
 
-        $msg .= "📦 *STATUS STOK*";
-        if (!empty($stockCriticalLines)) {
-            $msg .= "\n" . implode("\n", $stockCriticalLines);
-        }
-        if ($stockOkCount > 0) {
-            $msg .= "\n✅ Stok aman: *{$stockOkCount} item* lainnya tersembunyi";
+        $msg .= "\xF0\x9F\x93\xA6 *STATUS STOK*\n";
+        if (!empty($stockLines)) {
+            $msg .= implode("\n", $stockLines);
         }
 
         $msg .= "\n\n────────────────────\n"
-              . "✨ *Semoga operasional hari ini berjalan lancar!* 🙏";
+              . "\xE2\x9C\xA8 *Semoga operasional hari ini berjalan lancar!* \xF0\x9F\x99\x8F";
 
         $telegram->sendMessage($msg);
 
@@ -325,8 +313,8 @@ class NotificationsSend extends BaseCommand
             ->findAll();
 
         if (empty($orders)) {
-            $msg = "📅 *PREVIEW JADWAL BESOK*\n"
-                 . '🗓 *' . $dayName . ', ' . $tomorrowIndo . "*\n\n"
+            $msg = "\xF0\x9F\x93\x85 *PREVIEW JADWAL BESOK*\n"
+                 . "\xF0\x9F\x97\x93 *" . $dayName . ', ' . $tomorrowIndo . "*\n\n"
                  . "Tidak ada jadwal pemotongan untuk besok.\n"
                  . "────────────────────\n"
                  . "Sistem berjalan normal.";
@@ -369,7 +357,7 @@ class NotificationsSend extends BaseCommand
             $deliveryDate = $order['delivery_date'] ? $this->formatTanggalShort($order['delivery_date']) : '-';
             $birthDate = $customer['birth_date'] ? $this->formatTanggalShort($customer['birth_date']) : '-';
             $jmlAnakText = $order['jumlah_anak'] . ' ekor';
-            $animalEmoji = $order['animal_type'] == 'Domba' ? '🐑' : '🐐';
+            $animalEmoji = $order['animal_type'] == 'Domba' ? "\xF0\x9F\x90\x91" : "\xF0\x9F\x90\x90";
 
             $fiturList = [];
             if ($order['use_photo_card']) $fiturList[] = 'Kartu Ucapan';
@@ -378,40 +366,40 @@ class NotificationsSend extends BaseCommand
             $fiturText = !empty($fiturList) ? implode(', ', $fiturList) : '-';
 
             $orderDetails .= "────────────────────\n";
-            $orderDetails .= '📋 *DETAIL PESANAN #' . $order['id_order'] . "*\n\n";
-            $orderDetails .= '👤 *Pemesan:* ' . $customer['name'] . ' (`' . $customer['phone'] . "`)\n";
-            $orderDetails .= '👶 *Anak:* ' . ($customer['child_name'] ?: '-') . ' (' . $customer['gender'] . ') | 🗓 ' . $birthDate . "\n";
+            $orderDetails .= "\xF0\x9F\x93\x8B *DETAIL PESANAN #" . $order['id_order'] . "*\n\n";
+            $orderDetails .= "\xF0\x9F\x91\xA4 *Pemesan:* " . $customer['name'] . ' (`' . $customer['phone'] . "`)\n";
+            $orderDetails .= "\xF0\x9F\x91\xB6 *Anak:* " . ($customer['child_name'] ?: '-') . ' (' . $customer['gender'] . ') | ' . "\xF0\x9F\x97\x93" . ' ' . $birthDate . "\n";
             $orderDetails .= $animalEmoji . ' *Hewan:* ' . $order['animal_type'] . ' ' . $order['animal_gender'] . ' (' . $jmlAnakText . ")\n";
-            $orderDetails .= '📦 *Paket:* ' . $package['name'] . ' (Bobot ' . $package['weight_type'] . ': ' . $package['min_weight'] . '–' . $package['max_weight'] . ' kg) | *Total ' . $orderBoxCount . " Box*\n\n";
+            $orderDetails .= "\xF0\x9F\x93\xA6 *Paket:* " . $package['name'] . ' (Bobot ' . $package['weight_type'] . ': ' . $package['min_weight'] . "\xE2\x80\x93" . $package['max_weight'] . ' kg) | *Total ' . $orderBoxCount . " Box*\n\n";
 
-            $orderDetails .= "🍱 *Menu Box:*\n";
+            $orderDetails .= "\xF0\x9F\x8D\xB1 *Menu Box:*\n";
             foreach ($menuLines as $ml) {
-                $orderDetails .= ' ▫️ ' . $ml . "\n";
+                $orderDetails .= ' \xE2\x96\xAB\xEF\xB8\x8F ' . $ml . "\n";
             }
 
-            $orderDetails .= "\n⚙️ *Detail Operasional:*\n";
-            $orderDetails .= ' 🕒 Jam Potong : *' . $slaughterTime . " WIB*\n";
-            $orderDetails .= ' 🚚 Tgl Antar  : *' . $deliveryDate . "*\n";
-            $orderDetails .= ' 🎥 Potong     : ' . ($order['penyembelihan'] ?: '-') . "\n";
-            $orderDetails .= ' 📍 Alamat     : ' . ($customer['address'] ?: '-') . "\n";
-            $orderDetails .= ' 🎁 Fitur       : ' . $fiturText . "\n\n";
+            $orderDetails .= "\n\xE2\x9A\x99\xEF\xB8\x8F *Detail Operasional:*\n";
+            $orderDetails .= ' ' . "\xF0\x9F\x95\x92" . ' Jam Potong : *' . $slaughterTime . " WIB*\n";
+            $orderDetails .= ' ' . "\xF0\x9F\x9A\x9A" . ' Tgl Antar  : *' . $deliveryDate . "*\n";
+            $orderDetails .= ' ' . "\xF0\x9F\x8E\xA5" . ' Potong     : ' . ($order['penyembelihan'] ?: '-') . "\n";
+            $orderDetails .= ' ' . "\xF0\x9F\x93\x8D" . ' Alamat     : ' . ($customer['address'] ?: '-') . "\n";
+            $orderDetails .= ' ' . "\xF0\x9F\x8E\x81" . ' Fitur       : ' . $fiturText . "\n\n";
         }
 
         // Summary hewan
         $hewanParts = [];
-        if ($ringkasan['dombaCount'] > 0) $hewanParts[] = '🐑 ' . $ringkasan['dombaCount'] . ' Domba';
-        if ($ringkasan['kambingCount'] > 0) $hewanParts[] = '🐐 ' . $ringkasan['kambingCount'] . ' Kambing';
+        if ($ringkasan['dombaCount'] > 0) $hewanParts[] = "\xF0\x9F\x90\x91 " . $ringkasan['dombaCount'] . ' Domba';
+        if ($ringkasan['kambingCount'] > 0) $hewanParts[] = "\xF0\x9F\x90\x90 " . $ringkasan['kambingCount'] . ' Kambing';
 
-        $msg = "📅 *PREVIEW JADWAL BESOK*\n"
-             . '🗓 *' . $dayName . ', ' . $tomorrowIndo . "*\n"
+        $msg = "\xF0\x9F\x93\x85 *PREVIEW JADWAL BESOK*\n"
+             . "\xF0\x9F\x97\x93 *" . $dayName . ', ' . $tomorrowIndo . "*\n"
              . "────────────────────\n\n"
-             . "📊 *SUMMARY BESOK*\n"
-             . '• Total Order : *' . $ringkasan['totalOrders'] . " Pesanan*\n"
-             . '• Total Box   : *' . $ringkasan['totalBox'] . " Box*\n"
-             . '• Hewan       : ' . implode(' | ', $hewanParts) . "\n\n"
+             . "\xF0\x9F\x93\x8A *SUMMARY BESOK*\n"
+             . "\xE2\x80\xA2 Total Order : *" . $ringkasan['totalOrders'] . " Pesanan*\n"
+             . "\xE2\x80\xA2 Total Box   : *" . $ringkasan['totalBox'] . " Box*\n"
+             . "\xE2\x80\xA2 Hewan       : " . implode(' | ', $hewanParts) . "\n\n"
              . $orderDetails
              . "────────────────────\n\n"
-             . "💡 *Catatan:* Pastikan hewan siap dan koordinasi dengan tim dapur.";
+             . "\xF0\x9F\x92\xA1 *Catatan:* Pastikan hewan siap dan koordinasi dengan tim dapur.";
 
         $telegram->sendMessage($msg);
 
