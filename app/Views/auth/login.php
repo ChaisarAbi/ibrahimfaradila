@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -21,13 +22,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0f1724 0%, #1a1a2e 30%, #16213e 70%, #0f3460 100%);
             position: relative;
             overflow: hidden;
+            /* Background Identitas Ibrahim Aqiqah */
+            background: url('/LOGO.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Overlay gradient untuk background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(15, 23, 36, 0.92) 0%, 
+                rgba(26, 26, 46, 0.88) 30%, 
+                rgba(22, 33, 62, 0.90) 70%, 
+                rgba(15, 52, 96, 0.92) 100%);
+            z-index: 0;
         }
 
         /* Animated Background Particles */
-        body::before {
+        body::after {
             content: '';
             position: absolute;
             width: 400px;
@@ -37,30 +56,13 @@
             top: -100px;
             right: -100px;
             animation: float 8s ease-in-out infinite;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(0,188,212,0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            bottom: -50px;
-            left: -50px;
-            animation: float 6s ease-in-out infinite reverse;
+            z-index: 0;
         }
 
         @keyframes float {
             0%, 100% { transform: translate(0, 0) scale(1); }
             33% { transform: translate(30px, -30px) scale(1.1); }
             66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         @keyframes slideUp {
@@ -82,6 +84,11 @@
         @keyframes rotate-in {
             from { transform: rotate(-180deg) scale(0); opacity: 0; }
             to { transform: rotate(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 8px 30px rgba(46,125,50,0.3); }
+            50% { box-shadow: 0 8px 40px rgba(46,125,50,0.5); }
         }
 
         .particles {
@@ -129,14 +136,14 @@
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 40px 36px;
             box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 20px 60px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
@@ -159,12 +166,27 @@
             margin-bottom: 36px;
         }
 
-        .login-logo {
+        /* LOGO IBRAHIM AQIQAH */
+        .login-logo-container {
+            margin-bottom: 20px;
+        }
+
+        .login-logo-img {
+            max-width: 120px;
+            max-height: 120px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 15px rgba(46,125,50,0.4));
+            animation: rotate-in 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) both, glow-pulse 3s ease-in-out infinite;
+        }
+
+        .login-logo-placeholder {
             width: 72px;
             height: 72px;
             background: linear-gradient(135deg, #2E7D32, #4CAF50);
             border-radius: 20px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
@@ -182,10 +204,18 @@
             letter-spacing: -0.5px;
         }
 
-        .login-header p {
+        .login-header .brand-subtitle {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 400;
+            margin-bottom: 4px;
+        }
+
+        .login-header .arabic-bismillah {
+            color: #4CAF50;
+            font-family: 'Amiri', serif;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
         }
 
         .form-group {
@@ -380,6 +410,10 @@
             .login-header h3 {
                 font-size: 1.3rem;
             }
+            .login-logo-img {
+                max-width: 90px;
+                max-height: 90px;
+            }
         }
     </style>
 </head>
@@ -399,11 +433,18 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <div class="login-logo">
-                    <i class="fas fa-mosque"></i>
+                <!-- Logo Ibrahim Aqiqah -->
+                <div class="login-logo-container">
+                    <img src="/LOGO.png" alt="Logo Ibrahim Aqiqah" class="login-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="login-logo-placeholder">
+                        <i class="fas fa-mosque"></i>
+                    </div>
                 </div>
-                <h3>Selamat Datang</h3>
-                <p>Masuk ke Sistem Penjadwalan Ibrahim Aqiqah</p>
+                
+                <div class="arabic-bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+                <h3>Ibrahim Aqiqah</h3>
+                <p class="brand-subtitle">Sistem Penjadwalan & Manajemen Aqiqah</p>
+                <p class="brand-subtitle">Masuk ke akun Anda untuk melanjutkan</p>
             </div>
 
             <?php if (session()->getFlashdata('error')): ?>

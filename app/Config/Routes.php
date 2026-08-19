@@ -74,7 +74,8 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('stock/delete/(:num)', 'Stock::delete/$1');
     
     // Scheduler (Admin & RPH only)
-    $routes->get('scheduler/run', 'Scheduler::run', ['filter' => 'rph']);
+    $routes->get('scheduler', 'Scheduler::index', ['filter' => 'rph']);
+    $routes->post('scheduler/run', 'Scheduler::run', ['filter' => 'rph']);
     
     // Calendar (Admin & RPH only)
     $routes->get('calendar/events', 'Calendar::getEvents', ['filter' => 'rph']);

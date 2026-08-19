@@ -49,11 +49,73 @@ class Reports extends BaseController
         $order['hari'] = $dayNames[$dayIndex];
         $order['tanggal'] = date('d F Y', strtotime($order['slaughter_date']));
         
+        // Convert images to base64 for DOMPDF compatibility (works on VPS and Windows)
+        $logoBase64 = null;
+        $photoBase64 = null;
+        
+        // Find logo - check app/../LOGO.png first (VPS friendly), then public/LOGO.png (local fallback)
+        $logoPath = null;
+        // APPATH is app/, dirname(APPPATH, 1) is project root
+        $rootLogo = dirname(APPPATH, 1) . '/LOGO.png';
+        if (file_exists($rootLogo)) {
+            $logoPath = $rootLogo;
+        } elseif (file_exists(FCPATH . 'LOGO.png')) {
+            $logoPath = FCPATH . 'LOGO.png';
+        }
+        
+        if ($logoPath && extension_loaded('gd')) {
+            $logoImage = @imagecreatefrompng($logoPath);
+            if ($logoImage) {
+                ob_start();
+                imagepng($logoImage, null, 8); // Quality 8 for compression
+                $logoBase64 = 'data:image/png;base64,' . base64_encode(ob_get_clean());
+                imagedestroy($logoImage);
+            }
+        }
+        
+        // Find photo
+        $hasPhoto = false;
+        if (!empty($order['photo_path'])) {
+            $photoPath = null;
+            $photoBasename = basename($order['photo_path']);
+            // Try multiple paths (FCPATH first since that's where uploads go)
+            $possiblePaths = [
+                FCPATH . $order['photo_path'],
+                FCPATH . 'uploads/photos/' . $photoBasename,
+                dirname(APPPATH, 1) . '/uploads/photos/' . $photoBasename,
+            ];
+            
+            foreach ($possiblePaths as $p) {
+                if (file_exists($p)) {
+                    $photoPath = $p;
+                    break;
+                }
+            }
+            
+            if ($photoPath && extension_loaded('gd')) {
+                $photoImage = @imagecreatefromjpeg($photoPath);
+                if (!$photoImage) {
+                    $photoImage = @imagecreatefrompng($photoPath);
+                }
+                if ($photoImage) {
+                    ob_start();
+                    imagejpeg($photoImage, null, 8); // Quality 8 for compression
+                    $photoBase64 = 'data:image/jpeg;base64,' . base64_encode(ob_get_clean());
+                    imagedestroy($photoImage);
+                    $hasPhoto = true;
+                }
+            }
+        }
+        
         $data = [
-            'order'     => $order,
-            'customer'  => $customer,
-            'package'   => $package,
-            'details'   => (new \App\Models\OrderDetailModel())->where('order_id', $id_order)->findAll()
+            'order'       => $order,
+            'customer'    => $customer,
+            'package'     => $package,
+            'details'     => (new \App\Models\OrderDetailModel())->where('order_id', $id_order)->findAll(),
+            'logo_base64' => $logoBase64,
+            'photo_base64' => $photoBase64,
+            'has_logo'    => !empty($logoBase64),
+            'has_photo'   => $hasPhoto
         ];
         
         $html = view('reports/certificate', $data);
@@ -61,8 +123,14 @@ class Reports extends BaseController
         $dompdf = new \Dompdf\Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
+        
+        // Enable base64 data URIs in DOMPDF
+        $dompdf->getOptions()->set('isRemoteEnabled', true);
+        $dompdf->getOptions()->set('defaultMediaType', 'print');
+        
         $dompdf->render();
         $pdfOutput = $dompdf->output();
+        
         return $this->response
             ->setContentType('application/pdf')
             ->setHeader('Content-Disposition', 'inline; filename="sertifikat_aqiqah_' . $id_order . '.pdf"')

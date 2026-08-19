@@ -181,8 +181,14 @@
         <div class="certificate-inner">
             <!-- Header -->
             <div class="header-section">
-                <div style="font-size:30px;margin-bottom:3px;">🕌</div>
-                <div class="brand-name">Ibrahim Aqiqah</div>
+                <div style="text-align:center;margin:5px 0;">
+                    <?php if (!empty($logo_base64)): ?>
+                        <img src="<?= $logo_base64 ?>" alt="Logo Ibrahim Aqiqah" style="max-width:180px;height:auto;">
+                    <?php else: ?>
+                        <div style="font-size:24px;margin-bottom:5px;">🕌</div>
+                        <div class="brand-name">Ibrahim Aqiqah</div>
+                    <?php endif; ?>
+                </div>
                 <div class="brand-sub">Sistem Penjadwalan Aqiqah Terpercaya</div>
             </div>
             
@@ -213,9 +219,9 @@
                 </div>
             </div>
             
-            <?php if (!empty($order['photo_path'])): ?>
+            <?php if (!empty($photo_base64)): ?>
             <div style="text-align:center;margin:10px 0;">
-                <img src="<?= base_url($order['photo_path']) ?>" alt="Foto Anak" style="max-width:120px;max-height:150px;border:2px solid #c9a84c;border-radius:4px;">
+                <img src="<?= $photo_base64 ?>" alt="Foto Anak" style="max-width:120px;max-height:150px;border:2px solid #c9a84c;border-radius:4px;">
             </div>
             <?php endif; ?>
             

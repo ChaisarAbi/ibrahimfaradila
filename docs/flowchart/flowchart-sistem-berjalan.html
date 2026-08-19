@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flowchart Sistem Berjalan - Ibrahim Aqiqah</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #fff;
+        margin: 0;
+        padding: 30px 20px 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .header h1 {
+        font-size: 22px;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+    .header p {
+        font-size: 14px;
+        color: #555;
+        margin: 0;
+    }
+    .figure-caption {
+        text-align: center;
+        font-style: italic;
+        font-size: 13px;
+        color: #333;
+        margin-top: 15px;
+    }
+    svg {
+        max-width: 100%;
+        height: auto;
+    }
+    @media print {
+        body { padding: 0; }
+        .header { margin-bottom: 10px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Flowchart Sistem Berjalan</h1>
+    <p>Proses Pengelolaan Pemesanan dan Penjadwalan Pemotongan Hewan Aqiqah (Manual)</p>
+</div>
+
+<svg viewBox="0 0 800 900" width="800" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+        </marker>
+    </defs>
+
+    <!-- ===== KONEKTOR (GARIS + PANAH) ===== -->
+    <!-- 1 -> 2 -->
+    <line x1="400" y1="55" x2="400" y2="92" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    <!-- 2 -> 3 -->
+    <line x1="400" y1="152" x2="400" y2="192" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    <!-- 3 -> 4 -->
+    <line x1="400" y1="262" x2="400" y2="312" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    <!-- 4 -> 5 -->
+    <line x1="400" y1="382" x2="400" y2="412" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    
+    <!-- Decision 5: Tidak -> loop kembali ke proses 4 -->
+    <path d="M 290 455 L 210 455 L 210 347 L 258 347" fill="none" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="215" y="440" font-size="14" font-weight="bold" fill="#c0392b" font-family="Arial">Tidak</text>
+    
+    <!-- Decision 5: Ya -> 6 -->
+    <line x1="400" y1="500" x2="400" y2="532" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="412" y="522" font-size="14" font-weight="bold" fill="#1e8449" font-family="Arial">Ya</text>
+    
+    <!-- 6 -> 7 -->
+    <line x1="400" y1="597" x2="400" y2="632" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+    <!-- 7 -> 8 -->
+    <line x1="400" y1="692" x2="400" y2="728" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- ===== NODE 1: MULAI ===== -->
+    <ellipse cx="400" cy="30" rx="80" ry="25" fill="#cce5ff" stroke="#333" stroke-width="2"/>
+    <text x="400" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#000" font-family="Arial">Mulai</text>
+
+    <!-- ===== NODE 2: PEMESANAN ===== -->
+    <rect x="230" y="92" width="340" height="60" rx="8" fill="#f8f9fa" stroke="#333" stroke-width="2"/>
+    <text x="400" y="116" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Pelanggan melakukan pemesanan</text>
+    <text x="400" y="136" text-anchor="middle" font-size="13" fill="#333" font-family="Arial">(datang langsung / telepon / WhatsApp)</text>
+
+    <!-- ===== NODE 3: PENCATATAN DATA ===== -->
+    <rect x="205" y="192" width="390" height="70" rx="8" fill="#f8f9fa" stroke="#333" stroke-width="2"/>
+    <text x="400" y="215" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Admin mencatat data pelanggan, jenis paket,</text>
+    <text x="400" y="235" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">jumlah hewan, dan tanggal pelaksanaan</text>
+    <text x="400" y="255" text-anchor="middle" font-size="13" fill="#333" font-family="Arial">(buku catatan / spreadsheet sederhana)</text>
+
+    <!-- ===== NODE 4: PENENTUAN JADWAL ===== -->
+    <rect x="202" y="312" width="396" height="70" rx="8" fill="#f8f9fa" stroke="#333" stroke-width="2"/>
+    <text x="400" y="335" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Admin menentukan jadwal pemotongan hewan</text>
+    <text x="400" y="355" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">secara manual berdasarkan pengalaman</text>
+    <text x="400" y="375" text-anchor="middle" font-size="13" fill="#333" font-family="Arial">dan urutan pesanan yang masuk</text>
+
+    <!-- ===== NODE 5: DECISION (BELAH KETUPAT) ===== -->
+    <polygon points="400,412 510,455 400,498 290,455" fill="#fff3cd" stroke="#333" stroke-width="2"/>
+    <text x="400" y="450" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Data pesanan</text>
+    <text x="400" y="468" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">& jadwal sesuai?</text>
+
+    <!-- ===== NODE 6: INFORMASI MANUAL ===== -->
+    <rect x="215" y="532" width="370" height="65" rx="8" fill="#f8f9fa" stroke="#333" stroke-width="2"/>
+    <text x="400" y="555" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Admin menyampaikan informasi jadwal</text>
+    <text x="400" y="575" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">& status pesanan secara manual</text>
+    <text x="400" y="593" text-anchor="middle" font-size="13" fill="#333" font-family="Arial">(telepon / WhatsApp)</text>
+
+    <!-- ===== NODE 7: PELANGGAN CEK STATUS ===== -->
+    <rect x="220" y="632" width="360" height="60" rx="8" fill="#f8f9fa" stroke="#333" stroke-width="2"/>
+    <text x="400" y="656" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Pelanggan harus menghubungi pihak</text>
+    <text x="400" y="676" text-anchor="middle" font-size="14" fill="#000" font-family="Arial">Ibrahim Aqiqah untuk cek status pesanan</text>
+
+    <!-- ===== NODE 8: SELESAI ===== -->
+    <ellipse cx="400" cy="755" rx="80" ry="25" fill="#d4edda" stroke="#333" stroke-width="2"/>
+    <text x="400" y="760" text-anchor="middle" font-size="16" font-weight="bold" fill="#000" font-family="Arial">Selesai</text>
+</svg>
+
+<div class="figure-caption">
+    Gambar 3.X Flowchart Sistem Berjalan Pengelolaan Pemesanan Aqiqah
+</div>
+
+</body>
+</html>

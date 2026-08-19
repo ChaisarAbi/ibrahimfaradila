@@ -1,15 +1,13 @@
 <style>
-/* ===== Sidebar Dark Premium ===== */
+/* ===== Sidebar - Ibrahim Aqiqah Color Palette - Flat ===== */
 :root {
     --sidebar-width: 250px;
-    --sidebar-collapsed: 70px;
-    --sidebar-bg: #0f1923;
-    --sidebar-bg2: #1a2332;
-    --sidebar-hover: rgba(76, 175, 80, 0.15);
-    --sidebar-active: rgba(76, 175, 80, 0.25);
+    --sidebar-bg: #1a2529;
+    --sidebar-bg2: #25424C;
+    --sidebar-hover: rgba(251, 119, 13, 0.1);
+    --sidebar-active: rgba(251, 119, 13, 0.2);
     --sidebar-text: rgba(255, 255, 255, 0.65);
     --sidebar-text-hover: #ffffff;
-    --sidebar-width-mobile: 280px;
 }
 
 /* Sidebar Toggle Button (Mobile) */
@@ -19,20 +17,18 @@
     top: 12px;
     left: 12px;
     z-index: 1050;
-    background: var(--primary-gradient);
+    background: #FB770D;
     border: none;
     border-radius: 10px;
     color: white;
     width: 40px;
     height: 40px;
     font-size: 1.2rem;
-    box-shadow: 0 4px 15px rgba(46,125,50,0.3);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 .sidebar-toggle:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(46,125,50,0.4);
+    background: #25424C;
 }
 
 /* Sidebar Overlay */
@@ -52,7 +48,7 @@
     opacity: 1;
 }
 
-/* Main Sidebar */
+/* Main Sidebar - Flat */
 .sidebar {
     position: fixed;
     top: 0;
@@ -67,9 +63,8 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.2);
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.1) transparent;
+    scrollbar-color: rgba(251, 119, 13, 0.2) transparent;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -79,25 +74,25 @@
     background: transparent;
 }
 .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
+    background: rgba(251, 119, 13, 0.2);
     border-radius: 2px;
 }
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(251, 119, 13, 0.4);
 }
 
-/* Logo Area */
+/* Logo Area - Flat */
 .sidebar-brand {
     padding: 18px 20px;
-    background: linear-gradient(135deg, #0f1923 0%, #1a2332 100%);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: var(--sidebar-bg2);
+    border-bottom: 1px solid rgba(251, 119, 13, 0.1);
     flex-shrink: 0;
     text-decoration: none;
     display: block;
     transition: all 0.3s ease;
 }
 .sidebar-brand:hover {
-    background: linear-gradient(135deg, #1a2332 0%, #0f1923 100%);
+    background: #152023;
 }
 
 .sidebar-brand .brand-logo {
@@ -109,14 +104,13 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: var(--primary-gradient);
+    background: #FB770D;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
     color: white;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(46,125,50,0.3);
 }
 .sidebar-brand .brand-text {
     flex: 1;
@@ -133,23 +127,23 @@
     text-overflow: ellipsis;
 }
 .sidebar-brand .brand-text small {
-    color: rgba(255,255,255,0.4);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.7rem;
     letter-spacing: 1px;
     text-transform: uppercase;
 }
 
-/* User Info */
+/* User Info - Flat */
 .sidebar-user {
     padding: 14px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(251, 119, 13, 0.08);
     flex-shrink: 0;
 }
 .sidebar-user .user-avatar {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: var(--primary-gradient);
+    background: #FB770D;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -164,7 +158,7 @@
     font-size: 0.88rem;
 }
 .sidebar-user .user-role {
-    color: rgba(255,255,255,0.4);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -173,23 +167,22 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: #FB770D;
     display: inline-block;
-    animation: pulse-glow 2s infinite;
 }
 
-/* Navigation Header */
+/* Navigation Header - Flat */
 .sidebar-nav-header {
     padding: 16px 20px 6px;
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: rgba(255,255,255,0.3);
+    color: rgba(251, 119, 13, 0.3);
     font-weight: 700;
     flex-shrink: 0;
 }
 
-/* Navigation Items */
+/* Navigation Items - Flat */
 .sidebar-nav {
     flex: 1;
     padding: 4px 10px;
@@ -231,7 +224,7 @@
     border-radius: 20px;
     font-size: 0.65rem;
     font-weight: 700;
-    background: var(--primary-color);
+    background: #FB770D;
     color: white;
     flex-shrink: 0;
 }
@@ -239,44 +232,42 @@
 .sidebar-link:hover {
     background: var(--sidebar-hover);
     color: var(--sidebar-text-hover);
-    transform: translateX(4px);
 }
 .sidebar-link:hover i {
-    color: var(--primary-light);
+    color: #FB770D;
 }
 
 .sidebar-link.active {
     background: var(--sidebar-active);
     color: var(--sidebar-text-hover);
     font-weight: 600;
-    box-shadow: inset 3px 0 0 var(--primary-light);
 }
 .sidebar-link.active i {
-    color: var(--primary-light);
+    color: #FB770D;
 }
 .sidebar-link.active::before {
     content: '';
     position: absolute;
-    left: -10px;
+    left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 4px;
+    width: 3px;
     height: 20px;
-    background: var(--primary-light);
-    border-radius: 0 4px 4px 0;
+    background: #FB770D;
+    border-radius: 0 3px 3px 0;
 }
 
-/* Footer in Sidebar */
+/* Footer in Sidebar - Flat */
 .sidebar-footer {
     padding: 14px 18px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid rgba(251, 119, 13, 0.08);
     flex-shrink: 0;
 }
 .sidebar-footer .logout-link {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     text-decoration: none;
     padding: 8px 12px;
     border-radius: 8px;
@@ -284,7 +275,7 @@
     font-size: 0.85rem;
 }
 .sidebar-footer .logout-link:hover {
-    background: rgba(239,68,68,0.15);
+    background: rgba(239, 68, 68, 0.15);
     color: #ef4444;
 }
 .sidebar-footer .logout-link i {
@@ -420,7 +411,7 @@
         <!-- Jadwalkan / Scheduler (Admin & RPH) -->
         <?php if ($userRole === 'admin' || $userRole === 'rph'): ?>
         <div class="sidebar-item">
-            <a href="/admin/scheduler/run" class="sidebar-link">
+            <a href="/admin/scheduler" class="sidebar-link <?= strpos(current_url(), '/admin/scheduler') !== false ? 'active' : '' ?>">
                 <i class="fas fa-calendar-alt"></i>
                 <span class="link-text">Jadwalkan (EDF)</span>
             </a>

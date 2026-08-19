@@ -1,0 +1,584 @@
+' =====================================================================
+' ERD + TRANSFORMASI ERD→LRS + LRS FINAL
+' Sistem Manajemen Aqiqah - Ibrahim Aqiqah
+' =====================================================================
+' Copas blok @startuml/@enduml ke:
+' https://www.planttext.com
+
+' =====================================================================
+' BAGIAN 1: ERD (Entity Relationship Diagram)
+' =====================================================================
+
+@startuml
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam backgroundColor #FEFEFE
+skinparam entity {
+  BackgroundColor #E8F0FE
+  BorderColor #1A73E8
+}
+skinparam note {
+  BackgroundColor #FFF8E1
+  BorderColor #F9A825
+}
+left to right direction
+title **ERD - Ibrahim Aqiqah**\nSistem Informasi Penjadwalan & Notifikasi
+
+entity "users\n[1]" as users {
+  * id_user : INT <<PK>>
+  --
+  * username : VARCHAR(50) <<U>>
+  * password : VARCHAR(255)
+  * fullname : VARCHAR(100)
+  * role : ENUM('admin','rph','dapur')
+  * created_at : DATETIME
+}
+
+entity "customers\n[2]" as customers {
+  * id_customer : INT <<PK>>
+  --
+  * name : VARCHAR(100)
+  * child_name : VARCHAR(100)
+  * gender : ENUM('Laki-laki','Perempuan')
+  * birth_date : DATE
+  * phone : VARCHAR(15)
+  * address : TEXT
+  * created_at : DATETIME
+}
+
+entity "packages\n[3]" as packages {
+  * id_package : INT <<PK>>
+  --
+  * name : VARCHAR(50)
+  * weight_type : CHAR(1)
+  * min_weight : DECIMAL(5,2)
+  * max_weight : DECIMAL(5,2)
+  * box_count : INT
+  * price : DECIMAL(12,2)
+  * is_special : BOOLEAN
+}
+
+entity "bone_menus\n[4]" as bone_menus {
+  * id_bone : INT <<PK>>
+  --
+  * name : VARCHAR(50) <<U>>
+}
+
+entity "meat_menus\n[5]" as meat_menus {
+  * id_meat : INT <<PK>>
+  --
+  * name : VARCHAR(50) <<U>>
+}
+
+entity "orders\n[6]" as orders {
+  * id_order : INT <<PK>>
+  --
+  # customer_id : INT <<FK>>
+  # package_id : INT <<FK>>
+  * animal_type : ENUM('Domba','Kambing')
+  * animal_gender : ENUM('Jantan','Betina')
+  * jumlah_anak : INT
+  * slaughter_date : DATE
+  * delivery_date : DATE
+  * slaughter_time : TIME
+  * penyembelihan : ENUM('Dokumentasi','Video Call','Visit')
+  * use_photo_card : BOOLEAN
+  * use_photo_certificate : BOOLEAN
+  o photo_path : VARCHAR(255) <<NULL>>
+  * status : ENUM('Pending','Scheduled','Processing','Completed','Cancelled')
+  * total_price : DECIMAL(12,2)
+  * created_at : DATETIME
+}
+
+entity "order_details\n[7]" as order_details {
+  * id_detail : INT <<PK>>
+  --
+  # order_id : INT <<FK>>
+  # bone_menu_id : INT <<FK>> <<NULL>>
+  # meat_menu_id : INT <<FK>> <<NULL>>
+  * box_type : ENUM('Box Premium','Bento Pack')
+  * jumlah_box : INT
+}
+
+entity "schedules\n[8]" as schedules {
+  * id_schedule : INT <<PK>>
+  --
+  # order_id : INT <<FK>>
+  * slaughter_date : DATE
+  * priority : INT
+  * status : ENUM('Scheduled','In Progress','Done')
+}
+
+entity "notifications\n[9]" as notifications {
+  * id_notif : INT <<PK>>
+  --
+  # order_id : INT <<FK>> <<NULL>>
+  * type : ENUM('24h_reminder','stock_alert','order_confirmation','daily_recap')
+  * message : TEXT
+  * sent_at : DATETIME
+  * is_read : BOOLEAN
+}
+
+entity "stocks\n[10]" as stocks {
+  * id_stock : INT <<PK>>
+  --
+  * item_name : VARCHAR(100)
+  * category : ENUM('hewan','bahan')
+  * quantity : INT
+  * min_threshold : INT
+  * unit : VARCHAR(20)
+  * updated_at : DATETIME
+}
+
+entity "telegram_recipients\n[11]" as telegram_recipients {
+  * id_recipient : INT <<PK>>
+  --
+  * chat_id : VARCHAR(100)
+  * name : VARCHAR(255)
+  * type : ENUM('personal','group')
+  * created_at : DATETIME
+}
+
+' ====== RELASI ======
+
+customers ||--o{ orders : "1 : N"
+packages ||--o{ orders : "1 : N"
+orders ||--o{ order_details : "1 : N"
+orders ||--o{ schedules : "1 : N"
+orders ||--o{ notifications : "1 : N"
+bone_menus ||--o{ order_details : "1 : N"
+meat_menus ||--o{ order_details : "1 : N"
+
+note bottom of orders
+orders adalah tabel pusat
+yang menghubungkan
+hampir semua entitas
+end note
+@enduml
+
+
+' =====================================================================
+' BAGIAN 2: TRANSFORMASI ERD → LRS
+' =====================================================================
+
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam node {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+}
+skinparam arrow {
+  Color #0D47A1
+}
+left to right direction
+title **Transformasi ERD ke LRS**\n(Aturan: Multi-value→tabel baru, Relasi M:N→tabel baru)
+
+node "ERD Entities\n(11 Entitas)" as erd {
+  node "Strong Entities\n(8)" as strong {
+    card "1. users" as u
+    card "2. customers" as c
+    card "3. packages" as pkg
+    card "4. bone_menus" as bm
+    card "5. meat_menus" as mm
+    card "6. orders ⭐" as o
+    card "7. stocks" as st
+    card "8. telegram_recipients" as tr
+  }
+  node "Weak / Assoc Entities\n(3)" as weak {
+    card "9. order_details" as od
+    card "10. schedules" as sch
+    card "11. notifications" as notif
+  }
+}
+
+node "Transformasi" as trans {
+  note "Setiap entitas menjadi 1 tabel
+  Tidak ada multivalue attribute
+  Tidak ada relasi M:N
+  Semua relasi 1:N sudah
+  langsung pakai FK saja" as note1
+}
+
+node "LRS Final\n(11 Tabel)" as lrs {
+  card "T1. users" as t1
+  card "T2. customers" as t2
+  card "T3. packages" as t3
+  card "T4. bone_menus" as t4
+  card "T5. meat_menus" as t5
+  card "T6. orders ← FK: customer_id, package_id" as t6
+  card "T7. order_details ← FK: order_id, bone_menu_id, meat_menu_id" as t7
+  card "T8. schedules ← FK: order_id" as t8
+  card "T9. notifications ← FK: order_id (nullable)" as t9
+  card "T10. stocks" as t10
+  card "T11. telegram_recipients" as t11
+}
+
+erd ==> trans : "Mapping 1:1"
+trans ==> lrs : "11 tabel final"
+@enduml
+
+
+' =====================================================================
+' BAGIAN 3: LRS (Logical Record Structure) FINAL
+' =====================================================================
+
+@startuml
+skinparam linetype ortho
+skinparam backgroundColor #FEFEFE
+skinparam card {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+}
+skinparam note {
+  BackgroundColor #FCE4EC
+  BorderColor #C62828
+}
+left to right direction
+title **LRS (Logical Record Structure) Final**\nIbrahim Aqiqah - 11 Tabel
+
+card "T1. **users**\n[id_user] username, password,\nfullname, role, created_at" as t1 {
+  ..
+  PK: id_user (INT)
+  UQ: username
+}
+
+card "T2. **customers**\n[id_customer] name, child_name,\ngender, birth_date, phone,\naddress, created_at" as t2 {
+  ..
+  PK: id_customer (INT)
+}
+
+card "T3. **packages**\n[id_package] name, weight_type,\nmin_weight, max_weight,\nbox_count, price, is_special" as t3 {
+  ..
+  PK: id_package (INT)
+}
+
+card "T4. **bone_menus**\n[id_bone] name" as t4 {
+  ..
+  PK: id_bone (INT)
+  UQ: name
+}
+
+card "T5. **meat_menus**\n[id_meat] name" as t5 {
+  ..
+  PK: id_meat (INT)
+  UQ: name
+}
+
+card "T6. **orders** ← TABEL PUSAT\n[id_order] customer_id, package_id,\nanimal_type, animal_gender,\njumlah_anak, slaughter_date,\ndelivery_date, slaughter_time,\npenyembelihan, use_photo_card,\nuse_photo_certificate, photo_path,\nstatus, total_price, created_at" as t6 {
+  ..
+  PK: id_order (INT)
+  FK01: customer_id → T2.customers
+  FK02: package_id → T3.packages
+}
+
+card "T7. **order_details**\n[id_detail] order_id,\nbone_menu_id (null), meat_menu_id (null),\nbox_type, jumlah_box" as t7 {
+  ..
+  PK: id_detail (INT)
+  FK01: order_id → T6.orders (CASCADE)
+  FK02: bone_menu_id → T4.bone_menus
+  FK03: meat_menu_id → T5.meat_menus
+}
+
+card "T8. **schedules**\n[id_schedule] order_id,\nslaughter_date, priority, status" as t8 {
+  ..
+  PK: id_schedule (INT)
+  FK01: order_id → T6.orders (CASCADE)
+}
+
+card "T9. **notifications**\n[id_notif] order_id (null),\ntype, message, sent_at, is_read" as t9 {
+  ..
+  PK: id_notif (INT)
+  FK01: order_id → T6.orders (nullable)
+}
+
+card "T10. **stocks**\n[id_stock] item_name, category,\nquantity, min_threshold,\nunit, updated_at" as t10 {
+  ..
+  PK: id_stock (INT)
+}
+
+card "T11. **telegram_recipients**\n[id_recipient] chat_id, name,\ntype, created_at" as t11 {
+  ..
+  PK: id_recipient (INT)
+}
+
+' ====== RELASI ANTAR TABEL ======
+t2 --> t6 : "1 : N"
+t3 --> t6 : "1 : N"
+t6 --> t7 : "1 : N"
+t4 --> t7 : "1 : N"
+t5 --> t7 : "1 : N"
+t6 --> t8 : "1 : N"
+t6 --> t9 : "1 : N"
+
+note top of t6
+**TABEL PUSAT SISTEM**
+Semua transaksi utama
+berpusat di tabel orders
+end note
+
+note bottom of t2
+Setiap customer bisa
+memiliki banyak order
+(Aqiqah berkali-kali)
+end note
+@enduml
+
+
+' =====================================================================
+' BAGIAN 4: LRS - TABEL PER TABEL (DETAIL)
+' =====================================================================
+
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam card {
+  BackgroundColor #FFF3E0
+  BorderColor #E65100
+}
+
+title **Detail Struktur Tabel (LRS)**
+
+card "**T1. users** — Data Login Staff" as d1 {
+  columns:
+  * id_user (INT) PK AUTO_INCREMENT
+  * username (VARCHAR 50) UNIQUE NOT NULL
+  * password (VARCHAR 255) NOT NULL
+  * fullname (VARCHAR 100)
+  * role (ENUM: admin, rph, dapur)
+  * created_at (DATETIME) DEFAULT NOW
+  --
+  Keterangan:
+  Menyimpan data login untuk
+  3 role: admin, rph (RPH), dapur
+}
+
+card "**T2. customers** — Data Pemesan" as d2 {
+  columns:
+  * id_customer (INT) PK AUTO_INCREMENT
+  * name (VARCHAR 100) NOT NULL
+  * child_name (VARCHAR 100) NOT NULL
+  * gender (ENUM: Laki-laki, Perempuan)
+  * birth_date (DATE)
+  * phone (VARCHAR 15)
+  * address (TEXT)
+  * created_at (DATETIME) DEFAULT NOW
+}
+
+card "**T3. packages** — Paket Aqiqah" as d3 {
+  columns:
+  * id_package (INT) PK AUTO_INCREMENT
+  * name (VARCHAR 50)
+  * weight_type (CHAR 1) [A/B/C/D]
+  * min_weight (DECIMAL 5,2)
+  * max_weight (DECIMAL 5,2)
+  * box_count (INT) [50/60/80/100]
+  * price (DECIMAL 12,2)
+  * is_special (BOOLEAN) DEFAULT FALSE
+}
+
+card "**T4. bone_menus** — Menu Tulang" as d4 {
+  columns:
+  * id_bone (INT) PK AUTO_INCREMENT
+  * name (VARCHAR 50) UNIQUE
+  --
+  Data: Gulai, Sop, Tongseng
+}
+
+card "**T5. meat_menus** — Menu Daging" as d5 {
+  columns:
+  * id_meat (INT) PK AUTO_INCREMENT
+  * name (VARCHAR 50) UNIQUE
+  --
+  Data: Sate tanpa tusuk,
+  Teriyaki, Lada Hitam,
+  Krengseng, Semur
+}
+
+card "**T6. orders** — Transaksi Utama ★" as d6 {
+  columns:
+  * id_order (INT) PK AUTO_INCREMENT
+  * customer_id (INT) FK → T2
+  * package_id (INT) FK → T3
+  * animal_type (ENUM: Domba, Kambing)
+  * animal_gender (ENUM: Jantan, Betina)
+  * jumlah_anak (INT)
+  * slaughter_date (DATE)
+  * delivery_date (DATE)
+  * slaughter_time (TIME)
+  * penyembelihan (ENUM: Dokumentasi, VC, Visit)
+  * use_photo_card (BOOLEAN)
+  * use_photo_certificate (BOOLEAN)
+  * photo_path (VARCHAR 255) NULL
+  * status (ENUM: Pending, Scheduled, Processing, Completed, Cancelled)
+  * total_price (DECIMAL 12,2)
+  * created_at (DATETIME)
+  --
+  ★ TABEL SENTRAL
+  Status flow: Pending → Scheduled
+  → Processing → Completed/Cancelled
+}
+
+card "**T7. order_details** — Detail Menu per Box" as d7 {
+  columns:
+  * id_detail (INT) PK AUTO_INCREMENT
+  * order_id (INT) FK → T6 ON DELETE CASCADE
+  * bone_menu_id (INT) FK → T4 (nullable)
+  * meat_menu_id (INT) FK → T5 (nullable)
+  * box_type (ENUM: Box Premium, Bento Pack)
+  * jumlah_box (INT)
+}
+
+card "**T8. schedules** — Jadwal EDF" as d8 {
+  columns:
+  * id_schedule (INT) PK AUTO_INCREMENT
+  * order_id (INT) FK → T6 ON DELETE CASCADE
+  * slaughter_date (DATE)
+  * priority (INT) [1 = tertinggi]
+  * status (ENUM: Scheduled, In Progress, Done)
+  --
+  Algoritma: EDF (Earliest Deadline First)
+  Diurutkan by slaughter_date ASC
+}
+
+card "**T9. notifications** — Log Notifikasi" as d9 {
+  columns:
+  * id_notif (INT) PK AUTO_INCREMENT
+  * order_id (INT) FK → T6 (nullable)
+  * type (ENUM: 24h_reminder, stock_alert, order_confirmation, daily_recap)
+  * message (TEXT)
+  * sent_at (DATETIME) DEFAULT NOW
+  * is_read (BOOLEAN) DEFAULT FALSE
+}
+
+card "**T10. stocks** — Stok Inventori" as d10 {
+  columns:
+  * id_stock (INT) PK AUTO_INCREMENT
+  * item_name (VARCHAR 100)
+  * category (ENUM: hewan, bahan)
+  * quantity (INT)
+  * min_threshold (INT) DEFAULT 5
+  * unit (VARCHAR 20) DEFAULT 'ekor'
+  * updated_at (DATETIME) ON UPDATE NOW
+  --
+  Default: Kambing(20), Domba(15)
+}
+
+card "**T11. telegram_recipients** — Penerima Notif" as d11 {
+  columns:
+  * id_recipient (INT) PK AUTO_INCREMENT
+  * chat_id (VARCHAR 100)
+  * name (VARCHAR 255)
+  * type (ENUM: personal, group)
+  * created_at (DATETIME) DEFAULT NOW
+}
+@enduml
+
+
+' =====================================================================
+' BAGIAN 5: TABEL TANPA RELASI (STANDALONE)
+' =====================================================================
+
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam card {
+  BackgroundColor #F3E5F5
+  BorderColor #7B1FA2
+}
+title **Tabel Standalone / Tanpa FK**
+
+card "**users**" as st1 {
+  Tidak memiliki foreign key.
+  Berdiri sendiri untuk
+  menyimpan data login staff.
+}
+
+card "**bone_menus**" as st2 {
+  Tabel referensi menu.
+  Tidak memiliki FK.
+  Dirujuk oleh order_details.
+}
+
+card "**meat_menus**" as st3 {
+  Tabel referensi menu.
+  Tidak memiliki FK.
+  Dirujuk oleh order_details.
+}
+
+card "**packages**" as st4 {
+  Data paket aqiqah.
+  Tidak memiliki FK.
+  Dirujuk oleh orders.
+}
+
+card "**stocks**" as st5 {
+  Manajemen stok hewan & bahan.
+  Tidak memiliki FK.
+  Berdiri sendiri.
+}
+
+card "**telegram_recipients**" as st6 {
+  Daftar penerima notifikasi.
+  Tidak memiliki FK.
+}
+
+note top of st1
+6 tabel berikut ini
+TIDAK memiliki foreign key.
+Mereka adalah entitas mandiri
+yang hanya dirujuk oleh
+tabel-tabel lain.
+end note
+@enduml
+
+
+' =====================================================================
+' BAGIAN 6: TABEL DENGAN FK (RELASI)
+' =====================================================================
+
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam card {
+  BackgroundColor #E0F7FA
+  BorderColor #006064
+}
+title **Tabel dengan Foreign Key**
+
+card "**orders** ← 2 FK" as r1 {
+  FK01: customer_id → customers
+  FK02: package_id → packages
+  --
+  Tabel pusat yang
+  menghubungkan customer
+  dengan paket yang dipilih.
+}
+
+card "**order_details** ← 3 FK" as r2 {
+  FK01: order_id → orders (CASCADE)
+  FK02: bone_menu_id → bone_menus (nullable)
+  FK03: meat_menu_id → meat_menus (nullable)
+  --
+  Detail menu per order.
+  Cascade: jika order dihapus,
+  detail ikut terhapus.
+}
+
+card "**schedules** ← 1 FK" as r3 {
+  FK01: order_id → orders (CASCADE)
+  --
+  Hasil penjadwalan EDF.
+  Cascade: jika order dihapus,
+  jadwal ikut terhapus.
+}
+
+card "**notifications** ← 1 FK" as r4 {
+  FK01: order_id → orders (nullable)
+  --
+  Log pengiriman notifikasi.
+  Nullable: notif custom/tanpa order.
+}
+
+note top of r1
+5 tabel berikut memiliki
+minimal 1 foreign key (FK)
+yang mereferensi ke tabel lain.
+end note
+@enduml

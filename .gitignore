@@ -134,3 +134,18 @@ public/public/
 
 /results/
 /phpunit*.xml
+
+# Test scripts (local testing only)
+test-*.php
+test_*.pdf
+nul
+
+# Writable temp certificate output
+writable/certificate-*.pdf
+
+# Diagram assets (already in docs/)
+public/assets/diagrams/
+public/assets/example/
+
+# Deployment guide (KEEP this file)
+# DEPLOYMENT-GUIDE.md

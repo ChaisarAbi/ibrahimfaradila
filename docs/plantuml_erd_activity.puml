@@ -1,0 +1,1704 @@
+' =====================================================================
+' PLANTUML CODE - Sistem Manajemen Aqiqah Ibrahim Aqiqah
+' =====================================================================
+' Isi file ini bisa dicopas langsung ke:
+' - https://www.planttext.com/
+' - https://plantuml.com/
+' - VS Code dengan plugin PlantUML
+' =====================================================================
+
+' =====================================================================
+' 1. ERD (ENTITY RELATIONSHIP DIAGRAM)
+' =====================================================================
+
+@startuml
+' Hide the spot
+hide circle
+' Avoid problems with angled crows feet
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+title Entity Relationship Diagram\nIbrahim Aqiqah - Sistem Manajemen Penjadwalan & Notifikasi
+
+' ====== ENTITY DEFINITIONS ======
+
+entity "users" as users {
+  * id_user : INT <<PK>>
+  --
+  * username : VARCHAR(50) <<UNIQUE>>
+  * password : VARCHAR(255)
+  * fullname : VARCHAR(100)
+  * role : ENUM('admin','rph','dapur')
+  * created_at : DATETIME
+}
+
+entity "packages" as packages {
+  * id_package : INT <<PK>>
+  --
+  * name : VARCHAR(50)
+  * weight_type : CHAR(1)
+  * min_weight : DECIMAL(5,2)
+  * max_weight : DECIMAL(5,2)
+  * box_count : INT
+  * price : DECIMAL(12,2)
+  * is_special : BOOLEAN
+}
+
+entity "bone_menus" as bone_menus {
+  * id_bone : INT <<PK>>
+  --
+  * name : VARCHAR(50) <<UNIQUE>>
+}
+
+entity "meat_menus" as meat_menus {
+  * id_meat : INT <<PK>>
+  --
+  * name : VARCHAR(50) <<UNIQUE>>
+}
+
+entity "customers" as customers {
+  * id_customer : INT <<PK>>
+  --
+  * name : VARCHAR(100)
+  * child_name : VARCHAR(100)
+  * gender : ENUM('Laki-laki','Perempuan')
+  * birth_date : DATE
+  * phone : VARCHAR(15)
+  * address : TEXT
+  * created_at : DATETIME
+}
+
+entity "orders" as orders {
+  * id_order : INT <<PK>>
+  --
+  * customer_id : INT <<FK>>
+  * package_id : INT <<FK>>
+  * animal_type : ENUM('Domba','Kambing')
+  * animal_gender : ENUM('Jantan','Betina')
+  * jumlah_anak : INT
+  * slaughter_date : DATE
+  * delivery_date : DATE
+  * slaughter_time : TIME
+  * penyembelihan : ENUM('Dokumentasi','Video Call','Visit')
+  * use_photo_card : BOOLEAN
+  * use_photo_certificate : BOOLEAN
+  * photo_path : VARCHAR(255) <<NULL>>
+  * status : ENUM('Pending','Scheduled','Processing','Completed','Cancelled')
+  * total_price : DECIMAL(12,2)
+  * created_at : DATETIME
+}
+
+entity "order_details" as order_details {
+  * id_detail : INT <<PK>>
+  --
+  * order_id : INT <<FK>>
+  * bone_menu_id : INT <<FK>> <<NULL>>
+  * meat_menu_id : INT <<FK>> <<NULL>>
+  * box_type : ENUM('Box Premium','Bento Pack')
+  * jumlah_box : INT
+}
+
+entity "schedules" as schedules {
+  * id_schedule : INT <<PK>>
+  --
+  * order_id : INT <<FK>>
+  * slaughter_date : DATE
+  * priority : INT
+  * status : ENUM('Scheduled','In Progress','Done')
+}
+
+entity "notifications" as notifications {
+  * id_notif : INT <<PK>>
+  --
+  * order_id : INT <<FK>> <<NULL>>
+  * type : ENUM('24h_reminder','stock_alert','order_confirmation','daily_recap')
+  * message : TEXT
+  * sent_at : DATETIME
+  * is_read : BOOLEAN
+}
+
+entity "stocks" as stocks {
+  * id_stock : INT <<PK>>
+  --
+  * item_name : VARCHAR(100)
+  * category : ENUM('hewan','bahan')
+  * quantity : INT
+  * min_threshold : INT
+  * unit : VARCHAR(20)
+  * updated_at : DATETIME
+}
+
+entity "telegram_recipients" as telegram_recipients {
+  * id_recipient : INT <<PK>>
+  --
+  * chat_id : VARCHAR(100)
+  * name : VARCHAR(255)
+  * type : ENUM('personal','group')
+  * created_at : DATETIME
+}
+
+entity "settings" as settings {
+  * id_setting : INT <<PK>>
+  --
+  * setting_key : VARCHAR(50) <<UNIQUE>>
+  * setting_value : TEXT
+}
+
+
+' ====== RELATIONSHIPS ======
+
+' orders -> customers
+customers ||--o{ orders : "1:N\nmemiliki"
+
+' orders -> packages
+packages ||--o{ orders : "1:N\ndipesan"
+
+' orders -> order_details
+orders ||--o{ order_details : "1:N\nberisi"
+
+' order_details -> bone_menus
+bone_menus ||--o{ order_details : "1:N\ndigunakan"
+
+' order_details -> meat_menus
+meat_menus ||--o{ order_details : "1:N\ndigunakan"
+
+' orders -> schedules
+orders ||--o{ schedules : "1:N\ndijadwalkan"
+
+' orders -> notifications
+orders ||--o{ notifications : "0..1:N\ndilog"
+
+@enduml
+
+
+' =====================================================================
+' 2. ACTIVITY DIAGRAM - AUTH (LOGIN)
+' =====================================================================
+
+@startuml
+title Activity Login - Aqiqah System
+
+|Admin|
+start
+:Membuka halaman login;
+:Memasukkan username & password;
+:Mengklik tombol Login;
+
+|Sistem|
+:Menerima request POST /login;
+:Mencari user di database;
+
+|Database|
+:Query SELECT * FROM users
+WHERE username = ?;
+
+|Sistem|
+if (Username ditemukan?) then (Tidak)
+  :Set flashdata error
+  "Username tidak ditemukan";
+  |Admin|
+  :Melihat pesan error;
+  stop
+else (Ya)
+  :Mengambil hashed password
+  dari database;
+  :Verifikasi password
+  dengan password_verify();
+endif
+
+if (Password cocok?) then (Tidak)
+  :Set flashdata error
+  "Password salah";
+  |Admin|
+  :Melihat pesan error;
+  stop
+else (Ya)
+  :Membuat session:
+  - id_user
+  - username
+  - fullname
+  - role
+  - isLoggedIn = TRUE;
+  |Database|
+  :Menyimpan session di server;
+  |Sistem|
+  :Redirect ke /admin/dashboard;
+  |Admin|
+  :Melihat halaman Dashboard;
+  stop
+endif
+@enduml
+
+
+' =====================================================================
+' 3. ACTIVITY DIAGRAM - LOGOUT
+' =====================================================================
+
+@startuml
+title Activity Logout - Aqiqah System
+
+|Admin|
+start
+:Mengklik tombol Logout;
+
+|Sistem|
+:Menerima request GET /logout;
+:Memanggil session->destroy();
+:Menghapus semua data session;
+
+|Admin|
+:Redirect ke halaman login;
+:Lihat halaman login kembali;
+stop
+@enduml
+
+
+' =====================================================================
+' 4. ACTIVITY DIAGRAM - CRUD CUSTOMERS (CREATE)
+' =====================================================================
+
+@startuml
+title Activity Tambah Pelanggan - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Data Pelanggan;
+:Mengklik tombol "Tambah";
+:Mengisi form:
+- Nama
+- Nama Anak
+- Jenis Kelamin
+- Tanggal Lahir
+- No. Telepon
+- Alamat;
+:Mengklik tombol Simpan;
+
+|Sistem|
+:Menerima POST /admin/customers/store;
+:Validasi input;
+:Menyiapkan data untuk insert;
+
+|Database|
+:INSERT INTO customers
+(name, child_name, gender,
+ birth_date, phone, address);
+
+|Sistem|
+if (Insert berhasil?) then (Ya)
+  :Set flashdata success
+  "Pelanggan berhasil ditambahkan";
+else (Gagal)
+  :Set flashdata error
+  "Gagal menyimpan data";
+endif
+
+|Admin|
+:Redirect ke halaman index;
+:Melihat daftar pelanggan
++ flash message;
+stop
+@enduml
+
+
+' =====================================================================
+' 5. ACTIVITY DIAGRAM - CRUD CUSTOMERS (DELETE WITH VALIDATION)
+' =====================================================================
+
+@startuml
+title Activity Hapus Pelanggan - Aqiqah System
+
+|Admin|
+start
+:Membuka daftar pelanggan;
+:Mengklik tombol Hapus;
+
+|Sistem|
+:Menerima GET /admin/customers/delete/{id};
+:Cek apakah customer memiliki
+order terkait;
+
+|Database|
+:SELECT COUNT(*) FROM orders
+WHERE customer_id = ?;
+
+|Sistem|
+if (Jumlah order > 0?) then (Ya)
+  :Set flashdata error
+  "Pelanggan memiliki X order.
+  Hapus order terlebih dahulu";
+  |Admin|
+  :Melihat error message;
+  stop
+else (Tidak)
+  |Database|
+  :DELETE FROM customers
+  WHERE id_customer = ?;
+  |Sistem|
+  :Set flashdata success
+  "Pelanggan berhasil dihapus";
+  |Admin|
+  :Melihat daftar pelanggan
+  + flash message;
+  stop
+endif
+@enduml
+
+
+' =====================================================================
+' 6. ACTIVITY DIAGRAM - CRUD PACKAGES (UPDATE)
+' =====================================================================
+
+@startuml
+title Activity Edit Paket - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Data Paket;
+:Mengklik tombol Edit
+pada paket tertentu;
+
+|Sistem|
+:GET /admin/packages/edit/{id};
+:Mengambil data paket by ID;
+
+|Database|
+:SELECT * FROM packages
+WHERE id_package = ?;
+
+|Sistem|
+:Mengirim data ke form edit;
+|Admin|
+:Form ditampilkan dengan
+data existing;
+:Memperbarui field:
+- Nama Paket
+- Tipe Berat
+- Min/Max Berat
+- Jumlah Box
+- Harga
+- Paket Spesial;
+:Mengklik tombol Update;
+
+|Sistem|
+:POST /admin/packages/update/{id};
+:Validasi input;
+:Menyimpan perubahan;
+
+|Database|
+:UPDATE packages SET
+name=?, weight_type=?,
+min_weight=?, max_weight=?,
+box_count=?, price=?,
+is_special=?
+WHERE id_package = ?;
+
+|Sistem|
+:Set flashdata success;
+|Admin|
+:Redirect ke index
++ melihat flash message;
+stop
+@enduml
+
+
+' =====================================================================
+' 7. ACTIVITY DIAGRAM - CRUD STOCK (CREATE)
+' =====================================================================
+
+@startuml
+title Activity Tambah Stok - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Manajemen Stok;
+:Mengklik tombol Tambah;
+:Mengisi form:
+- Nama Item
+- Kategori (Hewan/Bahan)
+- Jumlah
+- Batas Minimal
+- Satuan;
+:Mengklik tombol Simpan;
+
+|Sistem|
+:POST /admin/stock/store;
+:Validasi input;
+
+|Database|
+:INSERT INTO stocks
+(item_name, category,
+ quantity, min_threshold, unit);
+
+|Sistem|
+:Set flashdata success
+"Stok berhasil ditambahkan";
+
+|Admin|
+:Redirect ke halaman index;
+:Melihat daftar stok
++ flash message;
+stop
+@enduml
+
+
+' =====================================================================
+' 8. ACTIVITY DIAGRAM - CRUD STOCK (DELETE WITH CHECK)
+' =====================================================================
+
+@startuml
+title Activity Hapus Stok - Aqiqah System
+
+|Admin|
+start
+:Membuka daftar stok;
+:Mengklik tombol Hapus;
+
+|Sistem|
+:GET /admin/stock/delete/{id};
+:Cek apakah ID valid
+dan data stok ditemukan;
+
+|Database|
+:SELECT * FROM stocks
+WHERE id_stock = ?;
+
+|Sistem|
+if (Data ditemukan?) then (Ya)
+  |Database|
+  :DELETE FROM stocks
+  WHERE id_stock = ?;
+  |Sistem|
+  :Set flashdata success
+  "Stok berhasil dihapus";
+else (Tidak)
+  :Set flashdata error
+  "Stok tidak ditemukan";
+endif
+
+|Admin|
+:Redirect ke index
++ melihat flash message;
+stop
+@enduml
+
+
+' =====================================================================
+' 9. ACTIVITY DIAGRAM - CREATE ORDER (FLOW UTAMA)
+' =====================================================================
+
+@startuml
+title Activity Tambah Pesanan - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Pesanan;
+:Mengklik tombol Tambah;
+
+|Sistem|
+:GET /admin/orders/create;
+:Mengambil data pendukung;
+
+|Database|
+:SELECT FROM customers;
+:SELECT FROM packages;
+:SELECT FROM bone_menus;
+:SELECT FROM meat_menus;
+
+|Sistem|
+:Mengirim data ke form;
+|Admin|
+:Melihat form create dengan
+dropdown customers, packages, menus;
+if (Jenis pelanggan?) then (Existing)
+  :Memilih customer dari dropdown;
+  |Sistem|
+  :Mengambil gender, child_name
+  dari database;
+else (Baru)
+  :Mengisi data customer baru:
+  nama, anak, gender, tgl lahir,
+  telepon, alamat;
+endif
+
+|Admin|
+:Mengisi data pesanan:
+- Paket & Hewan
+- Tanggal potong & antar
+- Menu box
+- Upload foto (optional)
+- Harga total;
+:Mengklik tombol Simpan;
+
+|Sistem|
+:POST /admin/orders/store;
+:Hitung jumlah_anak
+(Laki-laki=2, Perempuan=1);
+:Validasi upload foto;
+
+if (Foto valid & <=2MB?) then (Tidak)
+  :Set error "Maks 2MB";
+  |Admin|
+  :Lihat error message;
+  stop
+endif
+
+:Simpan order (status=Pending);
+|Database|
+:INSERT INTO orders
+(...status='Pending');
+
+if (Customer baru?) then (Ya)
+  :INSERT INTO customers;
+endif
+
+if (Bone/Meat menu diisi?) then (Ya)
+  |Database|
+  :INSERT INTO order_details
+  (order_id, bone_menu_id,
+   meat_menu_id, box_type,
+   jumlah_box);
+endif
+
+note right: Auto-run Scheduler
+|Sistem|
+:Mengupdate photo_path jika ada;
+
+:Memanggil Scheduler::run();
+:Koneksi ke Scheduler flow;
+@enduml
+
+
+' =====================================================================
+' 10. ACTIVITY DIAGRAM - SCHEDULER EDF/EDD
+' =====================================================================
+
+@startuml
+title Activity Scheduler EDF/EDD - Aqiqah System
+
+|Sistem|
+start
+:Scheduler dipanggil:
+- Setelah create order (auto)
+- Klik "Run Scheduler" (manual);
+
+|Database|
+:SELECT * FROM orders
+WHERE status = 'Pending';
+
+|Sistem|
+if (Data ditemukan?) then (Tidak)
+  :Set flash "0 pesanan dijadwalkan";
+  stop
+endif
+
+:Mengurutkan data
+berdasarkan slaughter_date ASC
+(Earliest Deadline First);
+
+|Database|
+:TRUNCATE TABLE schedules
+(hapus jadwal lama);
+
+|Sistem|
+:Inisialisasi priority = 1;
+
+while (Ada data Pending)
+  |Sistem|
+  :Siapkan data schedule:
+  - order_id
+  - slaughter_date
+  - priority = $i;
+  |Database|
+  :INSERT INTO schedules;
+  |Sistem|
+  :UPDATE orders
+  SET status = 'Scheduled';
+  :priority++;
+endwhile
+
+|Sistem|
+:Flash success
+"X pesanan dijadwalkan";
+
+:Redirect ke dashboard;
+stop
+@enduml
+
+
+' =====================================================================
+' 11. ACTIVITY DIAGRAM - DASHBOARD LOAD
+' =====================================================================
+
+@startuml
+title Activity Dashboard - Aqiqah System
+
+|Admin|
+start
+:Membuka halaman Dashboard;
+
+|Sistem|
+:GET /admin/dashboard;
+
+note right: Auto-update status
+:Update orders:
+SET status = 'Completed'
+WHERE slaughter_date < TODAY
+AND status IN ('Pending','Scheduled');
+
+:Update orders:
+SET status = 'Processing'
+WHERE slaughter_date = TODAY
+AND status IN ('Pending','Scheduled');
+
+|Database|
+:UPDATE orders SET status;
+:SELECT COUNT(*) orders;
+:SELECT COUNT(*) customers;
+:SELECT SUM(total_price) revenue;
+:SELECT stocks;
+:SELECT 10 recent orders
+JOIN customers, packages;
+:SELECT upcoming slaughter
+WHERE slaughter_date = TOMORROW;
+
+|Sistem|
+:Mengirim data ke view dashboard;
+
+|Admin|
+:Melihat dashboard dengan:
+- 4 info cards
+- 10 recent orders table
+- Upcoming slaughter;
+
+:Melihat Chart (AJAX);
+@enduml
+
+
+' =====================================================================
+' 12. ACTIVITY DIAGRAM - DASHBOARD CHART (AJAX)
+' =====================================================================
+
+@startuml
+title Activity Chart Data AJAX - Aqiqah System
+
+|Admin|
+start
+:Halaman dashboard di-load;
+:JavaScript memanggil
+GET /admin/dashboard/chart-data;
+
+|Sistem|
+:Menerima request AJAX;
+
+|Database|
+Loop 7 hari:
+  SELECT COUNT(*) orders
+  WHERE DATE(created_at) = ?;
+Loop 12 bulan:
+  SELECT COUNT(*) orders
+  WHERE created_at LIKE ?;
+  SELECT COALESCE(SUM(total_price),0)
+  WHERE created_at LIKE ?;
+:SELECT * FROM stocks;
+
+|Sistem|
+:Menyusun array data:
+- weekly_labels, weekly_data
+- monthly_labels, monthly_orders
+- monthly_revenue
+- stock_labels, stock_data, stock_colors;
+
+:Return JSON response;
+|Admin|
+:Chart.js menerima data;
+:Render:
+- Line chart (weekly orders)
+- Line chart (monthly revenue)
+- Bar chart (stock values);
+:Melihat grafik di dashboard;
+stop
+@enduml
+
+
+' =====================================================================
+' 13. ACTIVITY DIAGRAM - CALENDAR EVENTS
+' =====================================================================
+
+@startuml
+title Activity Calendar - Aqiqah System
+
+|Admin|
+start
+:Membuka halaman Kalender;
+
+|Sistem|
+:FullCalendar.js inisialisasi;
+:JavaScript memanggil
+GET /admin/calendar/events;
+
+|Database|
+:SELECT schedules
+JOIN orders, customers;
+
+|Sistem|
+if (Schedules ditemukan?) then (Ya)
+  foreach (schedule)
+    :Tentukan warna priority:
+    P1 -> Merah
+    P2 -> Kuning
+    P3+ -> Hijau;
+    :Buat event object:
+    - id, title, start
+    - color, textColor
+    - url = edit order;
+  endforeach
+else (Fallback)
+  |Database|
+  :SELECT orders
+  WHERE status != 'Cancelled';
+  |Sistem|
+  foreach (order)
+    :Tentukan warna status:
+    Pending -> Orange
+    Scheduled -> Blue
+    Processing -> Yellow
+    Completed -> Green
+    Cancelled -> Grey;
+    :Buat event object;
+  endforeach
+endif
+
+:Sending JSON ke frontend;
+|Admin|
+:FullCalendar.js render events;
+:Melihat kalender dengan
+warna dan link ke edit order;
+stop
+@enduml
+
+
+' =====================================================================
+' 14. ACTIVITY DIAGRAM - KITCHEN / DAPUR
+' =====================================================================
+
+@startuml
+title Activity Dashboard Dapur - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Dapur;
+:Bisa input tanggal tertentu
+(default: hari ini);
+
+|Sistem|
+:GET /admin/kitchen/{date};
+:Mengambil data orders + stok;
+
+|Database|
+:SELECT orders
+JOIN customers;
+:SELECT order_details
+JOIN bone_menus, meat_menus;
+:SELECT * FROM stocks;
+
+|Sistem|
+:Memfilter orders
+by slaughter_date = $date;
+:Menghitung:
+- Total pesanan hari ini
+- Total box
+- Jumlah menu tulang unik
+- Jumlah menu daging unik;
+:Mengirim data ke view;
+
+|Admin|
+:Melihat tampilan dapur:
+- Info cards (total, box, menu)
+- Daftar pesanan dengan menu
+- Status stok
+- Tombol update status per order
+- Form update stok cepat;
+
+if (Update status?) then (Ya)
+  :POST /admin/kitchen/updateStatus/{id};
+  |Sistem|
+  :UPDATE orders SET status = ?;
+  :Flash success;
+  |Admin|
+  :Lihat perubahan status;
+endif
+
+if (Update stok?) then (Ya)
+  :POST /admin/kitchen/updateStock;
+  |Sistem|
+  :UPDATE stocks SET quantity = ?;
+  :Flash success;
+  |Admin|
+  :Lihat perubahan stok;
+endif
+
+stop
+@enduml
+
+
+' =====================================================================
+' 15. ACTIVITY DIAGRAM - REPORTS CERTIFICATE (PDF)
+' =====================================================================
+
+@startuml
+title Activity Cetak Sertifikat PDF - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Laporan;
+:Memilih "Sertifikat Aqiqah";
+:Memasukkan ID Order;
+
+|Sistem|
+:GET /admin/reports/certificate/{id};
+:Mengambil data order, customer, package;
+
+|Database|
+:SELECT orders
+WHERE id_order = ?;
+:SELECT customers
+WHERE id_customer = ?;
+:SELECT packages
+WHERE id_package = ?;
+:SELECT order_details;
+
+|Sistem|
+:Menentukan hari Indonesia
+(Minggu-Sabtu);
+:Format tanggal Indonesia;
+
+:Render view ke HTML:
+reports/certificate;
+
+:Instantiate Dompdf;
+:loadHtml($html);
+:setPaper('A4', 'portrait');
+:render();
+
+:Output PDF ke browser
+dengan header:
+Content-Type: application/pdf
+Content-Disposition: inline;
+
+|Admin|
+:Melihat PDF sertifikat
+di tab browser baru;
+:Download atau print;
+stop
+@enduml
+
+
+' =====================================================================
+' 16. ACTIVITY DIAGRAM - REPORTS ORDER REPORT (RANGE)
+' =====================================================================
+
+@startuml
+title Activity Laporan Order Range PDF - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Laporan;
+:Memilih "Laporan Order";
+:Mengisi filter:
+- Tanggal Awal
+- Tanggal Akhir;
+:Mengklik tombol Generate;
+
+|Sistem|
+:GET /admin/reports/order-report;
+:Validasi parameter tanggal;
+:Mengambil data orders
+dalam range tanggal;
+
+|Database|
+:SELECT orders
+WHERE slaughter_date
+BETWEEN ? AND ?;
+
+|Sistem|
+foreach (order)
+  :Ambil customer name & child;
+  :Ambil package name;
+  :Tambahkan ke array enriched;
+endforeach
+
+:Render view ke HTML:
+reports/order_report
+dengan tabel data;
+
+:Instantiate Dompdf;
+:setPaper('A4', 'landscape');
+:render();
+
+:Output PDF dengan header;
+
+|Admin|
+:Melihat PDF laporan
+(dapat di-download);
+stop
+@enduml
+
+
+' =====================================================================
+' 17. ACTIVITY DIAGRAM - REPORTS KITCHEN SHEET (PDF)
+' =====================================================================
+
+@startuml
+title Activity Lembar Kerja Dapur PDF - Aqiqah System
+
+|Admin|
+start
+:Membuka menu Laporan;
+:Memilih "Kitchen Sheet";
+:Input tanggal (default hari ini);
+
+|Sistem|
+:GET /admin/reports/kitchen-sheet/{date};
+:Mengambil data orders by date;
+
+|Database|
+:SELECT orders
+WHERE slaughter_date = ?;
+:SELECT order_details;
+:SELECT stocks
+WHERE item_name IN ('Kambing','Domba');
+
+|Sistem|
+foreach (order)
+  :Ambil customer name & child;
+  :Ambil details (bone, meat, box);
+  :Akumulasi jumlah_box;
+endforeach
+
+:Render view ke HTML:
+reports/kitchen_sheet
+dengan data orders + stok;
+
+:Instantiate Dompdf;
+:setPaper('A4', 'portrait');
+:render();
+
+:Output PDF;
+
+|Admin|
+:Melihat kitchen sheet
+di tab browser;
+stop
+@enduml
+
+
+' =====================================================================
+' 18. ACTIVITY DIAGRAM - NOTIFICATIONS TODAY RECAP
+' =====================================================================
+
+@startuml
+title Activity Kirim Rekap Harian - Telegram
+
+|Admin|
+start
+:Membuka menu Notifikasi;
+:Mengklik "Kirim Rekap Hari Ini";
+
+|Sistem|
+:GET /admin/notifications/send-today-recap;
+:Mengambil orders hari ini;
+
+|Database|
+:SELECT orders
+WHERE slaughter_date = TODAY
+AND status != 'Cancelled';
+
+|Sistem|
+if (Ada orders?) then (Ya)
+  :Hitung total_box, domba, kambing;
+  :Hitung rekap dapur
+  (akumulasi menu per nama);
+  :Hitung pengantaran hari ini;
+  :Susun pesan Markdown:
+  - Ringkasan operasional
+  - Daftar pesanan + menu
+  - Rekap dapur
+  - Status stok;
+else (Kosong)
+  |Database|
+  :SELECT * FROM stocks;
+  |Sistem|
+  :Tandai item menipis
+  (qty <= min_threshold);
+  :Susun pesan:
+  "Tidak ada jadwal hari ini"
+  + status stok;
+endif
+
+|Sistem|
+:Ambil recipients dari database;
+
+|Database|
+:SELECT * FROM telegram_recipients;
+
+|Sistem|
+foreach (recipient)
+  :Kirim pesan via TelegramBot;
+  |Telegram Bot|
+  :sendMessage(chat_id, message);
+  |Telegram API|
+  :Meneruskan pesan ke user;
+  |Telegram Bot|
+  :Return response;
+endforeach
+
+|Sistem|
+:Simpan log ke tabel notifications;
+
+|Database|
+:INSERT INTO notifications
+(type='daily_recap', message);
+
+|Sistem|
+:Set flash success;
+|Admin|
+:Redirect ke dashboard
++ melihat flash message;
+stop
+@enduml
+
+
+' =====================================================================
+' 19. ACTIVITY DIAGRAM - NOTIFICATIONS H+1 FOLLOW-UP
+' =====================================================================
+
+@startuml
+title Activity Kirim Follow-up H+1 - Telegram
+
+|Admin|
+start
+:Menu Notifikasi;
+:Mengklik "Kirim Follow-up H+1";
+
+|Sistem|
+:GET /admin/notifications/send-h-plus-1;
+:Mengambil orders kemarin;
+
+|Database|
+:SELECT orders
+WHERE slaughter_date = YESTERDAY
+AND status != 'Cancelled';
+
+|Sistem|
+foreach (order)
+  :Ambil customer, package, details;
+  :Hitung total_box & menu;
+  :Cek jika delivery == TODAY;
+  :Buat pesan per order:
+  "FOLLOW-UP H+1"
+  + detail order
+  + status terkini
+  + info pengantaran;
+
+  |Telegram Bot|
+  :sendMessage ke semua recipients;
+
+  |Database|
+  :INSERT INTO notifications
+  (order_id, type='hplus1_followup',
+   message);
+endforeach
+
+|Sistem|
+:Set flash success
+"X follow-up terkirim";
+|Admin|
+:Redirect & lihat success;
+stop
+@enduml
+
+
+' =====================================================================
+' 20. ACTIVITY DIAGRAM - NOTIFICATIONS CUSTOM MESSAGE
+' =====================================================================
+
+@startuml
+title Activity Kirim Pesan Kustom - Telegram
+
+|Admin|
+start
+:Membuka menu Kirim Notifikasi;
+:Mengetik pesan di textarea;
+:Mengklik tombol Kirim;
+
+|Sistem|
+:POST /admin/notifications/send-custom;
+if (Pesan kosong?) then (Ya)
+  :Set flash error
+  "Pesan tidak boleh kosong";
+  |Admin|
+  :Melihat error;
+  stop
+endif
+
+:Format pesan:
+"PENGUMUMAN\n---
+{pesan user}\n---
+{timestamp} WIB";
+
+|Telegram Bot|
+:sendMessage ke semua recipients;
+
+|Database|
+:INSERT INTO notifications
+(type='custom', message);
+
+|Sistem|
+:Set flash success;
+|Admin|
+:Redirect + lihat success;
+stop
+@enduml
+
+
+' =====================================================================
+' 21. ACTIVITY DIAGRAM - NOTIFICATIONS MANAGE RECIPIENTS
+' =====================================================================
+
+@startuml
+title Activity Kelola Penerima Telegram
+
+|Admin|
+start
+:Membuka menu Penerima Notifikasi;
+
+|Sistem|
+:GET /admin/notifications/recipients;
+|Database|
+:SELECT * FROM telegram_recipients;
+|Sistem|
+:Mengirim data ke view;
+|Admin|
+:Melihat daftar penerima:
+
+if (Tambah?) then (Ya)
+  :Mengisi form:
+  - Chat ID
+  - Nama
+  - Tipe (personal/group);
+  :Mengklik tombol Tambah;
+
+  |Sistem|
+  :POST /admin/notifications/addRecipient;
+  if (Chat ID kosong?) then (Ya)
+    :Flash error;
+    stop
+  endif
+  |Database|
+  :INSERT INTO telegram_recipients;
+  |Sistem|
+  :Flash success;
+endif
+
+if (Hapus?) then (Ya)
+  :Mengklik tombol Hapus;
+  |Sistem|
+  :GET /admin/notifications/deleteRecipient/{id};
+  |Database|
+  :DELETE FROM telegram_recipients
+  WHERE id = ?;
+  |Sistem|
+  :Flash success;
+endif
+
+|Admin|
+:Redirect + lihat daftar terbaru;
+stop
+@enduml
+
+
+' =====================================================================
+' 22. ACTIVITY DIAGRAM - CRON NOTIFICATIONS
+' =====================================================================
+
+@startuml
+title Activity Cron Notifikasi Otomatis
+
+|Cron Job|
+start
+:Setiap jam 06:00 WIB;
+:Menjalankan cron-notifications.sh;
+
+|Bash Script|
+:/usr/bin/php spark
+notifications:send;
+
+|Spark Command|
+:NotificationsSend::run();
+:Membaca konfigurasi dari .env;
+
+:Tentukan jenis pengiriman
+berdasarkan hari/jam;
+
+if (Hari ini ada jadwal?) then (Ya)
+  :Kirim Preview Besok
+  (H-1 notification);
+else (Tidak)
+  :Kirim Today Recap;
+endif
+
+|Sistem|
+:Memanggil method
+Notification controller;
+
+|Database|
+:Ambil data orders/stok;
+|Sistem|
+:Format pesan Markdown;
+
+|Telegram Bot|
+:sendMessage();
+
+|Database|
+:Simpan log;
+stop
+@enduml
+
+
+' =====================================================================
+' 23. ACTIVITY DIAGRAM - RPH LOGIN & LANDING
+' =====================================================================
+
+@startuml
+title Activity Login + Landing RPH - Aqiqah System
+
+|User RPH|
+start
+:Membuka halaman login;
+:Input username & password;
+:POST /auth/login;
+
+|Sistem|
+:Auth::login();
+:Cari user di database
+WHERE username = ?;
+:Verifikasi password;
+
+if (Login valid?) then (Tidak)
+  :Flash error;
+  :Redirect ke login;
+  |User RPH|
+  :Melihat pesan error;
+  stop
+endif
+
+:Set session:
+- id_user, username
+- fullname, role = 'rph'
+- isLoggedIn = TRUE;
+
+:Redirect ke /admin/stock;
+
+|Database|
+:SELECT * FROM stocks;
+
+|Sistem|
+:Mengirim data stocks ke view;
+
+|User RPH|
+:Melihat halaman Manajemen Stok
+(landing page default untuk RPH);
+:Melihat daftar item, quantity,
+kategori, & batas minimal;
+stop
+@enduml
+
+
+' =====================================================================
+' 24. ACTIVITY DIAGRAM - RPH MANAJEMEN STOK (CRUD)
+' =====================================================================
+
+@startuml
+title Activity Manajemen Stok oleh RPH - Aqiqah System
+
+|User RPH|
+start
+:Membuka menu Stok
+(landing page default);
+
+|Sistem|
+:GET /admin/stock;
+|Database|
+:SELECT * FROM stocks;
+|Sistem|
+:Load view stock/index;
+|User RPH|
+:Melihat daftar stok
+dalam tabel:
+
+if (Tambah?) then (Ya)
+  :Klik tambah;
+  |Sistem|
+  :GET /admin/stock/create;
+  |User RPH|
+  :Mengisi:
+  - Nama Item
+  - Kategori (Hewan/Bahan)
+  - Jumlah
+  - Batas Minimal
+  - Satuan;
+  :Klik Simpan;
+  |Sistem|
+  :POST /admin/stock/store;
+  :Validasi input;
+  |Database|
+  :INSERT INTO stocks;
+  |Sistem|
+  :Flash success;
+  |User RPH|
+  :Melihat stok baru;
+endif
+
+if (Edit?) then (Ya)
+  :Klik Edit pada item;
+  |Sistem|
+  :GET /admin/stock/edit/{id};
+  :Load data stok dari DB;
+  |Database|
+  :SELECT * FROM stocks
+  WHERE id_stock = ?;
+  |Sistem|
+  :Tampilkan form dengan
+  data existing;
+  |User RPH|
+  :Update data:
+  nama, kategori, jumlah,
+  batas minimal, satuan;
+  :Klik Update;
+  |Sistem|
+  :POST /admin/stock/update/{id};
+  |Database|
+  :UPDATE stocks SET ...;
+  |Sistem|
+  :Flash success;
+  |User RPH|
+  :Melihat perubahan;
+endif
+
+if (Hapus?) then (Ya)
+  :Klik Hapus;
+  |Sistem|
+  :GET /admin/stock/delete/{id};
+  :Cek validitas ID;
+  if (Valid & data ada?) then (Ya)
+    |Database|
+    :DELETE FROM stocks
+    WHERE id_stock = ?;
+    |Sistem|
+    :Flash success;
+  else (Tidak)
+    :Flash error
+    "Stok tidak ditemukan";
+  endif
+  |User RPH|
+  :Melihat daftar terkini;
+endif
+
+stop
+@enduml
+
+
+' =====================================================================
+' 25. ACTIVITY DIAGRAM - RPH JALANKAN SCHEDULER EDF
+' =====================================================================
+
+@startuml
+title Activity Jalankan Scheduler EDF oleh RPH - Aqiqah System
+
+|User RPH|
+start
+:Membuka sidebar;
+:Melihat menu "Jadwalkan (EDF)";
+:Mengklik link tersebut;
+
+|Sistem|
+:GET /admin/scheduler/run;
+:RphFilter: cek session role;
+if (role == admin/rph?) then (Ya)
+  :Lanjutkan;
+else (Tidak)
+  :Redirect ke /admin/stock
+  + flash error;
+  stop
+endif
+
+|Database|
+:SELECT * FROM orders
+WHERE status = 'Pending'
+ORDER BY slaughter_date ASC;
+
+|Sistem|
+if (Ada data Pending?) then (Ya)
+  :Hapus semua schedule
+  yang sudah ada;
+
+  |Database|
+  :TRUNCATE TABLE schedules;
+
+  |Sistem|
+  :priority = 1;
+  while (foreach order Pending)
+    |Database|
+    :INSERT INTO schedules
+    (order_id, slaughter_date,
+     priority, status);
+    |Sistem|
+    :UPDATE orders
+    SET status = 'Scheduled'
+    WHERE id_order = ?;
+    :priority++;
+  endwhile
+
+  :Flash success:
+  "X pesanan berhasil dijadwalkan";
+else (Tidak ada)
+  :Flash:
+  "0 pesanan berhasil dijadwalkan";
+endif
+
+:Redirect ke /admin/stock;
+|User RPH|
+:Melihat pesan flash
+di halaman stok;
+stop
+@enduml
+
+
+' =====================================================================
+' 26. ACTIVITY DIAGRAM - RPH LIHAT KALENDER
+' =====================================================================
+
+@startuml
+title Activity Lihat Kalender oleh RPH - Aqiqah System
+
+|User RPH|
+start
+:Membuka halaman dengan
+kalender (dari menu sidebar
+atau navigasi lain);
+:JavaScript memanggil
+GET /admin/calendar/events;
+
+|Sistem|
+:RphFilter: cek session role;
+if (role == admin/rph?) then (Ya)
+  :Lanjutkan;
+else (Tidak)
+  :Redirect + error;
+  stop
+endif
+
+|Database|
+:SELECT schedules
+JOIN orders, customers;
+
+|Sistem|
+if (Schedules ada?) then (Ya)
+  foreach (schedule)
+    :Tentukan warna:
+    P1 -> Merah (#dc3545)
+    P2 -> Kuning (#ffc107)
+    P3+ -> Hijau (#28a745);
+    :Buat event;
+  endforeach
+else (Fallback orders)
+  |Database|
+  :SELECT * FROM orders
+  WHERE status != 'Cancelled';
+  |Sistem|
+  foreach (order)
+    :Tentukan warna
+    berdasarkan status;
+    :Buat event:
+    - title = customer + hewan
+    - start = slaughter_date
+    - color = warna status;
+  endforeach
+endif
+
+:Return JSON;
+|User RPH|
+:FullCalendar.js render
+di browser;
+:Melihat kalender dengan:
+- Warna berdasarkan prioritas
+- Link ke edit order;
+
+note right: Saat klik event
+-> redirect ke edit order
+-> kena filter admin
+-> akan redirect error
+
+stop
+@enduml
+
+
+' =====================================================================
+' 27. ACTIVITY DIAGRAM - RPH AKSES DIBLOKIR
+' =====================================================================
+
+@startuml
+title Activity Akses Menu Terlarang oleh RPH - Aqiqah System
+note right of last: Contoh: Dashboard, Pesanan,\nPelanggan, Paket, Dapur,\nLaporan, Notifikasi
+
+|User RPH|
+start
+:Mengklik menu yang
+tidak memiliki akses
+(contoh: Dashboard);
+
+|Sistem|
+:GET /admin/dashboard;
+:AdminFilter::before()
+dijalankan;
+:Mengecek session role;
+if (role == admin?) then (Ya)
+  :Lanjutkan ke dashboard;
+else (Tidak)
+  :Set flash error
+  "Halaman hanya untuk admin";
+  :Redirect ke /admin/orders
+  + flash error;
+endif
+
+|User RPH|
+:Melihat pesan error
+"Menyediakan akses hanya untuk admin";
+:Redirect ke halaman stok;
+stop
+@enduml
+
+
+' =====================================================================
+' 28. ACTIVITY DIAGRAM - RPH FULL FLOW HARIAN
+' =====================================================================
+
+@startuml
+title Activity Full Flow RPH (Harian) - Aqiqah System
+
+|User RPH|
+start
+:Login dengan kredensial RPH;
+|Sistem|
+:Verifikasi login;
+:Set role = 'rph';
+
+|User RPH|
+:Melihat landing page
+-> Manajemen Stok;
+:Mengecek stok hewan
+(Kambing & Domba)
+untuk hari ini;
+
+if (Stok hewan cukup?) then (Ya)
+  :Buka menu "Jadwalkan (EDF)";
+  :Mengklik link;
+
+  |Sistem|
+  :Jalankan Scheduler;
+  :Ambil semua Pending orders;
+  :Urutkan EDF by slaughter_date;
+  :Insert ke schedules;
+  :Update status -> Scheduled;
+
+  |User RPH|
+  :Melihat flash success
+  di halaman stok;
+  :Buka Kalender;
+  :Melihat hasil jadwal
+  dengan warna prioritas;
+else (Tidak/Stok menipis)
+  :Edit stok hewan:
+  tambah quantity;
+  :Update stok;
+endif
+
+if (Ada perubahan stok?) then (Ya)
+  :Tambah/edit item stok:
+  - Kambing: +5 ekor
+  - Domba: +3 ekor
+  - Bahan bumbu: +10 pack;
+  :Simpan;
+endif
+
+|User RPH|
+:Selesai tugas;
+:Mengklik Keluar;
+
+|Sistem|
+:session->destroy();
+:Redirect ke halaman login;
+stop
+@enduml
+
+
+' =====================================================================
+' 29. ACTIVITY DIAGRAM - RPH UPDATE STOK
+' =====================================================================
+
+@startuml
+title Activity Update Stok oleh RPH - Aqiqah System
+
+|User RPH|
+start
+:Membuka menu Stok;
+:Melihat daftar item;
+
+if (Aksi?) then (Edit)
+  :Klik tombol Edit
+  pada item tertentu;
+
+  |Sistem|
+  :GET /admin/stock/edit/{id};
+  :Load data existing;
+
+  |User RPH|
+  :Ubah quantity;
+  :Simpan;
+
+  |Sistem|
+  :POST /admin/stock/update/{id};
+  |Database|
+  :UPDATE stocks
+  SET quantity = ?
+  WHERE id_stock = ?;
+
+  |Sistem|
+  :Flash success;
+  |User RPH|
+  :Melihat stok terupdate;
+
+elseif (Tambah item baru) then
+  :Klik tombol Tambah;
+  :Isi nama item, kategori,
+  quantity, min_threshold, unit;
+  :Simpan;
+
+  |Sistem|
+  :POST /admin/stock/store;
+  |Database|
+  :INSERT INTO stocks;
+  |Sistem|
+  :Flash success;
+  |User RPH|
+  :Melihat item baru
+  di daftar stok;
+endif
+
+stop
+@enduml
+
+
+' =====================================================================
+' END OF FILE
+' =====================================================================

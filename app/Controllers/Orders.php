@@ -106,8 +106,15 @@ return $this->render('orders/create', $data);
             if ($photo->getSize() > 2 * 1024 * 1024) {
                 return redirect()->back()->withInput()->with('error', 'Ukuran foto maksimal 2MB.');
             }
+            
+            // Pastikan folder upload ada
+            $uploadPath = FCPATH . 'uploads/photos/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            
             $newName = "customer_{$customer_id}_child.jpg";
-            $photo->move('public/uploads/photos', $newName);
+            $photo->move($uploadPath, $newName);
             $orderModel->update($order_id, ['photo_path' => 'uploads/photos/' . $newName]);
         }
         
