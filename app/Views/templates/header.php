@@ -20,22 +20,23 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         :root {
-            /* Ibrahim Aqiqah Color Palette - Flat */
+            /* Ibrahim Aqiqah Color Palette - Green Theme */
             --dark-teal: #25424C;
-            --light-orange: #FFA45B;
-            --cream: #FFEBDB;
-            --orange: #FB770D;
+            --light-green: #C8E6C9;
+            --cream: #F1F8E9;
+            --green: #4CAF50;
+            --dark-green: #2E7D32;
             --dark-red: #8B2635;
             --white: #FFFFFF;
             
             /* Theme Variables */
-            --primary-color: var(--orange);
-            --primary-dark: var(--dark-teal);
-            --primary-light: var(--light-orange);
+            --primary-color: var(--green);
+            --primary-dark: var(--dark-green);
+            --primary-light: var(--light-green);
             --secondary-color: var(--dark-teal);
             --secondary-dark: #1a3038;
-            --secondary-light: var(--light-orange);
-            --accent-color: var(--light-orange);
+            --secondary-light: var(--light-green);
+            --accent-color: var(--light-green);
             --bg-gray: #FAF5F0;
             --bg-card: var(--white);
             --text-dark: var(--dark-teal);
@@ -70,8 +71,8 @@
             to { opacity: 1; transform: translateX(0); }
         }
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(251, 119, 13, 0.3); }
-            50% { box-shadow: 0 0 0 8px rgba(251, 119, 13, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-10px); }
@@ -139,7 +140,7 @@
         .card-body { padding: 24px; }
         .card-footer {
             background: var(--cream);
-            border-top: 1px solid #ffd5a3;
+            border-top: 1px solid #c5e1a5;
             border-radius: 0 0 var(--border-radius) var(--border-radius) !important;
         }
 
@@ -269,7 +270,7 @@
         }
         .input-group-text {
             background: var(--cream);
-            border: 2px solid #ffd5a3;
+            border: 2px solid #c5e1a5;
             border-right: none;
             border-radius: 10px 0 0 10px;
             color: var(--primary-dark);
@@ -398,7 +399,7 @@
             background: var(--primary-dark) !important;
         }
         .fc .fc-daygrid-day.fc-day-today {
-            background: rgba(251, 119, 13, 0.06) !important;
+            background: rgba(76, 175, 80, 0.06) !important;
         }
         .fc .fc-daygrid-day-frame {
             min-height: 50px !important;
@@ -541,7 +542,7 @@
             background: transparent;
         }
         .main-content::-webkit-scrollbar-thumb {
-            background: #ffd5a3;
+            background: var(--light-green);
             border-radius: 3px;
         }
 
