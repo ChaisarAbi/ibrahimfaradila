@@ -50,58 +50,67 @@ class Reports extends BaseController
         $order['tanggal'] = date('d F Y', strtotime($order['slaughter_date']));
         
         // Convert images to base64 for DOMPDF compatibility (works on VPS and Windows)
+        // Use direct file_get_contents + base64_encode instead of GD for reliability
         $logoBase64 = null;
         $photoBase64 = null;
         
-        // Find logo - check app/../LOGO.png first (VPS friendly), then public/LOGO.png (local fallback)
+        // Find logo - try multiple paths (order matters!)
         $logoPath = null;
-        // APPATH is app/, dirname(APPPATH, 1) is project root
-        $rootLogo = dirname(APPPATH, 1) . '/LOGO.png';
-        if (file_exists($rootLogo)) {
-            $logoPath = $rootLogo;
-        } elseif (file_exists(FCPATH . 'LOGO.png')) {
-            $logoPath = FCPATH . 'LOGO.png';
-        }
+        $possibleLogoPaths = [
+            dirname(APPPATH, 1) . '/LOGO.png',      // Project root: /project-aqiqah/LOGO.png
+            FCPATH . 'LOGO.png',                      // Public folder: /project-aqiqah/public/LOGO.png
+            FCPATH . 'assets/LOGO.png',              // Assets folder: /project-aqiqah/public/assets/LOGO.png
+        ];
         
-        if ($logoPath && extension_loaded('gd')) {
-            $logoImage = @imagecreatefrompng($logoPath);
-            if ($logoImage) {
-                ob_start();
-                imagepng($logoImage, null, 8); // Quality 8 for compression
-                $logoBase64 = 'data:image/png;base64,' . base64_encode(ob_get_clean());
-                imagedestroy($logoImage);
+        foreach ($possibleLogoPaths as $lp) {
+            if (file_exists($lp)) {
+                $logoPath = $lp;
+                break;
             }
         }
         
-        // Find photo
+        if ($logoPath) {
+            $logoData = @file_get_contents($logoPath);
+            if ($logoData !== false) {
+                $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+            }
+        }
+        
+        // Find photo - try multiple paths
         $hasPhoto = false;
         if (!empty($order['photo_path'])) {
             $photoPath = null;
             $photoBasename = basename($order['photo_path']);
-            // Try multiple paths (FCPATH first since that's where uploads go)
-            $possiblePaths = [
-                FCPATH . $order['photo_path'],
-                FCPATH . 'uploads/photos/' . $photoBasename,
-                dirname(APPPATH, 1) . '/uploads/photos/' . $photoBasename,
+            // Try multiple paths in order of preference
+            $possiblePhotoPaths = [
+                FCPATH . $order['photo_path'],              // Full path from DB
+                FCPATH . 'uploads/photos/' . $photoBasename, // Public uploads
+                dirname(APPPATH, 1) . '/uploads/photos/' . $photoBasename, // Root uploads  
+                FCPATH . 'assets/photos/' . $photoBasename,  // Assets folder
             ];
             
-            foreach ($possiblePaths as $p) {
+            foreach ($possiblePhotoPaths as $p) {
                 if (file_exists($p)) {
                     $photoPath = $p;
                     break;
                 }
             }
             
-            if ($photoPath && extension_loaded('gd')) {
-                $photoImage = @imagecreatefromjpeg($photoPath);
-                if (!$photoImage) {
-                    $photoImage = @imagecreatefrompng($photoPath);
-                }
-                if ($photoImage) {
-                    ob_start();
-                    imagejpeg($photoImage, null, 8); // Quality 8 for compression
-                    $photoBase64 = 'data:image/jpeg;base64,' . base64_encode(ob_get_clean());
-                    imagedestroy($photoImage);
+            if ($photoPath) {
+                $photoData = @file_get_contents($photoPath);
+                if ($photoData !== false) {
+                    // Detect MIME type
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mimeType = finfo_file($finfo, $photoPath);
+                    finfo_close($finfo);
+                    
+                    if (strpos($mimeType, 'jpeg') !== false || strpos($mimeType, 'jpg') !== false) {
+                        $photoBase64 = 'data:image/jpeg;base64,' . base64_encode($photoData);
+                    } elseif (strpos($mimeType, 'png') !== false) {
+                        $photoBase64 = 'data:image/png;base64,' . base64_encode($photoData);
+                    } else {
+                        $photoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($photoData);
+                    }
                     $hasPhoto = true;
                 }
             }
