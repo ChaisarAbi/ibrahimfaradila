@@ -1,13 +1,15 @@
 <style>
-/* ===== Sidebar - Ibrahim Aqiqah Color Palette - Flat ===== */
+/* ===== Sidebar - Aqiqah Management System - Hijau ===== */
 :root {
     --sidebar-width: 250px;
     --sidebar-bg: #1a2529;
-    --sidebar-bg2: #25424C;
-    --sidebar-hover: rgba(251, 119, 13, 0.1);
-    --sidebar-active: rgba(251, 119, 13, 0.2);
+    --sidebar-bg2: #1b3a2a;
+    --sidebar-hover: rgba(46, 125, 50, 0.1);
+    --sidebar-active: rgba(46, 125, 50, 0.2);
     --sidebar-text: rgba(255, 255, 255, 0.65);
     --sidebar-text-hover: #ffffff;
+    --sidebar-primary: #2E7D32;
+    --sidebar-accent: #4CAF50;
 }
 
 /* Sidebar Toggle Button (Mobile) */
@@ -17,7 +19,7 @@
     top: 12px;
     left: 12px;
     z-index: 1050;
-    background: #FB770D;
+    background: var(--sidebar-primary);
     border: none;
     border-radius: 10px;
     color: white;
@@ -28,7 +30,7 @@
     transition: all 0.3s ease;
 }
 .sidebar-toggle:hover {
-    background: #25424C;
+    background: var(--sidebar-bg2);
 }
 
 /* Sidebar Overlay */
@@ -74,18 +76,18 @@
     background: transparent;
 }
 .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(251, 119, 13, 0.2);
+    background: rgba(76, 175, 80, 0.2);
     border-radius: 2px;
 }
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(251, 119, 13, 0.4);
+    background: rgba(76, 175, 80, 0.4);
 }
 
-/* Logo Area - Flat */
+/* Logo Area - dengan LOGO IMG */
 .sidebar-brand {
     padding: 18px 20px;
     background: var(--sidebar-bg2);
-    border-bottom: 1px solid rgba(251, 119, 13, 0.1);
+    border-bottom: 1px solid rgba(46, 125, 50, 0.15);
     flex-shrink: 0;
     text-decoration: none;
     display: block;
@@ -101,16 +103,22 @@
     gap: 12px;
 }
 .sidebar-brand .brand-icon {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 12px;
-    background: #FB770D;
+    background: var(--sidebar-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    color: white;
     flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+.sidebar-brand .brand-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
 }
 .sidebar-brand .brand-text {
     flex: 1;
@@ -136,14 +144,14 @@
 /* User Info - Flat */
 .sidebar-user {
     padding: 14px 20px;
-    border-bottom: 1px solid rgba(251, 119, 13, 0.08);
+    border-bottom: 1px solid rgba(76, 175, 80, 0.08);
     flex-shrink: 0;
 }
 .sidebar-user .user-avatar {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: #FB770D;
+    background: var(--sidebar-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,17 +175,17 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #FB770D;
+    background: var(--sidebar-accent);
     display: inline-block;
 }
 
-/* Navigation Header - Flat */
+/* Navigation Header */
 .sidebar-nav-header {
     padding: 16px 20px 6px;
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: rgba(251, 119, 13, 0.3);
+    color: rgba(76, 175, 80, 0.35);
     font-weight: 700;
     flex-shrink: 0;
 }
@@ -224,7 +232,7 @@
     border-radius: 20px;
     font-size: 0.65rem;
     font-weight: 700;
-    background: #FB770D;
+    background: var(--sidebar-accent);
     color: white;
     flex-shrink: 0;
 }
@@ -234,7 +242,7 @@
     color: var(--sidebar-text-hover);
 }
 .sidebar-link:hover i {
-    color: #FB770D;
+    color: var(--sidebar-accent);
 }
 
 .sidebar-link.active {
@@ -243,7 +251,7 @@
     font-weight: 600;
 }
 .sidebar-link.active i {
-    color: #FB770D;
+    color: var(--sidebar-accent);
 }
 .sidebar-link.active::before {
     content: '';
@@ -253,14 +261,14 @@
     transform: translateY(-50%);
     width: 3px;
     height: 20px;
-    background: #FB770D;
+    background: var(--sidebar-accent);
     border-radius: 0 3px 3px 0;
 }
 
-/* Footer in Sidebar - Flat */
+/* Footer in Sidebar */
 .sidebar-footer {
     padding: 14px 18px;
-    border-top: 1px solid rgba(251, 119, 13, 0.08);
+    border-top: 1px solid rgba(46, 125, 50, 0.08);
     flex-shrink: 0;
 }
 .sidebar-footer .logout-link {
@@ -336,11 +344,11 @@
     <a href="/admin/dashboard" class="sidebar-brand">
         <div class="brand-logo">
             <div class="brand-icon">
-                <i class="fas fa-mosque"></i>
+                <img src="/LOGO.png" alt="Logo" onerror="this.style.display='none'; this.parentNode.innerHTML='\u003ci class=\u0022fas fa-mosque\u0022\u003e\u003c/i\u003e'">
             </div>
             <div class="brand-text">
                 <h6>Ibrahim Aqiqah</h6>
-                <small>Manajemen Penjadwalan</small>
+                <small>Aqiqah Management</small>
             </div>
         </div>
     </a>

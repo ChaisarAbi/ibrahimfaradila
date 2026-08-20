@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Ibrahim Aqiqah</title>
+    <title>Login - Aqiqah Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,12 +24,12 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
-            /* Background Identitas Ibrahim Aqiqah */
-            background: url('/LOGO.png') no-repeat center center;
+            /* Background foto kantornya */
+            background: url('/assets/Background for login.jpeg') no-repeat center center;
             background-size: cover;
         }
 
-        /* Overlay gradient untuk background */
+        /* Overlay gradient untuk background - warna hijau */
         body::before {
             content: '';
             position: absolute;
@@ -38,14 +38,14 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(135deg, 
-                rgba(15, 23, 36, 0.92) 0%, 
-                rgba(26, 26, 46, 0.88) 30%, 
-                rgba(22, 33, 62, 0.90) 70%, 
-                rgba(15, 52, 96, 0.92) 100%);
+                rgba(15, 23, 36, 0.90) 0%, 
+                rgba(26, 26, 46, 0.86) 30%, 
+                rgba(22, 33, 62, 0.88) 70%, 
+                rgba(15, 52, 96, 0.90) 100%);
             z-index: 0;
         }
 
-        /* Animated Background Particles */
+        /* Animated Background Particles - hijau */
         body::after {
             content: '';
             position: absolute;
@@ -199,7 +199,7 @@
         .login-header h3 {
             color: #fff;
             font-weight: 700;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             margin-bottom: 6px;
             letter-spacing: -0.5px;
         }
@@ -442,8 +442,7 @@
                 </div>
                 
                 <div class="arabic-bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
-                <h3>Ibrahim Aqiqah</h3>
-                <p class="brand-subtitle">Sistem Penjadwalan & Manajemen Aqiqah</p>
+                <h3>Aqiqah Management System</h3>
                 <p class="brand-subtitle">Masuk ke akun Anda untuk melanjutkan</p>
             </div>
 
@@ -503,7 +502,7 @@
             </form>
 
             <div class="login-footer">
-                <i class="fas fa-mosque me-1"></i> Ibrahim Aqiqah - Sistem Penjadwalan &copy; <?= date('Y') ?>
+                <i class="fas fa-mosque me-1"></i> Aqiqah Management System - &copy; <?= date('Y') ?>
             </div>
         </div>
     </div>

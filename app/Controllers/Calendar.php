@@ -15,26 +15,56 @@ class Calendar extends BaseController
         
         if (!empty($schedules)) {
             foreach ($schedules as $schedule) {
-                // Warna berdasarkan priority
-                if ($schedule['priority'] == 1) {
-                    $color = '#dc3545'; // Merah
-                } elseif ($schedule['priority'] == 2) {
-                    $color = '#ffc107'; // Kuning
+                // Warna berdasarkan status + prioritas
+                // Priority 1 = paling penting (merah tua), Priority 2 = sedang (oranye), Priority 3+ = normal (hijau)
+                $baseColorsByStatus = [
+                    'Scheduled'   => '#2196F3', // Biru untuk scheduled
+                    'Processing'  => '#FF9800', // Orange untuk processing
+                    'Completed'   => '#4CAF50', // Hijau untuk completed
+                ];
+                
+                $status = $schedule['status'] ?? 'Scheduled';
+                $baseColor = $baseColorsByStatus[$status] ?? '#2196F3';
+                
+                // Modifikasi warna berdasarkan prioritas
+                if (isset($schedule['priority'])) {
+                    if ($schedule['priority'] == 1) {
+                        // Priority 1: Merah terang untuk deadline terdekat
+                        $color = '#E53935'; // Red - high priority
+                        $textColor = '#FFFFFF';
+                    } elseif ($schedule['priority'] == 2) {
+                        // Priority 2: Orange untuk prioritas sedang
+                        $color = '#FF9800'; // Orange - medium priority
+                        $textColor = '#FFFFFF';
+                    } else {
+                        // Priority 3+: Hijau sesuai status
+                        $color = $baseColor;
+                        $textColor = '#FFFFFF';
+                    }
                 } else {
-                    $color = '#28a745'; // Hijau
+                    $color = $baseColor;
+                    $textColor = '#FFFFFF';
                 }
                 
+                // Tampilkan info prioritas di title
+                $priorityLabel = isset($schedule['priority']) ? ' P' . $schedule['priority'] : '';
+                
                 $events[] = [
-                    'id'    => $schedule['id_schedule'],
-                    'title' => $schedule['title'] . ' (P' . $schedule['priority'] . ')',
-                    'start' => $schedule['start'],
-                    'color' => $color,
-                    'textColor' => ($schedule['priority'] == 2) ? '#000' : '#fff',
-                    'url'   => base_url('/admin/orders/edit/' . $schedule['order_id'])
+                    'id'      => $schedule['id_schedule'],
+                    'title'   => $schedule['title'] . $priorityLabel,
+                    'start'   => $schedule['start'],
+                    'color'   => $color,
+                    'textColor' => $textColor,
+                    'url'     => base_url('/admin/orders/edit/' . $schedule['order_id']),
+                    'extendedProps' => [
+                        'status'   => $status,
+                        'priority' => $schedule['priority'] ?? '-',
+                        'order_id' => $schedule['order_id']
+                    ]
                 ];
             }
         } else {
-            // Fallback: Load from orders directly
+            // Fallback: Load from orders langsung
             $orderModel = new OrderModel();
             $customerModel = new CustomerModel();
             $orders = $orderModel->where('status !=', 'Cancelled')->findAll();
@@ -43,40 +73,39 @@ class Calendar extends BaseController
                 $customer = $customerModel->find($order['customer_id']);
                 $customerName = $customer ? $customer['name'] : 'Unknown';
                 
-                // Warna berdasarkan status
+                // Warna berdasarkan STATUS (tanpa prioritas karena ini fallback)
                 switch ($order['status']) {
                     case 'Pending':
-                        $color = '#ff9800';
-                        $textColor = '#fff';
+                        $color = '#FF9800'; // Orange - pending
+                        $textColor = '#FFFFFF';
                         break;
                     case 'Scheduled':
-                        $color = '#2196f3';
-                        $textColor = '#fff';
+                        $color = '#2196F3'; // Biru - scheduled
+                        $textColor = '#FFFFFF';
                         break;
                     case 'Processing':
-                        $color = '#ffc107';
-                        $textColor = '#000';
+                        $color = '#FF9800'; // Orange - processing
+                        $textColor = '#FFFFFF';
                         break;
                     case 'Completed':
-                        $color = '#4caf50';
-                        $textColor = '#fff';
-                        break;
-                    case 'Cancelled':
-                        $color = '#9e9e9e';
-                        $textColor = '#fff';
+                        $color = '#4CAF50'; // Hijau - completed
+                        $textColor = '#FFFFFF';
                         break;
                     default:
-                        $color = '#17a2b8';
-                        $textColor = '#fff';
+                        $color = '#9E9E9E';
+                        $textColor = '#FFFFFF';
                 }
                 
                 $events[] = [
-                    'id'    => 'order_' . $order['id_order'],
-                    'title' => $customerName . ' (' . $order['animal_type'] . ')',
-                    'start' => $order['slaughter_date'],
-                    'color' => $color,
+                    'id'      => 'order_' . $order['id_order'],
+                    'title'   => $customerName . ' (' . $order['animal_type'] . ')',
+                    'start'   => $order['slaughter_date'],
+                    'color'   => $color,
                     'textColor' => $textColor,
-                    'url'   => base_url('/admin/orders/edit/' . $order['id_order'])
+                    'url'     => base_url('/admin/orders/edit/' . $order['id_order']),
+                    'extendedProps' => [
+                        'status' => $order['status']
+                    ]
                 ];
             }
         }

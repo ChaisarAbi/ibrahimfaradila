@@ -27,11 +27,11 @@
     <?php endif; ?>
 
     <!-- EDF Info Card -->
-    <div class="card mb-3 border-0 shadow-sm" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
+    <div class="card mb-3 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(46,125,50,0.08), rgba(76,175,80,0.12));">
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h5 class="text-success mb-2"><i class="fas fa-info-circle me-2"></i>Apa itu Algorithm EDF/EDD?</h5>
+                    <h5 class="mb-2" style="color: #2E7D32;"><i class="fas fa-info-circle me-2"></i>Apa itu Algorithm EDF/EDD?</h5>
                     <p class="mb-2"><strong>EDF (Earliest Deadline First)</strong> atau <strong>EDD (Earliest Due Date)</strong> adalah algoritma penjadwalan yang memprioritaskan tugas dengan <em>deadline terdekat</em>.</p>
                     <ul class="mb-0 small text-muted">
                         <li><strong>Prinsip:</strong> Pesanan dengan tanggal potong paling awal akan mendapat prioritas #1</li>
@@ -118,7 +118,28 @@
                         <?php else: ?>
                         <?php foreach ($scheduled_orders as $i => $order): ?>
                         <tr>
-                            <td><span class="badge bg-<?= $i === 0 ? 'danger' : ($i === 1 ? 'warning' : 'info') ?>"><?= $i + 1 ?></span></td>
+                            <td>
+                                <?php 
+                                $priorityClass = '';
+                                $priorityIcon = '';
+                                if ($i === 0) {
+                                    $priorityClass = 'bg-danger';
+                                    $priorityIcon = '<i class="fas fa-fire me-1"></i>';
+                                } elseif ($i === 1) {
+                                    $priorityClass = 'bg-warning';
+                                    $priorityIcon = '<i class="fas fa-exclamation me-1"></i>';
+                                } elseif ($i === 2) {
+                                    $priorityClass = 'bg-info';
+                                    $priorityIcon = '<i class="fas fa-check me-1"></i>';
+                                } else {
+                                    $priorityClass = 'bg-secondary';
+                                    $priorityIcon = '<i class="fas fa-list me-1"></i>';
+                                }
+                                ?>
+                                <span class="badge <?= $priorityClass ?>" title="Prioritas: Hari ke-<?= $i + 1 ?>">
+                                    <?= $priorityIcon ?>#<?= $i + 1 ?>
+                                </span>
+                            </td>
                             <td><strong>#<?= $order['id_order'] ?></strong></td>
                             <td><?= htmlspecialchars($order['customer_name'] ?? '-') ?></td>
                             <td><?= htmlspecialchars($order['child_name'] ?? '-') ?></td>
