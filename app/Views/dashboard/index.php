@@ -346,7 +346,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
 AOS.init({ once: true });
@@ -529,11 +529,25 @@ async function markCompleted(orderId) {
         
         if (result.success) {
             alert(result.message);
-            // Hide the button in row
-            const btn = document.querySelector(`.complete-btn[data-id="${orderId}"]`);
-            if (btn) {
-                btn.outerHTML = '<span class="text-success small"><i class="fas fa-check-circle"></i> Done</span>';
+            // Update the badge in modal row
+            const row = document.querySelector(`.complete-btn[data-id="${orderId}"]`)?.closest('tr');
+            if (row) {
+                const statusCell = row.querySelector('td:nth-child(7)');
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge badge-status bg-success">Completed</span>';
+                }
+                const actionCell = row.querySelector('td:nth-child(8)');
+                if (actionCell) {
+                    actionCell.innerHTML = '<span class="text-success small"><i class="fas fa-check-circle"></i> Done</span>';
+                }
+                // Disable checkbox
+                const cb = row.querySelector('.order-checkbox');
+                if (cb) cb.disabled = true;
             }
+            // Re-render modal order list
+            const dateStr = document.querySelector('.day-cell:not(.empty)')?.dataset.date;
+            if (dateStr) showDayOrders(dateStr);
+            // Reload heatmap to reflect status change
             loadCalendarData(currentMonth);
         } else {
             alert(result.message || 'Gagal menandai pesanan');
@@ -565,10 +579,13 @@ async function bulkMarkCompleted() {
         
         if (result.success) {
             alert(result.message);
+            // Re-render modal order list from scratch
+            const dateStr = document.querySelector('.day-cell:not(.empty)')?.dataset.date;
+            if (dateStr) {
+                showDayOrders(dateStr);
+            }
+            // Reload heatmap
             loadCalendarData(currentMonth);
-            // Re-render modal
-            const dateStr = document.querySelector('.day-cell:not(.empty)').dataset.date;
-            if (dateStr) showDayOrders(dateStr);
         } else {
             alert(result.message || 'Gagal memproses');
         }
@@ -579,26 +596,6 @@ async function bulkMarkCompleted() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // FullCalendar
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek'
-        },
-        locale: 'id',
-        events: '/admin/calendar/events',
-        eventClick: function(info) {
-            alert(info.event.extendedProps.description || 'Order #' + info.event.id);
-        },
-        height: 'auto',
-        aspectRatio: 2.2,
-        contentHeight: 400
-    });
-    calendar.render();
-    
     // Load heatmap data
     loadCalendarData(currentMonth);
     
