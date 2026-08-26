@@ -17,6 +17,9 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     // Dashboard (Admin only)
     $routes->get('dashboard', 'Dashboard::index', ['filter' => 'admin']);
     $routes->get('dashboard/chart-data', 'Dashboard::chartData', ['filter' => 'admin']);
+    $routes->get('dashboard/calendar-orders', 'Dashboard::getCalendarOrders', ['filter' => 'admin']);
+    $routes->post('dashboard/mark-completed', 'Dashboard::markCompleted', ['filter' => 'admin']);
+    $routes->post('dashboard/bulk-mark-completed', 'Dashboard::bulkMarkCompleted', ['filter' => 'admin']);
     
     // Customers (Admin only)
     $routes->get('customers', 'Customers::index', ['filter' => 'admin']);

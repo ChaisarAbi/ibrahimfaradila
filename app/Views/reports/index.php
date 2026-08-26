@@ -159,13 +159,49 @@
                             </div>
                             <div>
                                 <h6 class="mb-0">Lembar Kerja Dapur</h6>
-                                <small class="text-muted">PDF harian</small>
+                                <small class="text-muted">PDF dengan filter lengkap</small>
                             </div>
                         </div>
-                        <p class="text-muted small flex-grow-1 mb-2">Cetak lembar kerja tim dapur berisi daftar pesanan, menu, box, dan kebutuhan stok.</p>
-                        <form action="/admin/reports/kitchen-sheet" method="get" class="d-flex gap-2">
-                            <input type="date" class="form-control form-control-sm" name="date" value="<?= date('Y-m-d') ?>" required>
-                            <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-print me-1"></i> Cetak</button>
+                        <p class="text-muted small flex-grow-1 mb-2">Cetak lembar kerja tim dapur berisi daftar pesanan, menu, box, dan kebutuhan stok dengan berbagai opsi filter.</p>
+                        <form action="/admin/reports/kitchen-sheet" method="get" class="row g-1">
+                            <div class="col-12">
+                                <label class="form-label mb-0" style="font-size:0.7rem;">Tanggal Mulai</label>
+                                <input type="date" class="form-control form-control-sm" name="start_date" value="<?= $_GET['start_date'] ?? date('Y-m-d') ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label mb-0" style="font-size:0.7rem;">Tanggal Selesai</label>
+                                <input type="date" class="form-control form-control-sm" name="end_date" value="<?= $_GET['end_date'] ?? date('Y-m-d') ?>" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label mb-0" style="font-size:0.7rem;">Status Order</label>
+                                <select class="form-select form-select-sm" name="status">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Scheduled">Scheduled</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label mb-0" style="font-size:0.7rem;">Jenis Hewan</label>
+                                <select class="form-select form-select-sm" name="animal_type">
+                                    <option value="">Semua Hewan</option>
+                                    <option value="Kambing">Kambing</option>
+                                    <option value="Domba">Domba</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label mb-0" style="font-size:0.7rem;">Paket</label>
+                                <select class="form-select form-select-sm" name="package_id">
+                                    <option value="">Semua Paket</option>
+                                    <?php foreach ($packages ?? [] as $pkg): ?>
+                                    <option value="<?= $pkg['id_package'] ?>"><?= htmlspecialchars($pkg['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button type="submit" class="btn btn-danger btn-sm w-100"><i class="fas fa-filter me-1"></i> Filter & Cetak</button>
+                            </div>
                         </form>
                     </div>
                 </div>

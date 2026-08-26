@@ -137,4 +137,126 @@ class Dashboard extends BaseController
             'stock_colors' => $stockColors,
         ]);
     }
+    
+    /**
+     * AJAX endpoint for calendar heatmap - orders per day
+     */
+    public function getCalendarOrders()
+    {
+        $db = \Config\Database::connect();
+        $month = $this->request->getGet('month') ?? date('Y-m');
+        
+        // Get all orders for the month
+        $orders = $db->table('orders')
+            ->select('id_order, customer_name, child_name, package_name, animal_type, total_price, status, slaughter_date')
+            ->like('slaughter_date', $month, 'after')
+            ->orderBy('slaughter_date', 'ASC')
+            ->get()
+            ->getResultArray();
+        
+        // Group by date
+        $calendarData = [];
+        foreach ($orders as $order) {
+            $date = $order['slaughter_date'];
+            if (!isset($calendarData[$date])) {
+                $calendarData[$date] = [
+                    'count' => 0,
+                    'boxes' => 0,
+                    'revenue' => 0,
+                    'orders' => []
+                ];
+            }
+            $calendarData[$date]['count']++;
+            $calendarData[$date]['revenue'] += (int)$order['total_price'];
+            $calendarData[$date]['orders'][] = [
+                'id_order' => $order['id_order'],
+                'customer_name' => $order['customer_name'],
+                'child_name' => $order['child_name'],
+                'package_name' => $order['package_name'] ?? 'N/A',
+                'animal_type' => $order['animal_type'],
+                'total_price' => $order['total_price'],
+                'status' => $order['status']
+            ];
+        }
+        
+        return $this->response->setJSON([
+            'calendar_data' => $calendarData,
+            'orders' => $orders
+        ]);
+    }
+    
+    /**
+     * AJAX endpoint to mark order as completed
+     */
+    public function markCompleted()
+    {
+        $db = \Config\Database::connect();
+        $orderId = $this->request->getJSON()->id ?? null;
+        
+        if (!$orderId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Order ID required']);
+        }
+        
+        // Check if delivery_date has passed
+        $order = $db->table('orders')->where('id_order', $orderId)->get()->getRowArray();
+        
+        if (!$order) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Order not found']);
+        }
+        
+        if ($order['status'] === 'Completed' || $order['status'] === 'Cancelled') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Order already ' . strtolower($order['status'])]);
+        }
+        
+        if ($order['delivery_date'] && date('Y-m-d') > $order['delivery_date']) {
+            $db->table('orders')
+                ->where('id_order', $orderId)
+                ->set(['status' => 'Completed'])
+                ->update();
+            
+            return $this->response->setJSON([
+                'success' => true, 
+                'message' => 'Order #' . $orderId . ' marked as Completed'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Delivery date has not passed yet'
+            ]);
+        }
+    }
+    
+    /**
+     * AJAX endpoint for bulk mark completed
+     */
+    public function bulkMarkCompleted()
+    {
+        $db = \Config\Database::connect();
+        $orderIds = $this->request->getJSON()->ids ?? [];
+        $updated = 0;
+        
+        if (empty($orderIds)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No orders selected', 'updated' => 0]);
+        }
+        
+        foreach ($orderIds as $orderId) {
+            $order = $db->table('orders')->where('id_order', $orderId)->get()->getRowArray();
+            
+            if ($order && $order['status'] !== 'Completed' && $order['status'] !== 'Cancelled') {
+                if (!$order['delivery_date'] || date('Y-m-d') >= $order['delivery_date']) {
+                    $db->table('orders')
+                        ->where('id_order', $orderId)
+                        ->set(['status' => 'Completed'])
+                        ->update();
+                    $updated++;
+                }
+            }
+        }
+        
+        return $this->response->setJSON([
+            'success' => true, 
+            'message' => "$updated order(s) marked as Completed",
+            'updated' => $updated
+        ]);
+    }
 }

@@ -6,11 +6,11 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-custom mb-0">
                     <li class="breadcrumb-item"><a href="/admin/dashboard"><i class="fas fa-home me-1"></i>Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Jadwalkan (EDF)</li>
+                    <li class="breadcrumb-item active" aria-current="page">Jadwalkan</li>
                 </ol>
             </nav>
             <h4 class="page-title mb-0"><i class="fas fa-calendar-alt"></i>Jadwal Penjadwalan Aqiqah</h4>
-            <small class="text-muted">Algorithm EDF (Earliest Deadline First) untuk menentukan prioritas penyembelihan</small>
+            <small class="text-muted">Algoritma penjadwalan untuk menentukan prioritas pemotongan aqiqah berdasarkan tanggal terdekat</small>
         </div>
         <div>
             <form action="/admin/scheduler/run" method="POST" onsubmit="return confirm('Jalankan scheduler? Ini akan memproses semua pesanan Pending menjadi Scheduled.')">
@@ -26,25 +26,6 @@
         <div class="alert alert-success animate-slide-in"><i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?></div>
     <?php endif; ?>
 
-    <!-- EDF Info Card -->
-    <div class="card mb-3 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(46,125,50,0.08), rgba(76,175,80,0.12));">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h5 class="mb-2" style="color: #2E7D32;"><i class="fas fa-info-circle me-2"></i>Apa itu Algorithm EDF/EDD?</h5>
-                    <p class="mb-2"><strong>EDF (Earliest Deadline First)</strong> atau <strong>EDD (Earliest Due Date)</strong> adalah algoritma penjadwalan yang memprioritaskan tugas dengan <em>deadline terdekat</em>.</p>
-                    <ul class="mb-0 small text-muted">
-                        <li><strong>Prinsip:</strong> Pesanan dengan tanggal potong paling awal akan mendapat prioritas #1</li>
-                        <li><strong>Tujuan:</strong> Memastikan aqiqah yang dijadwalkan tepat waktu sesuai permintaan pelanggan</li>
-                        <li><strong>Hasil:</strong> Semua pesanan Pending akan diurutkan berdasarkan tanggal potong terdekat</li>
-                    </ul>
-                </div>
-                <div class="col-md-4 text-center">
-                    <div style="font-size:4rem; opacity:0.3;">📅</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Stats Row -->
     <div class="row g-3 mb-3">
@@ -110,7 +91,7 @@
                     <tbody>
                         <?php if (empty($scheduled_orders)): ?>
                         <tr>
-                            <td colspan="8" class="text-center py-4">
+                            <td colspan="7" class="text-center py-4">
                                 <i class="fas fa-inbox text-muted" style="font-size:1.5rem;"></i><br>
                                 <span class="text-muted">Belum ada jadwal. Jalankan scheduler untuk membuat jadwal.</span>
                             </td>

@@ -97,199 +97,486 @@
         </div>
     </div>
 
-    <!-- Recap 24 Jam Card -->
-    <?php if (!empty($upcoming_slaughter)): ?>
-    <div class="card border-warning mb-4 animate-fade-up">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Pelanggan</th>
-                            <th>Anak</th>
-                            <th>Paket</th>
-                            <th>Jam Potong</th>
-                            <th>Telepon</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($upcoming_slaughter as $u): ?>
-                        <tr>
-                            <td><strong>#<?= $u['id_order'] ?></strong></td>
-                            <td><?= $u['customer_name'] ?? 'N/A' ?></td>
-                            <td><?= $u['child_name'] ?? '-' ?></td>
-                            <td><span class="badge bg-primary bg-opacity-10 text-primary"><?= $u['package_name'] ?? 'N/A' ?></span></td>
-                            <td><?= $u['slaughter_time'] ? date('H:i', strtotime($u['slaughter_time'])) : '<em class="text-muted">Belum diatur</em>' ?></td>
-                            <td>
-                                <?php if (!empty($u['customer_phone'])): ?>
-                                <a href="https://wa.me/62<?= preg_replace('/^0?/', '', $u['customer_phone']) ?>" target="_blank" class="btn btn-sm btn-outline-success" style="border-color:#25D366;color:#25D366;">
-                                    <i class="fab fa-whatsapp"></i>
-                                </a>
-                                <?php else: ?>
-                                <span class="text-muted">-</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <a href="/admin/orders/edit/<?= $u['id_order'] ?>" class="btn btn-sm btn-outline-primary" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+<!-- Recap 24 Jam Card -->
+<?php if (!empty($upcoming_slaughter)): ?>
+<div class="card border-warning mb-4 animate-fade-up">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Pelanggan</th>
+                        <th>Anak</th>
+                        <th>Paket</th>
+                        <th>Jam Potong</th>
+                        <th>Telepon</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($upcoming_slaughter as $u): ?>
+                    <tr>
+                        <td><strong>#<?= $u['id_order'] ?></strong></td>
+                        <td><?= $u['customer_name'] ?? 'N/A' ?></td>
+                        <td><?= $u['child_name'] ?? '-' ?></td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary"><?= $u['package_name'] ?? 'N/A' ?></span></td>
+                        <td><?= $u['slaughter_time'] ? date('H:i', strtotime($u['slaughter_time'])) : '<em class="text-muted">Belum diatur</em>' ?></td>
+                        <td>
+                            <?php if (!empty($u['customer_phone'])): ?>
+                            <a href="https://wa.me/62<?= preg_replace('/^0?/', '', $u['customer_phone']) ?>" target="_blank" class="btn btn-sm btn-outline-success" style="border-color:#25D366;color:#25D366;">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="/admin/orders/edit/<?= $u['id_order'] ?>" class="btn btn-sm btn-outline-primary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
     </div>
-    <?php endif; ?>
+</div>
+<?php endif; ?>
 
-    <!-- Charts & Calendar Row -->
-    <div class="row g-3 mb-4">
-        <div class="col-lg-9">
-            <div class="card animate-fade-up stagger-1 h-100">
-                <div class="card-header d-flex justify-content-between align-items-center py-2">
-                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Kalender Penjadwalan</h5>
-                    <small class="text-muted">Klik event untuk detail pesanan</small>
+<!-- Calendar Heatmap + Monthly Chart Row -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-9">
+        <div class="card animate-fade-up stagger-1 h-100">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Peta Pesanan - <?= date('F Y') ?></h5>
+                <small class="text-muted">🖱️ Klik tanggal untuk lihat detail pesanan</small>
+            </div>
+            <div class="card-body p-3">
+                <!-- Month Navigation -->
+                <div class="d-flex justify-content-between mb-2">
+                    <button class="btn btn-sm btn-outline-secondary" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                    <span class="fw-bold" id="currentMonthLabel"><?= date('F Y') ?></span>
+                    <button class="btn btn-sm btn-outline-secondary" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
                 </div>
-                <div class="card-body p-3">
-                    <div id="calendar"></div>
-                </div>
+                <div id="calendarHeatmap"></div>
             </div>
         </div>
-        <div class="col-lg-3">
-            <div class="card animate-fade-up stagger-2 h-100">
-                <div class="card-header py-2">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Total Pesanan Per Bulan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="position: relative; width: 100%; height: 200px; margin: 0 auto;">
-                        <canvas id="orderChart"></canvas>
-                    </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card animate-fade-up stagger-2 h-100">
+            <div class="card-header py-2">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Total Pesanan Per Bulan</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; width: 100%; height: 200px; margin: 0 auto;">
+                    <canvas id="orderChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Charts Row: Weekly Orders + Stock -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card animate-fade-up stagger-3 h-100">
-                <div class="card-header">
-                    <h5><i class="fas fa-chart-line me-2 text-success"></i>Pesanan Mingguan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="position: relative; width: 100%; height: 220px;">
-                        <canvas id="weeklyChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card animate-fade-up stagger-4 h-100">
-                <div class="card-header">
-                    <h5><i class="fas fa-warehouse me-2 text-warning"></i>Stok Terkini</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="position: relative; width: 100%; height: 220px;">
-                        <canvas id="stockChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Monthly Revenue Chart -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-12">
-            <div class="card animate-fade-up stagger-5">
-                <div class="card-header">
-                    <h5><i class="fas fa-money-bill-trend-up me-2 text-primary"></i>Pendapatan Bulanan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="position: relative; width: 100%; height: 250px;">
-                        <canvas id="monthlyChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
 
-    <!-- Recent Orders -->
-    <div class="card animate-fade-up stagger-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5><i class="fas fa-list me-2"></i>Pesanan Terbaru</h5>
-            <div>
-                <a href="/admin/orders" class="btn btn-primary btn-sm">
-                    <i class="fas fa-eye me-1"></i> Lihat Semua
-                </a>
-                <a href="/admin/orders/create" class="btn btn-success btn-sm ms-1">
-                    <i class="fas fa-plus me-1"></i> Tambah
-                </a>
+<!-- Charts Row: Weekly Orders + Stock -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card animate-fade-up stagger-3 h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line me-2 text-success"></i>Pesanan Mingguan</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; width: 100%; height: 220px;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
             </div>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Pelanggan</th>
-                            <th>Paket</th>
-                            <th>Tanggal Potong</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recent_orders as $o): ?>
-                        <tr>
-                            <td><strong>#<?= $o['id_order'] ?></strong></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;font-size:0.8rem;">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div>
-                                        <strong><?= $o['customer_name'] ?? 'N/A' ?></strong>
-                                    </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card animate-fade-up stagger-4 h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-warehouse me-2 text-warning"></i>Stok Terkini</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; width: 100%; height: 220px;">
+                    <canvas id="stockChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Revenue Chart -->
+<div class="row g-3 mb-4">
+    <div class="col-md-12">
+        <div class="card animate-fade-up stagger-5">
+            <div class="card-header">
+                <h5><i class="fas fa-money-bill-trend-up me-2 text-primary"></i>Pendapatan Bulanan</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; width: 100%; height: 250px;">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card animate-fade-up stagger-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5><i class="fas fa-list me-2"></i>Pesanan Terbaru</h5>
+        <div>
+            <a href="/admin/orders" class="btn btn-primary btn-sm">
+                <i class="fas fa-eye me-1"></i> Lihat Semua
+            </a>
+            <a href="/admin/orders/create" class="btn btn-success btn-sm ms-1">
+                <i class="fas fa-plus me-1"></i> Tambah
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Pelanggan</th>
+                        <th>Paket</th>
+                        <th>Tanggal Potong</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($recent_orders as $o): ?>
+                    <tr>
+                        <td><strong>#<?= $o['id_order'] ?></strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;font-size:0.8rem;">
+                                    <i class="fas fa-user"></i>
                                 </div>
-                            </td>
-                            <td><span class="badge bg-primary bg-opacity-10 text-primary"><?= $o['package_name'] ?? 'N/A' ?></span></td>
-                            <td><i class="far fa-calendar me-1 text-muted"></i><?= date('d/m/Y', strtotime($o['slaughter_date'])) ?></td>
-                            <td><strong>Rp <?= number_format($o['total_price'], 0, ',', '.') ?></strong></td>
-                            <td>
-                                <span class="badge badge-status bg-<?= $o['status'] == 'Completed' ? 'success' : ($o['status'] == 'Pending' ? 'warning' : ($o['status'] == 'Processing' ? 'info' : 'secondary')) ?>">
-                                    <?= $o['status'] ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php if (empty($recent_orders)): ?>
-                        <tr><td colspan="6" class="text-center py-4">
-                            <div class="empty-state">
-                                <i class="fas fa-inbox"></i>
-                                <h6>Belum Ada Pesanan</h6>
-                                <p>Mulai dengan membuat pesanan baru.</p>
-                                <a href="/admin/orders/create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Buat Pesanan</a>
+                                <div>
+                                    <strong><?= $o['customer_name'] ?? 'N/A' ?></strong>
+                                </div>
                             </div>
-                        </td></tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary"><?= $o['package_name'] ?? 'N/A' ?></span></td>
+                        <td><i class="far fa-calendar me-1 text-muted"></i><?= date('d/m/Y', strtotime($o['slaughter_date'])) ?></td>
+                        <td><strong>Rp <?= number_format($o['total_price'], 0, ',', '.') ?></strong></td>
+                        <td>
+                            <span class="badge badge-status bg-<?= $o['status'] == 'Completed' ? 'success' : ($o['status'] == 'Pending' ? 'warning' : ($o['status'] == 'Processing' ? 'info' : 'secondary')) ?>">
+                                <?= $o['status'] ?>
+                            </span>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php if (empty($recent_orders)): ?>
+                    <tr><td colspan="6" class="text-center py-4">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h6>Belum Ada Pesanan</h6>
+                            <p>Mulai dengan membuat pesanan baru.</p>
+                            <a href="/admin/orders/create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Buat Pesanan</a>
+                        </div>
+                    </td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer>&copy; <?= date('Y') ?> Ibrahim Aqiqah - Sistem Penjadwalan. All rights reserved.</footer>
+</main>
+
+<!-- Order Detail Modal -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Detail Pesanan - <span id="modalDateLabel"></span>
+                    <span class="badge bg-primary ms-2" id="modalCountLabel">0 orders</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="modalBodyContent">
+                    <!-- Bulk action bar -->
+                    <div id="bulkActionBar" class="p-2 bg-light border-bottom d-none">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted" id="selectedCount">0 dipilih</span>
+                            <button class="btn btn-sm btn-success" onclick="bulkMarkCompleted()">
+                                <i class="fas fa-check-double me-1"></i>Tandai Selesai
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="modalOrderTable">
+                            <thead>
+                                <tr>
+                                    <th width="30"><input class="form-check-input" type="checkbox" id="selectAllOrders"></th>
+                                    <th>ID</th>
+                                    <th>Pelanggan</th>
+                                    <th>Anak</th>
+                                    <th>Paket</th>
+                                    <th>Hewan</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalOrderList">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="/admin/orders" class="btn btn-primary btn-sm">
+                    <i class="fas fa-list me-1"></i>Lihat Semua Pesanan
+                </a>
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
-    
-    <footer>&copy; <?= date('Y') ?> Ibrahim Aqiqah - Sistem Penjadwalan. All rights reserved.</footer>
-</main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
 AOS.init({ once: true });
+
+// Calendar Heatmap Data
+let calendarData = {};
+let currentYear = <?= date('Y') ?>;
+let currentMonth = <?= date('n') ?> - 1; // 0-indexed
+let selectedOrders = [];
+
+function getMonthLabel(year, month) {
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return months[month] + ' ' + year;
+}
+
+function getMaxCount(data) {
+    let max = 0;
+    Object.values(data).forEach(d => { if (d.count > max) max = d.count; });
+    return max || 1;
+}
+
+function getDayClasses(count, max) {
+    const ratio = count / max;
+    if (count === 0) return '';
+    if (ratio >= 0.75) return 'bg-dark';
+    if (ratio >= 0.5) return 'bg-medium';
+    return 'bg-light';
+}
+
+function loadCalendarData(month) {
+    const monthStr = currentYear + '-' + String(month + 1).padStart(2, '0');
+    fetch('/admin/dashboard/calendar-orders?month=' + monthStr)
+        .then(res => res.json())
+        .then(data => {
+            calendarData = data.calendar_data || {};
+            renderHeatmap();
+        })
+        .catch(err => console.log('Calendar data error:', err));
+}
+
+function renderHeatmap() {
+    const container = document.getElementById('calendarHeatmap');
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const startDay = firstDay === 0 ? 6 : firstDay - 1; // Monday start
+    const maxCount = getMaxCount(calendarData);
+    
+    const dayHeaders = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    let html = '<div class="heatmap-grid"><div class="heatmap-row headers">';
+    dayHeaders.forEach(d => { html += '<div class="day-header">' + d + '</div>'; });
+    html += '</div>';
+    
+    // Calculate weeks
+    const totalCells = startDay + daysInMonth;
+    const weeks = Math.ceil(totalCells / 7);
+    
+    for (let w = 0; w < weeks; w++) {
+        html += '<div class="heatmap-row">';
+        for (let d = 0; d < 7; d++) {
+            const dayNum = w * 7 + d - startDay + 1;
+            if (dayNum >= 1 && dayNum <= daysInMonth) {
+                const dateStr = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
+                const data = calendarData[dateStr] || { count: 0 };
+                const cls = getDayClasses(data.count, maxCount);
+                const bgOpacity = data.count > 0 ? Math.max(0.15, (data.count / maxCount) * 0.85) : 0;
+                
+                html += `<div class="day-cell ${cls}" data-date="${dateStr}" data-count="${data.count}" 
+                              style="background: rgba(76, 175, 80, ${bgOpacity}); cursor: ${data.count > 0 ? 'pointer' : 'default'};"
+                              onclick="${data.count > 0 ? "showDayOrders('" + dateStr + "')" : ''}">
+                            <div class="day-number">${dayNum}</div>`;
+                if (data.count > 0) {
+                    html += `<div class="day-badge">${data.count}</div>`;
+                }
+                html += '</div>';
+            } else {
+                html += '<div class="day-cell empty"></div>';
+            }
+        }
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Update label
+    document.getElementById('currentMonthLabel').textContent = getMonthLabel(currentYear, currentMonth);
+}
+
+function showDayOrders(dateStr) {
+    const data = calendarData[dateStr];
+    if (!data || !data.orders || data.orders.length === 0) return;
+    
+    selectedOrders = [];
+    
+    // Update modal header
+    const dateParts = dateStr.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+    document.getElementById('modalDateLabel').textContent = 
+        dateParts[2] + ' ' + months[parseInt(dateParts[1]) - 1] + ' ' + dateParts[0];
+    document.getElementById('modalCountLabel').textContent = data.count + ' pesanan';
+    
+    // Build order list
+    const tbody = document.getElementById('modalOrderList');
+    let html = '';
+    
+    data.orders.forEach(order => {
+        const canComplete = !order.delivery_date || new Date() >= new Date(order.delivery_date);
+        const isCompleted = order.status === 'Completed' || order.status === 'Cancelled';
+        
+        let statusColor = 'secondary';
+        if (order.status === 'Completed') statusColor = 'success';
+        else if (order.status === 'Pending') statusColor = 'warning';
+        else if (order.status === 'Processing') statusColor = 'info';
+        
+        html += '<tr>';
+        html += `<td><input class="form-check-input order-checkbox" type="checkbox" value="${order.id_order}" data-delivery="${order.delivery_date || ''}" ${isCompleted || !canComplete ? 'disabled' : ''}></td>`;
+        html += `<td><strong>#${order.id_order}</strong></td>`;
+        html += `<td>${order.customer_name}</td>`;
+        html += `<td>${order.child_name || '-'}</td>`;
+        html += `<td><span class="badge bg-primary">${order.package_name}</span></td>`;
+        html += `<td>${order.animal_type}</td>`;
+        html += `<td><span class="badge badge-status bg-${statusColor}">${order.status}</span></td>`;
+        html += '<td>';
+        
+        if (!isCompleted && canComplete) {
+            html += `<button class="btn btn-sm btn-success complete-btn" data-id="${order.id_order}" onclick="markCompleted(${order.id_order})">
+                        <i class="fas fa-check"></i> Complete
+                     </button>`;
+        } else if (isCompleted) {
+            html += `<span class="text-success small"><i class="fas fa-check-circle"></i> Done</span>`;
+        } else {
+            html += `<span class="text-muted small">Delivery belum lewat</span>`;
+        }
+        
+        html += '</td></tr>';
+    });
+    
+    tbody.innerHTML = html;
+    
+    // Show/hide bulk action bar
+    const hasCompleteBtn = data.orders.some(o => {
+        const completed = o.status === 'Completed' || o.status === 'Cancelled';
+        const due = !o.delivery_date || new Date() >= new Date(o.delivery_date);
+        return !completed && due;
+    });
+    document.getElementById('bulkActionBar').className = hasCompleteBtn ? 'p-2 bg-light border-bottom' : 'p-2 bg-light border-bottom d-none';
+    
+    // Setup select all checkbox
+    document.getElementById('selectAllOrders').onclick = function() {
+        const checkboxes = document.querySelectorAll('.order-checkbox:not(:disabled)');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        updateSelectedCount();
+    };
+    
+    // Setup individual checkboxes
+    document.querySelectorAll('.order-checkbox').forEach(cb => {
+        cb.onclick = updateSelectedCount;
+    });
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.order-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = count + ' dipilih';
+}
+
+async function markCompleted(orderId) {
+    if (!confirm('Tandai pesanan #'+orderId+' sebagai Selesai?')) return;
+    
+    try {
+        const res = await fetch('/admin/dashboard/mark-completed', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: orderId})
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+            alert(result.message);
+            // Hide the button in row
+            const btn = document.querySelector(`.complete-btn[data-id="${orderId}"]`);
+            if (btn) {
+                btn.outerHTML = '<span class="text-success small"><i class="fas fa-check-circle"></i> Done</span>';
+            }
+            loadCalendarData(currentMonth);
+        } else {
+            alert(result.message || 'Gagal menandai pesanan');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Terjadi kesalahan');
+    }
+}
+
+async function bulkMarkCompleted() {
+    const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+    const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    
+    if (ids.length === 0) {
+        alert('Pilih pesanan terlebih dahulu');
+        return;
+    }
+    
+    if (!confirm('Tandai ' + ids.length + ' pesanan sebagai Selesai?')) return;
+    
+    try {
+        const res = await fetch('/admin/dashboard/bulk-mark-completed', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ids: ids})
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+            alert(result.message);
+            loadCalendarData(currentMonth);
+            // Re-render modal
+            const dateStr = document.querySelector('.day-cell:not(.empty)').dataset.date;
+            if (dateStr) showDayOrders(dateStr);
+        } else {
+            alert(result.message || 'Gagal memproses');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Terjadi kesalahan');
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     // FullCalendar
@@ -311,7 +598,23 @@ document.addEventListener('DOMContentLoaded', function() {
         contentHeight: 400
     });
     calendar.render();
-
+    
+    // Load heatmap data
+    loadCalendarData(currentMonth);
+    
+    // Month navigation
+    document.getElementById('prevMonth').onclick = function() {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        loadCalendarData(currentMonth);
+    };
+    
+    document.getElementById('nextMonth').onclick = function() {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        loadCalendarData(currentMonth);
+    };
+    
     // Load chart data for monthly, weekly, stock charts
     fetch('/admin/dashboard/chart-data')
         .then(res => res.json())
@@ -440,5 +743,31 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(err => console.log('Chart data not available:', err));
 });
 </script>
+<style>
+.heatmap-grid { display: flex; flex-direction: column; gap: 2px; }
+.heatmap-row { display: flex; gap: 2px; }
+.heatmap-row.headers .day-header {
+    flex: 1; text-align: center; font-size: 0.7rem; font-weight: 600; 
+    color: var(--text-muted); padding: 4px 0;
+}
+.day-cell {
+    flex: 1; aspect-ratio: 1; border-radius: 6px; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; transition: all 0.2s ease; min-height: 40px;
+    border: 2px solid transparent;
+}
+.day-cell:hover { transform: scale(1.1); z-index: 1; border-color: var(--primary-color); }
+.day-cell.empty { background: transparent !important; cursor: default; }
+.day-number { font-size: 0.65rem; font-weight: 600; line-height: 1; }
+.day-badge {
+    font-size: 0.55rem; font-weight: 700; color: white;
+    background: rgba(0,0,0,0.3); border-radius: 50%;
+    width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+    position: absolute; bottom: 2px; right: 2px;
+}
+.bg-dark { background: rgba(76, 175, 80, 0.85) !important; color: white; }
+.bg-medium { background: rgba(76, 175, 80, 0.55) !important; color: white; }
+.bg-light { background: rgba(76, 175, 80, 0.25) !important; color: white; }
+</style>
 </body>
 </html>

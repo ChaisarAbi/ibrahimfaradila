@@ -16,11 +16,16 @@ class Reports extends BaseController
         $todayOrders = $orderModel->where('slaughter_date', date('Y-m-d'))->countAllResults();
         $completedOrders = $orderModel->where('status', 'Completed')->countAllResults();
         
+        // Get all packages for filter dropdown
+        $packageModel = new PackageModel();
+        $packages = $packageModel->orderBy('name', 'ASC')->findAll();
+        
         $data = [
-            'title'           => 'Laporan',
-            'total_orders'    => $totalOrders,
-            'today_orders'    => $todayOrders,
-            'completed_orders' => $completedOrders
+            'title'            => 'Laporan',
+            'total_orders'     => $totalOrders,
+            'today_orders'     => $todayOrders,
+            'completed_orders' => $completedOrders,
+            'packages'         => $packages
         ];
         
         return view('reports/index', $data);
@@ -343,25 +348,47 @@ class Reports extends BaseController
             ->setBody($pdfOutput);
     }
     
-    public function kitchenSheet($date = null)
+    public function kitchenSheet()
     {
-        if (!$date) $date = date('Y-m-d');
+        // Get filter parameters
+        $startDate = $this->request->getGet('start_date') ?? date('Y-m-d');
+        $endDate = $this->request->getGet('end_date') ?? date('Y-m-d');
+        $status = $this->request->getGet('status');
+        $animalType = $this->request->getGet('animal_type');
+        $packageId = $this->request->getGet('package_id');
         
         $orderModel = new OrderModel();
         $customerModel = new CustomerModel();
         $detailModel = new OrderDetailModel();
+        $packageModel = new PackageModel();
         $stockModel = new \App\Models\StockModel();
         
-        $orders = $orderModel->where('slaughter_date', $date)->findAll();
+        // Build query with filters using CI4's query builder
+        $orders = $orderModel
+            ->where('slaughter_date >=', $startDate)
+            ->where('slaughter_date <=', $endDate)
+            ->findAll();
+        
+        // Apply additional filters (CI4 where() doesn't support multiple ranges easily)
+        $filteredOrders = [];
+        foreach ($orders as $order) {
+            if (!empty($status) && $order['status'] !== $status) continue;
+            if (!empty($animalType) && $order['animal_type'] !== $animalType) continue;
+            if (!empty($packageId) && $order['package_id'] != $packageId) continue;
+            $filteredOrders[] = $order;
+        }
+        $orders = $filteredOrders;
         
         // Enrich orders with customer and detail data
         $enrichedOrders = [];
         foreach ($orders as $order) {
             $customer = $customerModel->find($order['customer_id']);
+            $package = $packageModel->find($order['package_id']);
             $details = $detailModel->where('order_id', $order['id_order'])->findAll();
             
             $order['customer_name'] = $customer ? $customer['name'] : '-';
             $order['child_name'] = $customer ? $customer['child_name'] : '-';
+            $order['package_name'] = $package ? $package['name'] : '-';
             $order['bone_menu'] = !empty($details) ? 'Gulai' : 'Gulai';
             $order['meat_menu'] = !empty($details) ? 'Sate' : 'Sate';
             $order['box_type'] = !empty($details) ? $details[0]['box_type'] : 'Box Premium';
@@ -373,18 +400,42 @@ class Reports extends BaseController
             $enrichedOrders[] = $order;
         }
         
-        // Get stock data
+        // Calculate totals for the filtered period
+        $totalKambing = 0;
+        $totalDomba = 0;
+        foreach ($enrichedOrders as $o) {
+            if (strtolower($o['animal_type']) === 'kambing') {
+                $totalKambing++;
+            } else {
+                $totalDomba++;
+            }
+        }
+        
+        // Get current stock data
         $stockKambing = $stockModel->where('item_name', 'Kambing')->first();
         $stockDomba = $stockModel->where('item_name', 'Domba')->first();
         
+        // Calculate total boxes
+        $totalBox = 0;
+        foreach ($enrichedOrders as $o) {
+            $totalBox += $o['jumlah_box'] ?? 0;
+        }
+        
+        $rangeLabel = ($startDate === $endDate) ? $startDate : $startDate . ' s/d ' . $endDate;
+        
         $data = [
-            'title'          => 'Lembar Kerja Dapur - ' . $date,
-            'orders'         => $enrichedOrders,
-            'tanggal'        => $date,
-            'details'        => [],
-            'stock_kambing'  => $stockKambing ? $stockKambing['quantity'] : 0,
-            'stock_domba'    => $stockDomba ? $stockDomba['quantity'] : 0,
-            'date'           => $date
+            'title'         => 'Lembar Kerja Dapur - ' . $rangeLabel,
+            'orders'        => $enrichedOrders,
+            'tanggal'       => $rangeLabel,
+            'start_date'    => $startDate,
+            'end_date'      => $endDate,
+            'details'       => [],
+            'stock_kambing' => $stockKambing ? $stockKambing['quantity'] : 0,
+            'stock_domba'   => $stockDomba ? $stockDomba['quantity'] : 0,
+            'total_kambing' => $totalKambing,
+            'total_domba'   => $totalDomba,
+            'total_box'     => $totalBox,
+            'date'          => $rangeLabel
         ];
         
         $html = view('reports/kitchen_sheet', $data);
@@ -396,7 +447,7 @@ class Reports extends BaseController
         $pdfOutput = $dompdf->output();
         return $this->response
             ->setContentType('application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="lembar_kerja_dapur_' . $date . '.pdf"')
+            ->setHeader('Content-Disposition', 'inline; filename="lembar_kerja_dapur_' . str_replace([' ', 's/d'], ['_', '_'], $rangeLabel) . '.pdf"')
             ->setBody($pdfOutput);
     }
 }
