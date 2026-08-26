@@ -39,6 +39,7 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('orders/getPackageInfo/(:num)', 'Orders::getPackageInfo/$1');
     $routes->get('orders/stats', 'Orders::stats');
     $routes->get('orders/pending-count', 'Orders::pendingCount');
+    $routes->post('orders/change-status/(:num)', 'Orders::changeStatus/$1');
     
     // Packages
     $routes->get('packages', 'Packages::index');

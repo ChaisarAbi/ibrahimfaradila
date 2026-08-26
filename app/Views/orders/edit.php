@@ -98,6 +98,18 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-warning"><i class="fas fa-info-circle me-1"></i>Status Pesanan</label>
+                                        <select name="status" class="form-select <?= $order['status'] == 'Pending' ? 'bg-warning-subtle' : ($order['status'] == 'Processing' ? 'bg-info-subtle' : ($order['status'] == 'Completed' ? 'bg-success-subtle' : ($order['status'] == 'Cancelled' ? 'bg-danger-subtle' : ''))) ?>">
+                                            <option value="Pending" <?= $order['status'] == 'Pending' ? 'selected' : '' ?>>⏳ Pending</option>
+                                            <option value="Scheduled" <?= $order['status'] == 'Scheduled' ? 'selected' : '' ?>>📅 Scheduled</option>
+                                            <option value="Processing" <?= $order['status'] == 'Processing' ? 'selected' : '' ?>>🔄 Processing</option>
+                                            <option value="Completed" <?= $order['status'] == 'Completed' ? 'selected' : '' ?>>✅ Completed</option>
+                                            <option value="Cancelled" <?= $order['status'] == 'Cancelled' ? 'selected' : '' ?>>❌ Cancelled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
                                     <div class="col-md-3">
                                         <label class="form-label">Tanggal Potong</label>
                                         <input type="date" name="slaughter_date" class="form-control" value="<?= $order['slaughter_date'] ?>" required>

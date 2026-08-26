@@ -354,7 +354,7 @@ AOS.init({ once: true });
 // Calendar Heatmap Data
 let calendarData = {};
 let currentYear = <?= date('Y') ?>;
-let currentMonth = <?= date('n') ?> - 1; // 0-indexed
+let currentMonth = <?= date('n') ?> - 1; // PHP months are 1-based, JS uses 0-indexed
 let selectedOrders = [];
 
 function getMonthLabel(year, month) {
@@ -461,8 +461,10 @@ function showDayOrders(dateStr) {
         if (order.status === 'Completed') statusColor = 'success';
         else if (order.status === 'Pending') statusColor = 'warning';
         else if (order.status === 'Processing') statusColor = 'info';
+        else if (order.status === 'Scheduled') statusColor = 'secondary';
+        else if (order.status === 'Cancelled') statusColor = 'danger';
         
-        html += '<tr>';
+        html += `<tr data-order-id="${order.id_order}">`;
         html += `<td><input class="form-check-input order-checkbox" type="checkbox" value="${order.id_order}" data-delivery="${order.delivery_date || ''}" ${isCompleted || !canComplete ? 'disabled' : ''}></td>`;
         html += `<td><strong>#${order.id_order}</strong></td>`;
         html += `<td>${order.customer_name}</td>`;
@@ -472,15 +474,14 @@ function showDayOrders(dateStr) {
         html += `<td><span class="badge badge-status bg-${statusColor}">${order.status}</span></td>`;
         html += '<td>';
         
-        if (!isCompleted && canComplete) {
-            html += `<button class="btn btn-sm btn-success complete-btn" data-id="${order.id_order}" onclick="markCompleted(${order.id_order})">
-                        <i class="fas fa-check"></i> Complete
-                     </button>`;
-        } else if (isCompleted) {
-            html += `<span class="text-success small"><i class="fas fa-check-circle"></i> Done</span>`;
-        } else {
-            html += `<span class="text-muted small">Delivery belum lewat</span>`;
-        }
+        // Always show status dropdown for changing status
+        html += `<select class="form-select form-select-sm status-select" onchange="updateOrderStatus(${order.id_order}, this.value)" style="font-size:0.7rem;padding:0.1rem 0.2rem;">
+            <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option value="Scheduled" ${order.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+            <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+            <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+        </select>`;
         
         html += '</td></tr>';
     });
@@ -516,46 +517,86 @@ function updateSelectedCount() {
     document.getElementById('selectedCount').textContent = count + ' dipilih';
 }
 
-async function markCompleted(orderId) {
-    if (!confirm('Tandai pesanan #'+orderId+' sebagai Selesai?')) return;
-    
+/**
+ * Update order status via AJAX
+ * @param {number} orderId - Order ID
+ * @param {string} newStatus - New status (Pending/Scheduled/Processing/Completed/Cancelled)
+ */
+async function updateOrderStatus(orderId, newStatus) {
     try {
         const res = await fetch('/admin/dashboard/mark-completed', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({id: orderId})
+            body: JSON.stringify({id: orderId, status: newStatus})
         });
         const result = await res.json();
         
         if (result.success) {
-            alert(result.message);
-            // Update the badge in modal row
-            const row = document.querySelector(`.complete-btn[data-id="${orderId}"]`)?.closest('tr');
-            if (row) {
-                const statusCell = row.querySelector('td:nth-child(7)');
-                if (statusCell) {
-                    statusCell.innerHTML = '<span class="badge badge-status bg-success">Completed</span>';
-                }
-                const actionCell = row.querySelector('td:nth-child(8)');
-                if (actionCell) {
-                    actionCell.innerHTML = '<span class="text-success small"><i class="fas fa-check-circle"></i> Done</span>';
-                }
-                // Disable checkbox
-                const cb = row.querySelector('.order-checkbox');
-                if (cb) cb.disabled = true;
+            // Update status badge and action cell in the modal row
+            const statusCell = document.querySelector(`[data-order-id="${orderId}"] td:nth-child(7)`);
+            const actionCell = document.querySelector(`[data-order-id="${orderId}"] td:nth-child(8)`);
+            
+            if (statusCell) {
+                let color = 'secondary';
+                if (newStatus === 'Completed') color = 'success';
+                else if (newStatus === 'Pending') color = 'warning';
+                else if (newStatus === 'Processing') color = 'info';
+                else if (newStatus === 'Cancelled') color = 'danger';
+                else if (newStatus === 'Scheduled') color = 'secondary';
+                
+                statusCell.innerHTML = '<span class="badge badge-status bg-' + color + '">' + newStatus + '</span>';
             }
-            // Re-render modal order list
-            const dateStr = document.querySelector('.day-cell:not(.empty)')?.dataset.date;
-            if (dateStr) showDayOrders(dateStr);
-            // Reload heatmap to reflect status change
-            loadCalendarData(currentMonth);
+            
+            // If switching to Pending or Processing, show Complete button again
+            // If switching to Completed or Cancelled, hide Complete button
+            if (actionCell) {
+                if (newStatus === 'Completed' || newStatus === 'Cancelled') {
+                    actionCell.innerHTML = '<span class="text-success small"><i class="fas fa-check-circle"></i> ' + newStatus + '</span>';
+                    // Disable checkbox for this row
+                    const cb = actionCell.closest('tr').querySelector('.order-checkbox');
+                    if (cb) cb.disabled = true;
+                } else {
+                    // Show complete/change button for non-completed statuses
+                    const canComplete = false; // Will be recalculated
+                    actionCell.innerHTML = `
+                        <select class="form-select form-select-sm status-select" onchange="updateOrderStatus(${orderId}, this.value)" style="font-size:0.7rem;padding:0.1rem 0.2rem;">
+                            <option value="Pending" ${newStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Scheduled" ${newStatus === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                            <option value="Processing" ${newStatus === 'Processing' ? 'selected' : ''}>Processing</option>
+                            <option value="Completed" ${newStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Cancelled" ${newStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>`;
+                }
+            }
+            
+            // Refresh the modal content after a short delay
+            setTimeout(() => {
+                const dateStr = document.querySelector('.day-cell:not(.empty)')?.dataset.date;
+                if (dateStr) showDayOrders(dateStr);
+                loadCalendarData(currentMonth);
+            }, 500);
+            
+            // Show brief success notification
+            showNotification('Success: Status order #' + orderId + ' changed to ' + newStatus, 'success');
         } else {
-            alert(result.message || 'Gagal menandai pesanan');
+            showNotification(result.message || 'Gagal mengubah status', 'danger');
         }
     } catch (err) {
         console.error(err);
-        alert('Terjadi kesalahan');
+        showNotification('Terjadi kesalahan saat mengubah status', 'danger');
     }
+}
+
+/**
+ * Show notification toast/banner
+ */
+function showNotification(message, type) {
+    const div = document.createElement('div');
+    div.className = 'alert alert-' + type + ' position-fixed';
+    div.style.cssText = 'top:20px;right:20px;z-index:9999;min-width:300px;animation:slideIn 0.3s ease;';
+    div.textContent = message;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
 }
 
 async function bulkMarkCompleted() {

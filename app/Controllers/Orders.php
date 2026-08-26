@@ -220,6 +220,7 @@ return $this->render('orders/edit', $data);
             'penyembelihan'         => $this->request->getVar('penyembelihan'),
             'use_photo_card'        => $this->request->getVar('use_photo_card') ? 1 : 0,
             'use_photo_certificate' => $this->request->getVar('use_photo_certificate') ? 1 : 0,
+            'status'                => $this->request->getVar('status'),
             'total_price'           => $this->request->getVar('total_price'),
         ]);
         
@@ -281,5 +282,45 @@ return $this->render('orders/edit', $data);
         $orderModel = new OrderModel();
         $count = $orderModel->where('status', 'Pending')->countAllResults();
         return $this->response->setJSON(['count' => $count]);
+    }
+    
+    public function changeStatus($id = null)
+    {
+        if (!$id) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Order ID tidak valid'
+            ])->setStatusCode(400);
+        }
+
+        $orderModel = new OrderModel();
+        $input = $this->request->getJSON();
+        $newStatus = $input?->status ?? null;
+        
+        // Validasi status
+        $validStatuses = ['Pending', 'Scheduled', 'Processing', 'Completed', 'Cancelled'];
+        if (!in_array($newStatus, $validStatuses)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Status tidak valid'
+            ])->setStatusCode(400);
+        }
+
+        // Cek apakah order exist
+        $order = $orderModel->find($id);
+        if (!$order) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Order tidak ditemukan'
+            ])->setStatusCode(404);
+        }
+
+        // Update status
+        $orderModel->update($id, ['status' => $newStatus]);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Status berhasil diubah ke ' . $newStatus
+        ]);
     }
 }
