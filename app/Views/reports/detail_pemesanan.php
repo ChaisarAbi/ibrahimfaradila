@@ -216,7 +216,7 @@
         <tr>
             <td class="label">Tanggal Antar</td>
             <td class="separator">:</td>
-            <td class="value"><?= date('d F Y', strtotime($order['delivery_date'])) ?></td>
+            <td class="value"><?= date('d F Y', strtotime($order['delivery_date'] ?? '')) ?><?php if (!empty($order['delivery_time'])): ?> <?= date('H:i', strtotime((string)$order['delivery_time'])) ?><?php endif; ?></td>
         </tr>
         <tr>
             <td class="label">Fitur Foto</td>

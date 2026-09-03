@@ -123,6 +123,10 @@
                                         <input type="date" name="delivery_date" class="form-control" value="<?= $order['delivery_date'] ?>" required>
                                     </div>
                                     <div class="col-md-3">
+                                        <label class="form-label">Jam Antar *</label>
+                                        <input type="time" name="delivery_time" class="form-control" value="<?= $order['delivery_time'] ?? '09:00' ?>" required>
+                                    </div>
+                                    <div class="col-md-3">
                                         <label class="form-label">Total Harga</label>
                                         <input type="text" class="form-control fw-bold text-success" id="display_price" value="Rp <?= number_format($order['total_price'], 0, ',', '.') ?>" readonly>
                                         <input type="hidden" name="total_price" id="total_price" value="<?= $order['total_price'] ?>">

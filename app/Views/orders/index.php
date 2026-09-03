@@ -1,8 +1,20 @@
 <?= view('templates/header') ?>
 <?= view('templates/sidebar') ?>
+<style>
+    .btn-group-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+    }
+    .btn-group-actions .btn {
+        margin: 0;
+        min-width: 32px;
+        padding: 4px 6px;
+    }
+</style>
 <main class="main-content">
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-custom mb-0">
                     <li class="breadcrumb-item"><a href="/admin/dashboard"><i class="fas fa-home me-1"></i>Home</a></li>
@@ -12,7 +24,7 @@
             <h4 class="page-title mb-0"><i class="fas fa-shopping-cart"></i>Data Pesanan</h4>
             <small class="text-muted">Kelola semua data pemesanan aqiqah</small>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <a href="/admin/orders/create" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>Tambah Pesanan
             </a>
@@ -61,7 +73,7 @@
                 </div>
                 <div class="col-md-2 text-end">
                     <label class="form-label small">&nbsp;</label>
-                    <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                         <span id="filterCount" class="badge bg-primary bg-opacity-10 text-primary">0 ditampilkan</span>
                     </div>
                 </div>
@@ -89,6 +101,7 @@
                             <th>Paket</th>
                             <th>Hewan</th>
                             <th>Tgl. Potong</th>
+                            <th>Tgl/Jam Antar</th>
                             <th>Total</th>
                             <th>Status</th>
                             <th style="width:200px">Aksi</th>
@@ -107,7 +120,7 @@
                                     <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;font-size:0.7rem;">
                                         <i class="fas fa-user"></i>
                                     </div>
-                                    <div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
                                         <strong><?= $o['customer_name'] ?? 'N/A' ?></strong>
                                         <small class="d-block text-muted" style="font-size:0.75rem;"><?= $o['child_name'] ?? '' ?></small>
                                     </div>
@@ -117,7 +130,7 @@
                             <td><?= $o['animal_type'] ?> <small class="text-muted">(<?= $o['animal_gender'] ?>)</small></td>
                             <td>
                                 <i class="far fa-calendar me-1 text-muted"></i><?= date('d/m/Y', strtotime($o['slaughter_date'])) ?><br>
-                                <small class="text-muted">Antar: <?= date('d/m/Y', strtotime($o['delivery_date'])) ?></small>
+                                <small class="text-muted">Antar: <?= date('d/m/Y', strtotime($o['delivery_date'] ?? '')) ?><?php if (!empty($o['delivery_time'])): ?> <?= date('H:i', strtotime((string)$o['delivery_time'])) ?><?php endif; ?></small>
                             </td>
                             <td><strong>Rp <?= number_format($o['total_price'], 0, ',', '.') ?></strong></td>
                             <td>
@@ -151,7 +164,7 @@
                         <?php endforeach; ?>
                         <?php if (empty($orders)): ?>
                         <tr id="emptyRow">
-                            <td colspan="8">
+                            <td colspan="9">
                                 <div class="empty-state">
                                     <i class="fas fa-inbox"></i>
                                     <h6>Belum Ada Pesanan</h6>
@@ -162,7 +175,7 @@
                         </tr>
                         <?php endif; ?>
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </div>
     </div>
@@ -172,25 +185,25 @@
 
 <!-- Detail Modal -->
 <div class="modal fade" id="detailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detail Pesanan #<span id="detailId"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="card bg-light border-0">
                             <div class="card-body py-3">
                                 <h6 class="fw-bold text-success"><i class="fas fa-user me-2"></i>Data Pemesan</h6>
-                                <table class="table table-sm table-borderless mb-0">
+                                <div class="table-responsive"><table class="table table-sm table-borderless mb-0">
                                     <tr><td class="text-muted" style="width:100px">Nama</td><td>: <strong id="dCustomer"></strong></td></tr>
                                     <tr><td class="text-muted">Anak</td><td>: <span id="dChild"></span></td></tr>
                                     <tr><td class="text-muted">Gender</td><td>: <span id="dGender"></span></td></tr>
                                     <tr><td class="text-muted">Telepon</td><td>: <span id="dPhone"></span></td></tr>
                                     <tr><td class="text-muted">Alamat</td><td>: <span id="dAddress"></span></td></tr>
-                                </table>
+                                </table></div>
                             </div>
                         </div>
                     </div>
@@ -198,13 +211,13 @@
                         <div class="card bg-light border-0">
                             <div class="card-body py-3">
                                 <h6 class="fw-bold text-success"><i class="fas fa-box me-2"></i>Detail Pesanan</h6>
-                                <table class="table table-sm table-borderless mb-0">
+                                <div class="table-responsive"><table class="table table-sm table-borderless mb-0">
                                     <tr><td class="text-muted" style="width:100px">Paket</td><td>: <strong id="dPackage"></strong></td></tr>
                                     <tr><td class="text-muted">Hewan</td><td>: <span id="dAnimal"></span></td></tr>
                                     <tr><td class="text-muted">Jumlah</td><td>: <span id="dJumlah"></span> ekor</td></tr>
                                     <tr><td class="text-muted">Potong</td><td>: <span id="dSlaughter"></span></td></tr>
                                     <tr><td class="text-muted">Antar</td><td>: <span id="dDelivery"></span></td></tr>
-                                </table>
+                                </table></div>
                             </div>
                         </div>
                     </div>
@@ -217,8 +230,8 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded-3">
-                            <div>
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded-3 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
                                 <strong>Status:</strong> <span id="dStatus" class="badge badge-status"></span>
                                 <span class="ms-3"><strong>Penyembelihan:</strong> <span id="dPenyembelihan"></span></span>
                             </div>
@@ -302,8 +315,8 @@ function showDetail(order) {
     document.getElementById('dPackage').textContent = order.package_name || '-';
     document.getElementById('dAnimal').textContent = (order.animal_type || '-') + ' (' + (order.animal_gender || '-') + ')';
     document.getElementById('dJumlah').textContent = order.jumlah_anak || 1;
-    document.getElementById('dSlaughter').textContent = order.slaughter_date || '-';
-    document.getElementById('dDelivery').textContent = order.delivery_date || '-';
+    document.getElementById('dSlaughter').textContent = (order.slaughter_date || '-') + (order.slaughter_time ? ' ' + order.slaughter_time.substring(0, 5) : '');
+    document.getElementById('dDelivery').textContent = (order.delivery_date || '-') + (order.delivery_time ? ' ' + order.delivery_time.substring(0, 5) : '');
     document.getElementById('dPenyembelihan').textContent = order.penyembelihan || '-';
     document.getElementById('dTotal').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(order.total_price || 0);
     

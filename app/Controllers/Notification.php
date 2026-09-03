@@ -284,6 +284,7 @@ class Notification extends BaseController
 
             $slaughterTime = substr($order['slaughter_time'], 0, 5) ?: '-';
             $deliveryDate = $order['delivery_date'] ? $this->formatTanggalShort($order['delivery_date']) : '-';
+            $deliveryTime = $order['delivery_time'] ? substr($order['delivery_time'], 0, 5) : '-';
             $birthDate = $customer['birth_date'] ? $this->formatTanggalShort($customer['birth_date']) : '-';
             $jmlAnakText = $order['jumlah_anak'] . ' ekor';
             $animalEmoji = $order['animal_type'] == 'Domba' ? '🐑' : '🐐';
@@ -307,8 +308,8 @@ class Notification extends BaseController
             }
 
             $orderDetails .= "\n⚙️ *Detail Operasional:*\n";
-            $orderDetails .= ' 🕒 Jam Potong : *' . $slaughterTime . " WIB*\n";
-            $orderDetails .= ' 🚚 Tgl Antar  : *' . $deliveryDate . "*\n";
+            $orderDetails .= ' 🕒 Jam Potong   : *' . $slaughterTime . " WIB*\n";
+            $orderDetails .= ' 🚚 Tgl/Jam Antar: *' . $deliveryDate . ' ' . $deliveryTime . "*\n";
             $orderDetails .= ' 🎥 Potong     : ' . ($order['penyembelihan'] ?: '-') . "\n";
             $orderDetails .= ' 📍 Alamat     : ' . ($customer['address'] ?: '-') . "\n";
             $orderDetails .= ' 🎁 Fitur       : ' . $fiturText . "\n\n";
@@ -379,9 +380,10 @@ class Notification extends BaseController
 
             $infofAntar = '';
             if ($order['delivery_date'] === $today) {
-                $infofAntar = "PENGANTARAN HARI INI!\nBarang akan diantar pada hari ini.\n";
+                $infofAntar = "PENGANTARAN HARI INI!\nJam pengantaran: " . ($order['delivery_time'] ? substr($order['delivery_time'], 0, 5) : '-') . "\n";
             } else {
-                $infofAntar = "Tanggal Antar: {$order['delivery_date']}\n";
+                $deliveryTimeStr = $order['delivery_time'] ? ' ' . substr($order['delivery_time'], 0, 5) : '';
+                $infofAntar = "Tanggal Antar: {$order['delivery_date']}{$deliveryTimeStr}\n";
             }
 
             $currentStatus = $order['status'];

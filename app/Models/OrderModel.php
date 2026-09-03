@@ -8,7 +8,7 @@ class OrderModel extends Model
     protected $primaryKey = 'id_order';
     protected $allowedFields = [
         'customer_id', 'package_id', 'animal_type', 'animal_gender',
-        'jumlah_anak', 'slaughter_date', 'delivery_date', 'slaughter_time',
+        'jumlah_anak', 'slaughter_date', 'delivery_date', 'delivery_time', 'slaughter_time',
         'penyembelihan', 'use_photo_card', 'use_photo_certificate',
         'photo_path', 'status', 'total_price'
     ];

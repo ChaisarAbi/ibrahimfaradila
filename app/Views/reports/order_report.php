@@ -115,7 +115,7 @@
                 <strong>Hewan:</strong> <?= $order['animal_type'] ?? '-' ?> (<?= $order['animal_gender'] ?? 'Jantan' ?>)<br>
                 <strong>Jumlah:</strong> <?= $order['jumlah_anak'] ?? '1' ?> ekor<br>
                 <strong>Tgl Potong:</strong> <?= date('d/m/Y', strtotime($order['slaughter_date'])) ?><br>
-                <strong>Tgl Antar:</strong> <?= date('d/m/Y', strtotime($order['delivery_date'])) ?><br>
+                <strong>Tgl/Jam Antar:</strong> <?= date('d/m/Y', strtotime($order['delivery_date'])) ?> <?= $order['delivery_time'] ? date('H:i', strtotime($order['delivery_time'])) : '' ?><br>
                 <strong>Status:</strong> <?= $order['status'] ?? '-' ?><br>
                 <strong>Total:</strong> Rp <?= number_format($order['total_price'] ?? 0, 0, ',', '.') ?>
             </td>

@@ -454,7 +454,7 @@ function showDayOrders(dateStr) {
     let html = '';
     
     data.orders.forEach(order => {
-        const canComplete = !order.delivery_date || new Date() >= new Date(order.delivery_date);
+        const canComplete = !order.delivery_date || new Date(order.delivery_date + 'T' + (order.delivery_time || '00:00:00')) <= new Date();
         const isCompleted = order.status === 'Completed' || order.status === 'Cancelled';
         
         let statusColor = 'secondary';

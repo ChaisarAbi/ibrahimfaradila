@@ -132,6 +132,10 @@
                                 <label class="form-label">Tanggal Antar</label>
                                 <input type="date" name="delivery_date" class="form-control form-control-sm" required>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Jam Antar *</label>
+                                <input type="time" name="delivery_time" class="form-control form-control-sm" value="09:00" required>
+                            </div>
                         </div>
                         <div class="row g-2 mb-2">
                             <div class="col-md-6">

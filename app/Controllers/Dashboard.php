@@ -47,6 +47,9 @@ class Dashboard extends BaseController
             ->get()
             ->getResultArray();
         
+        $monthlyRevenue = $orderModel->getMonthlyRevenue();
+        $monthlyRevenue = $monthlyRevenue ? (float)$monthlyRevenue : 0;
+        
         $data = [
             'title' => 'Dashboard',
             'total_orders' => $orderModel->countAllResults(),
@@ -54,7 +57,7 @@ class Dashboard extends BaseController
             'total_customers' => $customerModel->countAllResults(),
             'stock_hewan' => $stockModel->where('category', 'hewan')->findAll(),
             'total_stock' => $total_stock,
-            'monthly_revenue' => $orderModel->getMonthlyRevenue(),
+            'monthly_revenue' => $monthlyRevenue,
             'recent_orders' => $recent_orders,
             'upcoming_slaughter' => $upcoming_slaughter,
             'upcoming_date' => $tomorrow,
@@ -214,13 +217,14 @@ class Dashboard extends BaseController
             ]);
         }
         
-        // If switching to Completed or Scheduled, check delivery_date condition
+        // If switching to Completed or Scheduled, check delivery_datetime condition
         if (in_array($newStatus, ['Completed', 'Scheduled']) && $order['delivery_date']) {
-            $today = date('Y-m-d');
-            if ($newStatus === 'Completed' && $today < $order['delivery_date']) {
+            $now = new \DateTime();
+            $deliveryDatetime = new \DateTime($order['delivery_date'] . ' ' . ($order['delivery_time'] ?? '00:00:00'));
+            if ($newStatus === 'Completed' && $now < $deliveryDatetime) {
                 return $this->response->setJSON([
                     'success' => false, 
-                    'message' => 'Delivery date belum lewat untuk mark Completed (Today: ' . $today . ', Delivery: ' . $order['delivery_date'] . ')'
+                    'message' => 'Belum bisa mark Completed - Pengantaran belum lewat (Delivery: ' . $order['delivery_date'] . ' ' . ($order['delivery_time'] ?? '-') . ', Current: ' . $now->format('Y-m-d H:i') . ')'
                 ]);
             }
         }
@@ -268,7 +272,9 @@ class Dashboard extends BaseController
             $order = $db->table('orders')->where('id_order', $orderId)->get()->getRowArray();
             
             if ($order && $order['status'] !== 'Completed' && $order['status'] !== 'Cancelled') {
-                if (!$order['delivery_date'] || date('Y-m-d') >= $order['delivery_date']) {
+                $now = new \DateTime();
+                $deliveryDatetime = new \DateTime($order['delivery_date'] . ' ' . ($order['delivery_time'] ?? '00:00:00'));
+                if (!$order['delivery_date'] || $now >= $deliveryDatetime) {
                     $db->table('orders')
                         ->where('id_order', $orderId)
                         ->set(['status' => 'Completed'])

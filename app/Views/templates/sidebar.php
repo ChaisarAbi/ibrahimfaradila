@@ -293,6 +293,8 @@
 
 /* Main Content Adjustment */
 .main-content {
+    overflow-x: hidden;
+    overflow-y: auto;
     margin-left: var(--sidebar-width);
     padding: 24px 28px;
     min-height: 100vh;
@@ -317,6 +319,8 @@
     }
     
     .main-content {
+    overflow-x: hidden;
+    overflow-y: auto;
         margin-left: 0;
         padding: 16px;
         padding-top: 60px;

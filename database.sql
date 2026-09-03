@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS orders (
     jumlah_anak INT DEFAULT 1,
     slaughter_date DATE NOT NULL,
     delivery_date DATE NOT NULL,
+    delivery_time TIME NOT NULL,
     slaughter_time TIME,
     penyembelihan ENUM('Dokumentasi', 'Video Call', 'Visit') NOT NULL,
     use_photo_card BOOLEAN DEFAULT FALSE,

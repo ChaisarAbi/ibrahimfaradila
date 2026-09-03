@@ -90,6 +90,7 @@ return $this->render('orders/create', $data);
             'jumlah_anak'           => $jumlah_anak,
             'slaughter_date'        => $this->request->getVar('slaughter_date'),
             'delivery_date'         => $this->request->getVar('delivery_date'),
+            'delivery_time'         => $this->request->getVar('delivery_time'),
             'slaughter_time'        => $this->request->getVar('slaughter_time'),
             'penyembelihan'         => $this->request->getVar('penyembelihan'),
             'use_photo_card'        => $this->request->getVar('use_photo_card') ? 1 : 0,
@@ -216,6 +217,7 @@ return $this->render('orders/edit', $data);
             'jumlah_anak'           => $jumlah_anak,
             'slaughter_date'        => $this->request->getVar('slaughter_date'),
             'delivery_date'         => $this->request->getVar('delivery_date'),
+            'delivery_time'         => $this->request->getVar('delivery_time'),
             'slaughter_time'        => $this->request->getVar('slaughter_time'),
             'penyembelihan'         => $this->request->getVar('penyembelihan'),
             'use_photo_card'        => $this->request->getVar('use_photo_card') ? 1 : 0,
@@ -295,7 +297,7 @@ return $this->render('orders/edit', $data);
 
         $orderModel = new OrderModel();
         $input = $this->request->getJSON();
-        $newStatus = $input?->status ?? null;
+        $newStatus = isset($input->status) ? $input->status : null;
         
         // Validasi status
         $validStatuses = ['Pending', 'Scheduled', 'Processing', 'Completed', 'Cancelled'];
