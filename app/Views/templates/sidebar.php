@@ -429,6 +429,16 @@
             </a>
         </div>
         <?php endif; ?>
+
+        <!-- Kalender (Admin & RPH) -->
+        <?php if ($userRole === 'admin' || $userRole === 'rph'): ?>
+        <div class="sidebar-item">
+            <a href="/admin/calendar" class="sidebar-link <?= strpos(current_url(), '/admin/calendar') !== false ? 'active' : '' ?>">
+                <i class="fas fa-calendar-week"></i>
+                <span class="link-text">Kalender</span>
+            </a>
+        </div>
+        <?php endif; ?>
         
         <!-- Dapur (Admin & Dapur) -->
         <?php if ($userRole === 'admin' || $userRole === 'dapur'): ?>

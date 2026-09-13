@@ -81,8 +81,12 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('scheduler', 'Scheduler::index', ['filter' => 'rph']);
     $routes->post('scheduler/run', 'Scheduler::run', ['filter' => 'rph']);
     
-    // Calendar (Admin & RPH only)
+    // Calendar (Admin & RPH only) - same heatmap as dashboard with status management
+    $routes->get('calendar', 'Calendar::index', ['filter' => 'rph']);
     $routes->get('calendar/events', 'Calendar::getEvents', ['filter' => 'rph']);
+    $routes->get('calendar/orders', 'Calendar::calendarOrders', ['filter' => 'rph']);
+    $routes->post('calendar/mark-completed', 'Calendar::markCompleted', ['filter' => 'rph']);
+    $routes->post('calendar/bulk-mark-completed', 'Calendar::bulkMarkCompleted', ['filter' => 'rph']);
     
     // Notifications
     $routes->get('notifications/send-recap-today', 'Notification::sendTodayRecap');
